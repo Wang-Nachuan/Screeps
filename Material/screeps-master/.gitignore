@@ -1,0 +1,7 @@
+dist/
+node_modules/
+slave_*.log
+npm-debug.log
+token.json
+testcases.json
+.vscode/

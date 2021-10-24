@@ -1,0 +1,8 @@
+亚索搬运工默认为从NeedEnergyGroup中建筑的NeedSources数组的第一位RESOURCE_*变量为搬运目标，从UseContainerGroup中选取有这个资源的存储单位 搬运到目标，例如将某一Lab的NeedSources[0]设为RESOURCE_OXYGEN ，那么creep将会从terminal、storage、和其他挨着资源点的箱子里选取一个有这个资源并且大于自己剩余容量的存储单位中搬运到目标
+
+在TheSecondStageRespawn中400行左右有WeightGroup 可以将建筑类型填入到不同的WeightGroup来实现更改优先级，亚索搬运工将第一时间搬运给高优先级的建筑... 建议不要将持续需要资源的建筑填入高优先级，否则将会一直给它填充 如果你不想给他持续填充 
+可以在TheThirdStageDeliver第23行加入&& checkGroup0.structureType != STRUCTURE_XXX 
+
+两个资源点相差12格以内建议一个搬运工
+24格建议2个搬运工
+50格可以使用LINK 在UseContainer中我设置了如果Link在UseContainer附近，将会与其绑定 搬运工将不会从此存储单位中拿取资源，你可以自己撰写脚本让专门的搬运工搬运到LINK中
