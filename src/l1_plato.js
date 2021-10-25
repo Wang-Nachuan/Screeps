@@ -6,53 +6,57 @@ class Plato extends Archive {
     constructor() {
         super();
         Memory.taskQueue = {Emergency: [], Fixed: [], Dynamic: []};
+        Memory.taskNum = {Emergency: 0, Fixed: 0, Dynamic: 0};
     }
 
-    /*---------------Shortcut to memory--------------*/
+    /*------------------------------Shortcut to memory-----------------------------*/
     get taskQueue() {
         return Memory.taskQueue;
     }
 
+    get taskNum() {
+        return Memory.taskNum;
+    }
+
     
-    /*--------------------Methods--------------------*/
+    /*-----------------------------------Methods-----------------------------------*/
 
     /* Function: receive a desired amount of change of a item, generate a task, add it to the task queue
        Input
-       - item: name (global constant) of the item
-       - itemType: (not completed) energy - 0
-       - amountType: increment - 0; target - 1
-       - amount: desired amount of increment/target in this item
-       - taskType: S - Single, P - Persistent, EE - Event & Emergency, ED - Event & Dynamic
-       Return
-       - 0: success / -1: requirement has been met already (happen in "target" mode) / -2: allowable capacity is not enough
-       Note: users should check for themselves that the allowable capacity is enough
+       - taskType: (cont) Task type
+       - taskHandler: (function reference list) Functions of the task phases
+       - taskCheck: (function reference list) Functions that check the end of task phases (jump if true)
+       - taskChara: (cont) Task characteristics (SINGLE, PERSIS, etc.)
+       Return: none
+       * Note: users should check for themselves the right condition to issue a specific task
     */
-    setTask(item, itemType, amount, amountType, taskType) {
+    setTask(taskType, taskHandler, taskCheck, taskChara) {
 
-        var incre = 0;
+        var task = Task(taskType, taskHandler, taskCheck);
 
-        // Error check
-        if (amountType == 0) {
-            incre = amountType;
-            // Check -2
-            if (incre > Store.getFreeCapacity(item)) {
-                return -2;
-            }
+        if (taskChara == C.EVEEM) {
+            this.taskNum.Emergency = this.taskQueue.Emergency.push(task);
+        } else if (taskChara == C.PERSIS) {
+            this.taskNum.Fixed = this.taskQueue.Fixed.push(task);
         } else {
-            incre = amountType - Store.getUsedCapacity(item);
-            // Check -1
-            if (incre <= 0) {
-                return -1;
-            }
-            // Check -2
-            if (incre > Store.getFreeCapacity(item)) {
-                return -2;
-            }
+            this.taskNum.Dynamic = this.taskQueue.Dynamic.push(task);
         }
+    }
 
-        // Generate task object
-
-        return;
+    /* Function: 
+       - check the terminate condition of each active task in the queue
+       - assign appropriate amount (currently 1) of workers to each task, excute handler on those workers
+       - remove any task that is finished
+       - activate sleeping tasks if there are remaining workers / send some task to sleep if no worker remains
+       - * tasks are assigned in Emergency > Fixed > Dynamic order
+       Input
+       - : 
+       - : 
+       Return
+       - 
+    */
+    assignTask() {
+        ;
     }
 
 
@@ -64,6 +68,47 @@ class Plato extends Archive {
        - 
     */
 
+}
+
+
+
+class Task {
+
+    constructor(taskType, taskHandler, taskCheck) {
+        this.taskType = taskType;           // (cont) Task type
+        this.taskHandler = taskHandler;     // (function reference list) Functions of the task phases
+        this.taskCheck = taskCheck;         // (function reference list) Functions that check the end of task phases (jump if true)
+        this.phaseCount = 0;                // (int) Index of current task functions in above lists
+        this,phaseMax = taskHandler.length; // (int) Number of phase
+        this.workerList = [];               // (creep object list) Workers that are working on the task
+        this.isActive = false;              // (boolean) Is the task being excuted by workers
+    }
+
+    /* Function: check and update the phase of task
+       Input: none
+       Return: 0 if stay in current phase, 1 if move to next phase, 2 if the task has been complete
+    */
+    check() {
+        var returnValue = 0;
+        if (this.taskCheck[this.phaseCount]()) {
+            this.phaseCount += 1;
+            returnValue = 1;
+        }
+        if (this.phaseCount >= this.phaseMax) {
+            returnValue = 2;
+        }
+        return returnValue;
+    }
+
+    /* Function: excute task handler for all creeps belonging to a task
+       Input: none
+       Return: none
+    */
+    execute() {
+        for (creep in this.workerList) {
+            this.taskHandler[this.phaseCount](creep);
+        }
+    }
 }
 
 module.exports = Plato;
