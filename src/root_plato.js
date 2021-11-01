@@ -8,8 +8,13 @@ class Plato {
     static init() {
         // Initialize memory when run constructor at the first time
         if (Memory.initFlag == 0) {
-            Memory.initFlag = 1;
 
+            Memory.initFlag = 1;
+            
+            // Name list of newly born objests
+            Memory.babyWorkerList = [];
+            Memory.babySoldierList = [];
+            Memory.babySpawnList = [];
             // ID list
             Memory.workerList = [];
             Memory.soldierList = [];
@@ -86,18 +91,27 @@ class Plato {
         var loop1 = [Memory.workerList, Memory.workerTaskQueue, Memory.workerTaskNum, taskList_worker, Game.creeps];
         var loop2 = [Memory.soldierList, Memory.soldierTaskQueue, Memory.soldierTaskNum];
         var loop3 = [Memory.spawnList, Memory.spawnTaskQueue, Memory.spawnTaskNum, taskList_spawn, Game.spawms];
-        var nameList, taskQueue, taskNum, objNum;
+        var objNameList, taskQueue, taskNum, objNum;
 
         for (var i in [loop1, loop3]) {
-            nameList = i[0];
+            objNameList = i[0];
             taskQueue = i[1];
             taskNum = i[2];
             taskList = i[3];
             objRef = i[4]
-            objNum = nameList.length;   // Remaining available objects
+            objNum = objNameList.length;   // Remaining available objects
 
+            // Iterate through three queues
             for (var j in ['Emergency', 'Fixed', 'Dynamic']) {
                 for (var task in taskQueue[j]) {
+
+                    // 1. Check terminat of phase/whole task
+                    if (2 == task.check()) {
+                        // Add 
+                        // Remove task from queue
+                    }
+
+
                     if (task.isActive) {
                         // Check terminate condition of task
                         if  (2 == task.check()) {
@@ -109,7 +123,7 @@ class Plato {
                         // Allocate a object to the task if possible
                         if (objNum > 0) {
                             objNum -= 1;
-                            task.objectList.push(objRef[nameList[objNum]]);
+                            task.objectList.push(objRef[objNameList[objNum]]);
                             // Have some problems to be fixed
                         }
                     }

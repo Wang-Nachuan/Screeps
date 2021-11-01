@@ -17,10 +17,10 @@ function task0_handler_0(creep, para) {
     }
     else {
         var targets = creep.room.find(FIND_STRUCTURES, {
-                filter: (structure) => {
-                    return (structure.structureType == STRUCTURE_EXTENSION || structure.structureType == STRUCTURE_SPAWN) &&
-                        structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
-                }
+            filter: (structure) => {
+                return (structure.structureType == STRUCTURE_EXTENSION || structure.structureType == STRUCTURE_SPAWN) &&
+                    structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+            }
         });
         if(targets.length > 0) {
             if(creep.transfer(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
@@ -35,7 +35,20 @@ function task0_check_0() {
 function task0_end() {
     return null;
 }
-var task1_harvEnergy = new TaskHandler([task0_handler_0], [task0_check_0], task0_end, [null]);
+function task0_pend_0(creepList, para) {
+    var targets = Game.creeps[creepList[0]].room.find(FIND_STRUCTURES, {
+        filter: (structure) => {
+            return (structure.structureType == STRUCTURE_EXTENSION || structure.structureType == STRUCTURE_SPAWN) &&
+                structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+        }
+    });
+    if (targets.length == 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+var task1_harvEnergy = new TaskHandler([task0_handler_0], [task0_check_0], task0_end, [task0_pend_0]);
 
 /* Task 1 - upgrade room controller
    Type: worker
@@ -71,7 +84,10 @@ function task1_check_0() {
 function task1_end() {
     return null;
 }
-var task1_upgradeRoom = new TaskHandler([task1_handler_0], [task1_check_0], task1_end, [null]);
+function task1_pend_0(creepList, para) {
+    return false;
+}
+var task1_upgradeRoom = new TaskHandler([task1_handler_0], [task1_check_0], task1_end, [task1_pend_0]);
 
 /*-----------------------------Export Task List------------------------------*/
 

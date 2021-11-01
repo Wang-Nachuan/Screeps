@@ -10,10 +10,15 @@ const C = require("./assist_constant");
    Additional input:
         Para[0] - body
         Para[1] - name
+        Para[2] - type of creep
 */
 function task0_handler_0(spawn, para) {
     spawn.spawnCreep(para[0], para[1]);
-    Memory.workerList.push(para[1]);
+    if (para[2] == C.WORKER) {
+        Memory.babyWorkerList.push(para[1]);
+    } else {
+        Memory.babySoldierList.push(para[1]);
+    }
 }
 function task0_check_0() {
     return true;
