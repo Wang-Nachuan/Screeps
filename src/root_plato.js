@@ -107,7 +107,7 @@ class Plato {
 
                     // 1. Check terminat of phase/whole task
                     if (2 == task.check()) {
-                        // Add 
+                        // Set the object to free
                         // Remove task from queue
                     }
 
