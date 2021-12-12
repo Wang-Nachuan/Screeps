@@ -6,16 +6,30 @@ class Constant {
     static NORMAL = 2;
     static TRIVIAL = 3;
 
-    // Task type, e.i. the performer of task
-    static WORKER = 0;     // Worker
-    static SOLDIER = 1;    // Soldier
-    static SPAWN = 2;      // Spawn
+    /*----------------------------------- Plato -----------------------------------*/
 
-    // Task tage
-    static SINGLE = 0;     // Single 
-    static PERSIS = 1;     // Persistent 
-    static EVEEM = 2;      // Event & Emergency 
-    static EVEDY = 3;      // Event & Dynamic
+    // Task array constants
+    static lengthRealTimeArray = 3;
+    static lengthDynamicArray = 5;
+
+    /*----------------------------------- TaskStamp -----------------------------------*/
+
+    // Desired task performer
+    static WORKER = 0;      // Worker
+    static SOLDIER = 1;     // Soldier
+    static SPAWN = 2;       // Spawn
+
+    // Task type
+    static REALTIME = 0;    // Real-time
+    static DYNAMIC = 1;     // Dynamic
+
+    // Task state
+    static ACTIVE = 0;      // Active
+    static PENDING = 1;     // Pending
+
+    // Phase state
+    static MOVE = 0;        // Move
+    static ACTION = 1;      // Action
 
     // Item type
     static ENERGE = 0;         // Energy
@@ -23,6 +37,8 @@ class Constant {
     static DEPOSIT = 2;        // Deposit
     static COMPOSITE = 3;      // Composite
     static COMMODITIY = 4;     // Commodity
+
+    
 
     // Worker task index
     static TASK_WORKER_HARVEST_ENERGY = 0;      // Worker Task 0 - harvest energy

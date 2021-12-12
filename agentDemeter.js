@@ -1,5 +1,5 @@
-var Plato = require('./root_plato');
-const C = require("./assist_constant");
+var Plato = require('./kernelPlato');
+const C = require("./constant");
 
 class Demeter extends Plato {
 
