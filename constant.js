@@ -1,4 +1,4 @@
-class Constant {
+class Const {
 
     // Priority (the smaller the higher the priority)
     static HOLYSHIT=  0;
@@ -31,6 +31,15 @@ class Constant {
     static MOVE = 0;        // Move
     static ACTION = 1;      // Action
 
+    /*----------------------------------- TaskHandler -----------------------------------*/
+
+    // Return flag of action functions
+    static OCCUPY = 0;      // Occupy
+    static FINISH = 1;      // Finish
+    static PEND = 2;        // Pend
+    static TERMINATE = 3    // Terminate (task stop normally)
+    static HALT = 4;        // Halt (task stop unnormally)
+
     // Item type
     static ENERGE = 0;         // Energy
     static MINERAL = 1;        // Mineral
@@ -48,4 +57,4 @@ class Constant {
     static TASK_SPAWN_CREAT_CREEP_I = 0;       // Spawn Task 0 - creat creep I
 }
 
-module.exports = Constant;
+module.exports = Const;
