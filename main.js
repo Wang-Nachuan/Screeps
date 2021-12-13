@@ -7,10 +7,10 @@ const taskList_spawn = require('./taskListSpawn');
 // Memory initialization (order matters)
 Memory.initFlag = 0;
 Plato.init();
-// Demeter.init();
 
 // Main loop
 module.exports.loop = function () {
 
+    // TaskStamp.execute(Memory.taskArray.realTime[0][0], taskList_worker);
 
 }
