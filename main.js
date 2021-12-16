@@ -3,7 +3,6 @@ const Demeter = require('./agentDemeter');
 const TaskStamp = require('./taskStamp');
 
 // Memory initialization (order matters)
-console.log('[1]');
 if (Memory.initFlag != 1) {
     Memory.initFlag = 0;
     Plato.init();

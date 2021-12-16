@@ -96,7 +96,6 @@ class Plato {
                     spawn.memory.busy = false;
                     Memory.newObject.push(request.creepName);
                     Memory.spawnQueue.accepted.splice(cursor, 1);
-                    console.log('[1]');
                 }
 
                 cursor += 1;

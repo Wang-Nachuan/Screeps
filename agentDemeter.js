@@ -30,10 +30,8 @@ class Demeter extends Plato {
         }
         if (Memory.agents.Demeter.timelineCursor == 1) {
             Memory.agents.Demeter.timelineCursor += 1;
-            var stamp0 = new TaskStamp(0, C.TASKSTAMP_TASKTYPE_REALTIME, C.TASKSTAMP_PERFORMER_WORKER, 3, [1, 2, 0], [[], [], []], [[], [], []], [[], [], []]);
-            // var stamp1 = new TaskStamp(0, C.TASKSTAMP_TASKTYPE_REALTIME, C.TASKSTAMP_PERFORMER_WORKER, 3, [1, 2, 0], [[], [], []], [[], [], []], [[], [], []]);
-            this.setTask(stamp0, 2);
-            // this.setTask(stamp1, 0);
+            var stamp0 = new TaskStamp(0, C.TASKSTAMP_TASKTYPE_REALTIME, C.TASKSTAMP_PERFORMER_WORKER, 2, [[], []], [[], []], [[], []]);
+            this.setTask(stamp0, 4);
         }
     }
 
