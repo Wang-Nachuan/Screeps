@@ -36,6 +36,7 @@ var task0_moveList = [
                     structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
             }
         })[0];
+        // Need to consider boundary condition!
         paraList.move[1][0] = target.id;
         if(creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
             return target;
