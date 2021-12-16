@@ -25,13 +25,17 @@ class Demeter extends Plato {
     static routine() {
         if (Memory.agents.Demeter.timelineCursor == 0) {
             Memory.agents.Demeter.timelineCursor += 1;
-            this.setSpawnReq(C.WORKER, [WORK, CARRY, MOVE, MOVE, MOVE]);
-            this.setSpawnReq(C.WORKER, [WORK, CARRY, MOVE, MOVE, MOVE]);
+            var stamp0 = new TaskStamp(0, C.TASKSTAMP_TASKTYPE_REALTIME, C.SPAWN, 1, [[C.WORKER, [WORK, CARRY, MOVE, MOVE, MOVE]]], [[]]);
+            var stamp1 = new TaskStamp(0, C.TASKSTAMP_TASKTYPE_REALTIME, C.SPAWN, 1, [[C.WORKER, [WORK, CARRY, MOVE, MOVE, MOVE]]], [[]]);
+            this.setTask(stamp0, 0);
+            this.setTask(stamp1, 0);
         }
         if (Memory.agents.Demeter.timelineCursor == 1) {
             Memory.agents.Demeter.timelineCursor += 1;
-            var stamp0 = new TaskStamp(0, C.TASKSTAMP_TASKTYPE_REALTIME, C.TASKSTAMP_PERFORMER_WORKER, 2, [[], []], [[], []], [[], []]);
-            this.setTask(stamp0, 4);
+            var stamp2 = new TaskStamp(0, C.TASKSTAMP_TASKTYPE_REALTIME, C.WORKER, 2, [[], []], [[], []]);
+            var stamp3 = new TaskStamp(0, C.TASKSTAMP_TASKTYPE_REALTIME, C.WORKER, 2, [[], []], [[], []]);
+            this.setTask(stamp2, 2);
+            this.setTask(stamp3, 0);
         }
     }
 

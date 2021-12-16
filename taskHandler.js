@@ -18,7 +18,6 @@ class TaskHandler {
         */
         this.moveList = moveList        // (List of function references) Produce target location in each phase
         this.actionList = actionList    // (List of function references) Do somthing after reaching the location
-        this.endList = endList          // (List of function references) Do / Update something (other than time stamp) when a phase finished
     }
 }
 

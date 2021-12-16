@@ -6,18 +6,18 @@ class Const {
     static PRIO_HOLYSHIT=  0;
     static PRIO_URGENT =  1;
     static PRIO_NORMAL = 2;
-    static PRIO_TRIVIAL = 3;
 
     // Roles of objects
-    static WORKER = 'Worker';
-    static SOLDIER = 'Soldier';
-    static SPAWN = 'Spawn';
+    static SPAWN = 'spawn';
+    static SOLDIER = 'soldier';
+    static WORKER = 'worker';
+    
 
     /*----------------------------------- Plato -----------------------------------*/
 
     // Task array constants
-    static PLATO_LEN_TASKARRAY_REALTIME = 5;
-    static PLATO_LEN_TASKARRAY_DYNAMIC = 5;
+    static PLATO_LEN_TASKARRAY_REALTIME = 3;
+    static PLATO_LEN_TASKARRAY_DYNAMIC = 3;
 
     // Input of setSpawnReq function
     // Same as "Roles of objects" in General section

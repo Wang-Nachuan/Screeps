@@ -11,8 +11,8 @@ if (Memory.initFlag != 1) {
 
 // Main loop
 module.exports.loop = function () {
-
+    // Order matters
     Demeter.routine();
     Plato.routine();
-    // console.log(Game.creeps['Worker0'].memory.busy);
+    
 }

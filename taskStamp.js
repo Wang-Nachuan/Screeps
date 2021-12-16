@@ -8,7 +8,7 @@ const ERROR = 2;
 
 class TaskStamp {
 
-    constructor(taskIdx, taskType, taskPerformer, phaseNum, paraList_move, paraList_action, paraList_end) {
+    constructor(taskIdx, taskType, taskPerformer, phaseNum, paraList_move, paraList_action) {
         // Set when TaskStamp is created
         this.taskIdx = taskIdx;                 // (const) Task index
         this.taskType = taskType;               // (const) Task type (real-time/dynamic)
@@ -16,8 +16,7 @@ class TaskStamp {
         this.phaseNum = phaseNum;               // (int) Number of phase
         this.paraList = {                       // (lists set of input lists) Extra inputs of taskExecute function at each phase
             move: paraList_move,                // Also can be used to pass data between phases
-            action: paraList_action, 
-            end:paraList_end
+            action: paraList_action
         };
         // Set later
         this.phaseCursor = 0;                   // (int) Index of current task functions in above lists
@@ -35,15 +34,17 @@ class TaskStamp {
        - (const) ERROR if cannot move the desired postion (may caused by many reasons)
     */
     static moveToStd(target, creep) {
+        if (creep.memory.role == C.WORKER || creep.memory.role == C.SOLDIER) {
+            var returnVal = creep.moveTo(target);
 
-        var returnVal = creep.moveTo(target);
-
-        if (returnVal == OK) {
-            return MOVING;
+            if (returnVal == OK) {
+                return MOVING;
+            } else {
+                return ERROR;
+            }
         } else {
-            return ERROR;
+            return MOVING;
         }
-        
     }
 
     /* Execute: excute task handler for all creeps belonging to a task, update task stamp if needed
@@ -59,11 +60,12 @@ class TaskStamp {
         if (taskStamp.phaseState == C.TASKSTAMP_PHASESTATE_MOVE) {
             // Move
             var target = handler.moveList[taskStamp.phaseCursor](creep, taskStamp.paraList);
-
+            
             if (target == C.TASKHANDLER_MOVE_RET_FLG_ERROR) {
                 /* TODO: handle failure */
                 console.log('[ERROR] In taskStamp.js.');
             } else if (target == C.TASKHANDLER_MOVE_RET_FLG_REACH) {
+                
                 taskStamp.phaseState = C.TASKSTAMP_PHASESTATE_ACTION;
             } else {
                 var moveFlage = this.moveToStd(target, creep);
@@ -79,8 +81,6 @@ class TaskStamp {
             var branchIdx = ret[1];
 
             if (actionFlage == C.TASKHANDLER_ACTION_RET_FLG_FINISH) {
-                // Execute finish function
-                handler.endList[taskStamp.phaseCursor](creep, taskStamp.paraList);
                 // Update time stamp
                 taskStamp.phaseState = C.TASKSTAMP_PHASESTATE_MOVE;
                 taskStamp.phaseCursor = branchIdx;

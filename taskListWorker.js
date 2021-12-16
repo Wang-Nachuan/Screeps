@@ -1,14 +1,20 @@
 var TaskHandler = require('./taskHandler');
-var TaskStamp = require('./taskStamp');
 const C = require("./constant");
 
 /*--------------------------- Standard functions ----------------------------*/
+
+/* find_source: 
+
+*/
+
+/* find_struct: 
+
+*/
 
 /*-----------------------------------Tasks-----------------------------------*/
 
 /* Task 0 - harvest energy
    Type: real-time
-   Priority: 4
    Phase: 2
 */
 var task0_moveList = [
@@ -61,12 +67,7 @@ var task0_actionList = [
     },
 ];
 
-var task0_endList = [
-    function(creep, paraList) {},
-    function(creep, paraList) {},
-];
-
-var task0_harvestEnergy = new TaskHandler(task0_moveList, task0_actionList, task0_endList);
+var task0_harvestEnergy = new TaskHandler(task0_moveList, task0_actionList);
 
 
 
@@ -77,8 +78,7 @@ var task0_harvestEnergy = new TaskHandler(task0_moveList, task0_actionList, task
 */
 // var taski_moveList = [];
 // var taski_actionList = [];
-// var taski_endList = [];
-// var taski_name = new TaskHandler(taski_moveList, taski_actionList, taski_endList);
+// var taski_name = new TaskHandler(taski_moveList, taski_actionList);
 // var taski_stamp = new TaskStamp();
 
 /*-----------------------------Export Task List------------------------------*/
