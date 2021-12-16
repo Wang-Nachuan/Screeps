@@ -8,18 +8,19 @@ const ERROR = 2;
 
 class TaskStamp {
 
-    constructor(taskIdx, taskType, taskPerformer, phaseNum, phaseBranch, paraList_move, paraList_action, paraList_end) {
+    constructor(taskIdx, taskType, taskPerformer, phaseNum, paraList_move, paraList_action, paraList_end) {
+        // Set when TaskStamp is created
         this.taskIdx = taskIdx;                 // (const) Task index
         this.taskType = taskType;               // (const) Task type (real-time/dynamic)
         this.taskPerformer = taskPerformer;     // (const) Desired task performer
         this.phaseNum = phaseNum;               // (int) Number of phase
-        this.phaseBranch = phaseBranch;         // (list of int) The i-th int is the next phase index of current phase
         this.paraList_move = paraList_move      // (list of input lists) Extra inputs of taskExecute function at each phase
         this.paraList_action = paraList_action
         this.paraList_end = paraList_end
+        // Set later
         this.phaseCursor = 0;                   // (int) Index of current task functions in above lists
-        this.id = '';                           // (string) ID of creep that is working on the task
-        this.taskState = C.TASKSTAMP_TASKSTATE_ACTIVE;              // (const) Active / Pending
+        this.id = null;                         // (string) ID of creep that is working on the task
+        this.taskState = C.TASKSTAMP_TASKSTATE_INACTIVE;             // (const) Active / Pending
         this.phaseState = C.TASKSTAMP_PHASESTATE_MOVE;               // (const) Move / Action
     }
 
@@ -51,13 +52,13 @@ class TaskStamp {
        Note: it only updates task stamp, dose not update task array
     */
     static execute(taskStamp, taskList) {
-
         var handler = taskList[taskStamp.taskIdx];   // Shortcut reference for task handler
         var creep = Game.getObjectById(taskStamp.id);
 
         if (taskStamp.phaseState == C.TASKSTAMP_PHASESTATE_MOVE) {
             // Move
             var target = handler.moveList[taskStamp.phaseCursor](creep, taskStamp.paraList_move[taskStamp.phaseCursor]);
+
             if (target == ERROR) {
                 /* TODO: handle failure */
                 console.log('[ERROR] In taskStamp.js.');
@@ -72,14 +73,17 @@ class TaskStamp {
             }
         } else {
             // Action
-            var actionFlage = handler.actionList[taskStamp.phaseCursor](creep, taskStamp.paraList_action[taskStamp.phaseCursor]);
+            var ret = handler.actionList[taskStamp.phaseCursor](creep, taskStamp.paraList_action[taskStamp.phaseCursor]);
+            var actionFlage = ret[0];
+            var branchIdx = ret[1];
+
             if (actionFlage == C.TASKHANDLER_ACTION_RET_FLG_FINISH) {
-                //Execute finish function
+                // Execute finish function
                 handler.endList[taskStamp.phaseCursor](creep, taskStamp.paraList_end[taskStamp.phaseCursor]);
                 // Update time stamp
                 taskStamp.phaseState = C.TASKSTAMP_PHASESTATE_MOVE;
-                taskStamp.phaseCursor = taskStamp.phaseBranch[taskStamp.phaseCursor];
-                // Pass finish information back to caller
+                taskStamp.phaseCursor = branchIdx;
+                // Pass finish information back to task scheduler
                 if (taskStamp.phaseCursor >= taskStamp.phaseNum) {
                     return C.TASKHANDLER_ACTION_RET_FLG_TERMINATE;
                 } else {

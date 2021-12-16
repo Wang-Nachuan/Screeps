@@ -1,19 +1,19 @@
 const Plato = require('./kernelPlato');
 const Demeter = require('./agentDemeter');
 const TaskStamp = require('./taskStamp');
-const taskList_worker = require('./taskListWorker');
-const taskList_spawn = require('./taskListSpawn');
 
 // Memory initialization (order matters)
-Memory.initFlag = 0;
-Plato.init();
-Demeter.init();
-
+console.log('[1]');
+if (Memory.initFlag != 1) {
+    Memory.initFlag = 0;
+    Plato.init();
+    Demeter.init();
+}
 
 // Main loop
 module.exports.loop = function () {
 
     Demeter.routine();
     Plato.routine();
-
+    // console.log(Game.creeps['Worker0'].memory.busy);
 }

@@ -14,9 +14,9 @@ var task0_moveList = [
     function(creep, para) {console.log("[Test] task 0 : move 2"); return 0;}
 ];
 var task0_actionList = [
-    function(creep, para) {console.log("[Test] task 0 : action 0"); return C.TASKHANDLER_ACTION_RET_FLG_FINISH;},
-    function(creep, para) {console.log("[Test] task 0 : action 1"); return C.TASKHANDLER_ACTION_RET_FLG_FINISH;},
-    function(creep, para) {console.log("[Test] task 0 : action 2"); return C.TASKHANDLER_ACTION_RET_FLG_FINISH;}
+    function(creep, para) {console.log("[Test] task 0 : action 0"); return [C.TASKHANDLER_ACTION_RET_FLG_FINISH, 1];},
+    function(creep, para) {console.log("[Test] task 0 : action 1"); return [C.TASKHANDLER_ACTION_RET_FLG_FINISH, 2];},
+    function(creep, para) {console.log("[Test] task 0 : action 2"); return [C.TASKHANDLER_ACTION_RET_FLG_FINISH, 0];}
 ];
 var task0_endList = [
     function(creep, para) {console.log("[Test] task 0 : end 0");},
@@ -24,7 +24,6 @@ var task0_endList = [
     function(creep, para) {console.log("[Test] task 0 : end 2");}
 ];
 var task0_test = new TaskHandler(task0_moveList, task0_actionList, task0_endList);
-// var task0_stamp = new TaskStamp(0, C.TASKSTAMP_TASKTYPE_REALTIME, C.TASKSTAMP_PERFORMER_WORKER, 3, [1, 2, 0], [[], [], []], [[], [], []], [[], [], []]);
 
 /* Task 1 - harvest energy
    Type: 
