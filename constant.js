@@ -12,6 +12,10 @@ class Const {
     static PLATO_LEN_TASKARRAY_REALTIME = 5;
     static PLATO_LEN_TASKARRAY_DYNAMIC = 5;
 
+    // Input of setSpawnReq function
+    static WORKER = 'Worker';
+    static SOLDIER = 'Soldier';
+
     /*----------------------------------- TaskStamp -----------------------------------*/
 
     // Desired task performer

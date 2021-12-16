@@ -23,14 +23,17 @@ class Plato {
             // Spawn queue
             Memory.spawnQueue = {requested: [], accepted: []};
 
-            // Newly born object name list
+            // Newly born object name list (e.g. 'Spawn0', 'Worker2', 'Soldier3')
             Memory.newObject = ['Spawn0'];
 
             // ID pools of all objects
-            Memory.pool = {spawn: [], worker: [], soldier: []};
+            Memory.objectIDPool = {spawn: [], worker: [], soldier: []};
             
             // Statistics
             Memory.statistics = {spawnNum: 1, creepNum: 0, creepWorkerNum: 0, creepSoldierNum: 0};
+
+            // Set memory space for agents
+            Memory.agents = {};
         }
     }
 
@@ -39,10 +42,24 @@ class Plato {
        Return: none
     */
     static routine() {
-        ;
+        this.educate();
+        this.assignSpawnReq();
+        this.assignTask();
     }
 
     /*----------------------------------- Public Methods -----------------------------------*/
+
+    /* Function:
+       - Add spawn request to the spawn queue
+       Input
+       - type: 'C.WORKER'/'C.SOLDIER'
+       - body: array of body parts
+       Return: none
+    */
+       static setSpawnReq(type, body) {
+        var request = {type: type, body: body};
+        Memory.spawnQueue.requested.push(request);
+    }
 
     /* Function:
        - Add a task stamp to the task array, update some states accordingly
@@ -62,19 +79,6 @@ class Plato {
         }
     }
 
-    /* Function:
-       - Add spawn request to the spawn queue
-       Input
-       - type: 'worker'/'soldier'
-       - body: array of body parts
-       Return: none
-    */
-    static setSpawnReq(type, body) {
-        var request = {type: type, body: body};
-        Memory.spawnQueue.requested.push(request);
-    }
-
-
     /*----------------------------------- Private Methods -----------------------------------*/
 
     /* Function:
@@ -83,36 +87,58 @@ class Plato {
        Return: none
     */
     static assignSpawnReq() {
-
         var cursor = 0;
 
         // Loop through all spawns
-        for (id in Memory.pool.spawn) {
+        if (Memory.spawnQueue.requested.length != 0) {
+            for (var id of Memory.objectIDPool.spawn) {
+                var spawn = Game.getObjectById(id);
+    
+                // Check whether the spawn is free
+                if (spawn.spawning == null) {
+                    var request = Memory.spawnQueue.requested[cursor];
+                    var name = request.type + Memory.statistics.creepNum;
+    
+                    // Try to spawn, if success, move request from requested queue to accepted queue
+                    // Otherwise, skip this reuqest for now
+                    if (spawn.spawnCreep(request.body, name) == OK) {
+                        spawn.busy = true;
+                        request.spawnID = id;       // Attach spawn id to the accepted request
+                        request.creepName = name;   // Name is added to newObject list when when spawning finishs
+                        Memory.spawnQueue.accepted.push(request);
+                        Memory.spawnQueue.requested.splice(cursor, 1);
+                    } else {
+                        /* TODO: handle failure */
+                    }
+    
+                    cursor += 1;
+                }
+            }
+        }
 
-            var spawn = Game.getObjectById(id);
+        // Monitor the accepted tasks
+        if (Memory.spawnQueue.accepted != 0) {
+            cursor = 0;
 
-            // Check whether the spawn is free
-            if (spawn.spawning == null) {
-                var request = Memory.spawnQueue.requested[cursor];
-                var name = request.type + Memory.statistics.creepNum;
+            for (var request of Memory.spawnQueue.accepted) {
+                var spawn = Game.getObjectById(request.spawnID);
 
-                // Try to spawn, if success, move request from requested queue to accepted queue
-                // Otherwise, skip this reuqest for now
-                if (spawn.spawnCreep(request.body, name) == OK) {
-                    request.spawn = id;     // Attach spawn id to the accepted request
-                    Memory.spawnQueue.accepted.push(request);
-                    Memory.spawnQueue.requested.splice(cursor, 1);
+                // Check whether the spawn finished
+                if (spawn.spawning == null) {
+                    if (request.type == C.WORKER) {
+                        Memory.statistics.creepWorkerNum += 1;
+                    } else {
+                        Memory.statistics.creepSoldierNum += 1;
+                    }
                     Memory.statistics.creepNum += 1;
-                    Memory.newObject.push(name);
-                } else {
-                    /* TODO: handle failure */
+                    spawn.busy = false;
+                    Memory.newObject.push(request.creepName);
+                    Memory.spawnQueue.accepted.splice(cursor, 1);
                 }
 
                 cursor += 1;
             }
         }
-
-        /* TODO: monitor the accepted task */
     }
 
     /* Function: 
@@ -135,10 +161,34 @@ class Plato {
        - Add some fields to new object, move them to corresponding lists
        Input: none
        Return: none
+       Fields for Spawn:
+       - busy: (boolean) whether the spawn is working on a spawn request
+       Fields for worker/soldier:
+       - busy: (boolean) whether the creep is working on a task
+       - taskIdx: (list) [array (0 for real-time, 1 or priority), priority, index in the inner list]
     */
     static educate() {
-        for (objName in Memory.newObject) {
-            // var obj = 
+        var cursor = 0;
+
+        for (var objName of Memory.newObject) {
+            if (objName[2] == 'a') {    // Spawn
+                var obj = Game.spawns[objName];
+                obj.busy = false;
+                Memory.objectIDPool.spawn.push(obj.id);
+            } else if (objName[2] == 'r') {     // Worker
+                var obj = Game.creeps[objName];
+                obj.busy = false;
+                obj.taskIdx = null;
+                Memory.objectIDPool.worker.push(obj.id);
+            } else if (objName[2] == 'l') {     // Soldier
+                var obj = Game.creeps[objName];
+                obj.busy = false;
+                obj.taskIdx = null;
+                Memory.objectIDPool.soldier.push(obj.id);
+            } else {}
+
+            Memory.newObject.splice(cursor, 1);
+            cursor += 1;
         }
     }
 
