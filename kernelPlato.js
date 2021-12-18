@@ -1,7 +1,7 @@
 const C = require("./constant");
 var TaskStamp = require("./taskStamp");
-var taskList_spawn = require("./taskListSpawn");
-var taskList_worker = require("./taskListWorker");
+var handlerList_spawn = require("./handlerListSpawn");
+var handlerList_worker = require("./handlerListWorker");
 
 class Plato {
 
@@ -155,29 +155,29 @@ class Plato {
                     // Execute task
                     switch (obj.memory.role) {
                         case C.SPAWN:
-                            ret_flag = TaskStamp.execute(taskStamp, taskList_spawn);
+                            ret_flag = TaskStamp.execute(taskStamp, handlerList_spawn);
                             break;
                         case C.SOLDIER:
                             // ret_flag = TaskStamp.execute(taskStamp, taskList_soldier);
                             break;
                         case C.WORKER:
-                            ret_flag = TaskStamp.execute(taskStamp, taskList_worker);
+                            ret_flag = TaskStamp.execute(taskStamp, handlerList_worker);
                             break;
                     }
 
                     // Response to different flages
-                    if (ret_flag == C.TASKHANDLER_ACTION_RET_FLG_TERMINATE) {    
+                    if (ret_flag == C.TASKHANDLER_PHASE_RET_FLG_TERMINATE) {    
                         // Terminate: release obj, delete task
                         taskArray[obj.memory.taskCursor[0]][obj.memory.taskCursor[1]].splice(obj.memory.taskCursor[2], 1);
                         obj.memory.busy = false;
                         obj.memory.taskCursor = null;
-                    } else if (ret_flag == C.TASKHANDLER_ACTION_RET_FLG_PEND) {
+                    } else if (ret_flag == C.TASKHANDLER_PHASE_RET_FLG_PEND) {
                         // Pend: release obj, keep task
                         obj.memory.busy = false;
                         obj.memory.taskCursor = null;
                         taskStamp.id = null;
                         taskStamp.taskState = C.TASKSTAMP_TASKSTATE_PENDING;
-                    } else if (ret_flag == C.TASKHANDLER_ACTION_RET_FLG_HALT) {
+                    } else if (ret_flag == C.TASKHANDLER_PHASE_RET_FLG_HALT) {
                         // Halt: release obj, delete task, may have to do some other things
                         /* TODO */
                     } else {}

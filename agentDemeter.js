@@ -19,23 +19,22 @@ class Demeter extends Plato {
     }
 
     /* Function: routine function that run at the begining of each tick
-       Input: none
+       Input: none 
        Return: none
     */
     static routine() {
         if (Memory.agents.Demeter.timelineCursor == 0) {
             Memory.agents.Demeter.timelineCursor += 1;
-            var stamp0 = new TaskStamp(0, C.TASKSTAMP_TASKTYPE_REALTIME, C.SPAWN, 1, [[C.WORKER, [WORK, CARRY, MOVE, MOVE, MOVE]]], [[]]);
-            var stamp1 = new TaskStamp(0, C.TASKSTAMP_TASKTYPE_REALTIME, C.SPAWN, 1, [[C.WORKER, [WORK, CARRY, MOVE, MOVE, MOVE]]], [[]]);
-            this.setTask(stamp0, 0);
-            this.setTask(stamp1, 0);
+            this.setTask(this.taskStamp_spawn(C.WORKER, [WORK, CARRY, MOVE, MOVE, MOVE]), 0);
+            this.setTask(this.taskStamp_spawn(C.WORKER, [WORK, CARRY, MOVE, MOVE, MOVE]), 0)
         }
         if (Memory.agents.Demeter.timelineCursor == 1) {
             Memory.agents.Demeter.timelineCursor += 1;
-            var stamp2 = new TaskStamp(0, C.TASKSTAMP_TASKTYPE_REALTIME, C.WORKER, 2, [[], []], [[], []]);
-            var stamp3 = new TaskStamp(0, C.TASKSTAMP_TASKTYPE_REALTIME, C.WORKER, 2, [[], []], [[], []]);
-            this.setTask(stamp2, 2);
-            this.setTask(stamp3, 0);
+            this.setTask(this.taskStamp_harvest(), 2);
+            this.setTask(this.taskStamp_harvest(), 2);
+        }
+        if (Memory.agents.Demeter.timelineCursor == 2) {
+            Memory.agents.Demeter.timelineCursor += 1;
         }
     }
 
@@ -47,9 +46,48 @@ class Demeter extends Plato {
        Return
        - 
     */
+    
+    /*------------------------------ Shortcuts for creating taskStamp ------------------------------*/
+
+    /* Input
+       - type: (const) C.WORKER/C.SOLDIER
+       - body: (list of const) list of body parts
+    */
+    static taskStamp_spawn(type, body) {
+        var handlerIdx = [
+            C.TASKHANDLER_SPAWN_0_STARTSPAWN,
+            C.TASKHANDLER_SPAWN_1_FINISHSPAWN
+        ];
+        var para_in = [
+            [type, body], 
+            null
+        ];
+        return new TaskStamp(C.TASKSTAMP_TASKTYPE_REALTIME, C.SPAWN, 2, handlerIdx, [1, 2], para_in);
+    }
+
+    /* Input: none
+    */
+       static taskStamp_harvest() {
+        var handlerIdx = [
+            C.TASKHANDLER_WORKER_1_FIND,
+            C.TASKHANDLER_WORKER_0_MOVETO,
+            C.TASKHANDLER_WORKER_2_HARVEST,
+            C.TASKHANDLER_WORKER_1_FIND,
+            C.TASKHANDLER_WORKER_0_MOVETO,
+            C.TASKHANDLER_WORKER_3_TRANSFER
+        ];
+        var para_in = [
+            [FIND_SOURCES, false], 
+            [1, true], 
+            null, 
+            [FIND_STRUCTURES, true, [STRUCTURE_SPAWN, STRUCTURE_EXTENSION]], 
+            [1, true], 
+            [RESOURCE_ENERGY]
+        ];
+        return new TaskStamp(C.TASKSTAMP_TASKTYPE_REALTIME, C.WORKER, 6, handlerIdx, [1, 2, 3, 4, 5, 0], para_in);
+    }
 
 }
-
 
 
 module.exports = Demeter;

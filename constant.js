@@ -36,23 +36,24 @@ class Const {
     static TASKSTAMP_TASKSTATE_ACTIVE = 1;      // Active
     static TASKSTAMP_TASKSTATE_PENDING = 2;     // Pending
 
-    // Phase state
-    static TASKSTAMP_PHASESTATE_MOVE = 0;       // Move
-    static TASKSTAMP_PHASESTATE_ACTION = 1;     // Action
-
     /*----------------------------------- TaskHandler -----------------------------------*/
 
-    // Return flag of move functions
-    static TASKHANDLER_MOVE_RET_FLG_MOVE = 0;       // Move
-    static TASKHANDLER_MOVE_RET_FLG_REACH = 1;      // Reach
-    static TASKHANDLER_MOVE_RET_FLG_ERROR = 2;      // Error
+    // Return flag of phase functions
+    static TASKHANDLER_PHASE_RET_FLG_OCCUPY = 0;       // Occupy (creep normally working on the task)
+    static TASKHANDLER_PHASE_RET_FLG_FINISH = 1;       // Finish (current phase finished)
+    static TASKHANDLER_PHASE_RET_FLG_PEND = 2;         // Pend (cannot perform task now)
+    static TASKHANDLER_PHASE_RET_FLG_TERMINATE = 3;    // Terminate (task stop normally)
+    static TASKHANDLER_PHASE_RET_FLG_HALT = 4;         // Halt (task stop unnormally)
 
-    // Return flag of action functions
-    static TASKHANDLER_ACTION_RET_FLG_OCCUPY = 0;       // Occupy (creep normally working on the task)
-    static TASKHANDLER_ACTION_RET_FLG_FINISH = 1;       // Finish (current phase finished)
-    static TASKHANDLER_ACTION_RET_FLG_PEND = 2;         // Pend (cannot perform task now)
-    static TASKHANDLER_ACTION_RET_FLG_TERMINATE = 3;    // Terminate (task stop normally)
-    static TASKHANDLER_ACTION_RET_FLG_HALT = 4;         // Halt (task stop unnormally)
+    // Worker task handlers
+    static TASKHANDLER_WORKER_0_MOVETO = 0;         // MoveTO
+    static TASKHANDLER_WORKER_1_FIND = 1;           // Find
+    static TASKHANDLER_WORKER_2_HARVEST = 2;        // Harvest
+    static TASKHANDLER_WORKER_3_TRANSFER = 3;       // Transfer
+
+    // Spawn task handlers
+    static TASKHANDLER_SPAWN_0_STARTSPAWN = 0;      // StartSpawn
+    static TASKHANDLER_SPAWN_1_FINISHSPAWN = 1;     // FinishSpawn
 
     /*----------------------------------- Items -----------------------------------*/
     // Item type
