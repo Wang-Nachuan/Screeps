@@ -31,7 +31,8 @@ class Demeter extends Plato {
         if (Memory.agents.Demeter.timelineCursor == 1) {
             Memory.agents.Demeter.timelineCursor += 1;
             this.setTask(this.taskStamp_harvest(), 2);
-            this.setTask(this.taskStamp_harvest(), 2);
+            this.setTask(this.taskStamp_upgradeController(), 2);
+            this.setTask(this.taskStamp_upgradeController(), 2);
         }
         if (Memory.agents.Demeter.timelineCursor == 2) {
             Memory.agents.Demeter.timelineCursor += 1;
@@ -83,6 +84,28 @@ class Demeter extends Plato {
             [FIND_STRUCTURES, true, [STRUCTURE_SPAWN, STRUCTURE_EXTENSION]], 
             [1, true], 
             [RESOURCE_ENERGY]
+        ];
+        return new TaskStamp(C.TASKSTAMP_TASKTYPE_REALTIME, C.WORKER, 6, handlerIdx, [1, 2, 3, 4, 5, 0], para_in);
+    }
+
+    /* Input: none
+    */
+    static taskStamp_upgradeController() {
+        var handlerIdx = [
+            C.TASKHANDLER_WORKER_1_FIND,
+            C.TASKHANDLER_WORKER_0_MOVETO,
+            C.TASKHANDLER_WORKER_2_HARVEST,
+            C.TASKHANDLER_WORKER_1_FIND,
+            C.TASKHANDLER_WORKER_0_MOVETO,
+            C.TASKHANDLER_WORKER_4_UPGRADE
+        ];
+        var para_in = [
+            [FIND_SOURCES, false], 
+            [1, true], 
+            null, 
+            [FIND_STRUCTURES, true, [STRUCTURE_CONTROLLER]], 
+            [1, true], 
+            null
         ];
         return new TaskStamp(C.TASKSTAMP_TASKTYPE_REALTIME, C.WORKER, 6, handlerIdx, [1, 2, 3, 4, 5, 0], para_in);
     }

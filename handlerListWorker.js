@@ -67,14 +67,33 @@ var handlerList_worker =[
 
     /* Handler 3: transfer item from creep to target
     In:
-    [0] - type of item to be transfered
+    [0] - (const) type of item to be transfered
     Out: none
     */
     function handler_3_transfer(creep, paraList, phaseCursor) {
         var target = Game.getObjectById(paraList.targetID);
         var item = paraList.io[phaseCursor].in[0];
-        if(creep.store[item] > 0) {
-            creep.transfer(target, item);
+        if (target.store.getFreeCapacity(item) > 0) {
+            if(creep.store[item] > 0) {
+                creep.transfer(target, item);
+                return C.TASKHANDLER_PHASE_RET_FLG_OCCUPY;
+            } else {
+                return C.TASKHANDLER_PHASE_RET_FLG_FINISH;
+            }
+        } else {
+            return C.TASKHANDLER_PHASE_RET_FLG_PEND;
+        }
+        
+    },
+
+    /* Handler 4: upgrade controller
+    In: none
+    Out: none
+    */
+    function handler_4_upgrade(creep, paraList, phaseCursor) {
+        var target = Game.getObjectById(paraList.targetID);
+        if(creep.store[RESOURCE_ENERGY] > 0) {
+            creep.transfer(target, RESOURCE_ENERGY);
             return C.TASKHANDLER_PHASE_RET_FLG_OCCUPY;
         } else {
             return C.TASKHANDLER_PHASE_RET_FLG_FINISH;

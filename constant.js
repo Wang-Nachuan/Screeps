@@ -50,6 +50,7 @@ class Const {
     static TASKHANDLER_WORKER_1_FIND = 1;           // Find
     static TASKHANDLER_WORKER_2_HARVEST = 2;        // Harvest
     static TASKHANDLER_WORKER_3_TRANSFER = 3;       // Transfer
+    static TASKHANDLER_WORKER_4_UPGRADE = 4;        // Upgrade
 
     // Spawn task handlers
     static TASKHANDLER_SPAWN_0_STARTSPAWN = 0;      // StartSpawn
