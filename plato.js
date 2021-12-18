@@ -1,7 +1,7 @@
 const C = require("./constant");
-var TaskStamp = require("./taskStamp");
-var handlerList_spawn = require("./handlerListSpawn");
-var handlerList_worker = require("./handlerListWorker");
+const TaskStamp = require("./taskStamp");
+const handlerList_spawn = require("./handlers_spawn");
+const handlerList_worker = require("./handlers_worker");
 
 class Plato {
 

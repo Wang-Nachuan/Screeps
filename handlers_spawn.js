@@ -1,6 +1,7 @@
 const C = require("./constant");
 
 var handlerList_spawn = [
+    
     /* Handler 0: spawn a creep
     In:
     [0] - (const) type of creep

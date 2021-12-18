@@ -1,5 +1,5 @@
-const Plato = require('./kernelPlato');
-const Demeter = require('./agentDemeter');
+const Plato = require('./plato');
+const Demeter = require('./demeter');
 
 // Memory initialization (order matters)
 if (Memory.initFlag != 1) {

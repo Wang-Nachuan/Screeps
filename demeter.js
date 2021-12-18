@@ -1,6 +1,6 @@
-var Plato = require('./kernelPlato');
-const C = require("./constant");
+const Plato = require('./plato');
 const TaskStamp = require('./taskStamp');
+const C = require("./constant");
 
 const TIME_LINE = [];
 const TIME_LINE_LEN = TIME_LINE.length;
@@ -111,6 +111,5 @@ class Demeter extends Plato {
     }
 
 }
-
 
 module.exports = Demeter;
