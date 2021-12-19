@@ -1,20 +1,19 @@
 const C = require("./constant");
 
-var handlerList_worker =[
+var handlers_worker ={
     
-    /* Handler 0: move to a target 
+    /* Move to a target 
     In:
     [0] - acceptable range between current position and target
     [1] - If true, get target by id / If false, get target by position
-    Out: none
     */
-    function handler_0_moveTo(creep, paraList, phaseCursor) {
-        var range = paraList.io[phaseCursor].in[0];
+    moveTo: function(creep, para, phaseCursor) {
+        var range = para.in[phaseCursor][0];
         var target;
-        if (paraList.io[phaseCursor].in[1]) {
-            target = Game.getObjectById(paraList.targetID);
+        if (para.in[phaseCursor][1]) {
+            target = Game.getObjectById(para.targetID);
         } else {
-            target = new RoomPosition(paraList.targetPos[0], paraList.targetPos[1], paraList.targetPos[2]);
+            target = new RoomPosition(para.targetPos[0], para.targetPos[1], para.targetPos[2]);
         }
         // Move
         creep.moveTo(target);
@@ -26,37 +25,42 @@ var handlerList_worker =[
         }
     },
 
-    /* Handler 1: find a object set target (if multiple object are finded, only output the first one)
+    /* Find a object, set target
     In: 
-    [0] - (const) type object to be find
-    [1] - (Boolean) true - enbale filter / false - disable filter
-    [2] - (list of const) parameter for filter 
-    Out:
-    targetID - (int) id of object
+    [0] - (const) type of resource
+    [1] - (list of const) excule those type of structures while searching
     */
-    function handler_1_find(creep, paraList, phaseCursor) {
-        var type = paraList.io[phaseCursor].in[0];
-        var flage = paraList.io[phaseCursor].in[1];
+    find: function(creep, para, phaseCursor) {
+        var type = para.in[phaseCursor][0];
+        var flage = para.in[phaseCursor][1];
         var obj;
         if (flage) {
             obj = creep.room.find(type, {
                 filter: (obj) => {
-                    return (paraList.io[phaseCursor].in[2].includes(obj.structureType));
+                    return (para.in[phaseCursor][2].includes(obj.structureType));
                 }
             })[0];
         } else {
             obj = creep.room.find(type)[0];
         }
-        paraList.targetID = obj.id;
+        para.targetID = obj.id;
         return C.TASKHANDLER_PHASE_RET_FLG_FINISH;
     },
 
-    /* Handler 2: harvest item from target
-    In: none
-    Out: none
+    /* Set target to given object
+    In: 
+    [0] - (int) id of target object
     */
-    function handler_2_harvest(creep, paraList, phaseCursor) {
-        var target = Game.getObjectById(paraList.targetID);
+    setTarget: function(creep, para, phaseCursor) {
+        para.targetID = para.in[phaseCursor][0];
+        return C.TASKHANDLER_PHASE_RET_FLG_FINISH;
+    },
+
+    /* Harvest item from target
+    In: none
+    */
+    harvest: function(creep, para, phaseCursor) {
+        var target = Game.getObjectById(para.targetID);
         if(creep.store.getFreeCapacity() > 0) {
             creep.harvest(target);
             return C.TASKHANDLER_PHASE_RET_FLG_OCCUPY;
@@ -65,49 +69,70 @@ var handlerList_worker =[
         }
     },
 
-    /* Handler 3: transfer item from creep to target
+    /* Transfer item from creep to target
     In:
     [0] - (const) type of item to be transfered
-    Out: none
     */
-    function handler_3_transfer(creep, paraList, phaseCursor) {
-        var target = Game.getObjectById(paraList.targetID);
-        var item = paraList.io[phaseCursor].in[0];
-        if (target.store.getFreeCapacity(item) > 0) {
-            if(creep.store[item] > 0) {
-                creep.transfer(target, item);
-                return C.TASKHANDLER_PHASE_RET_FLG_OCCUPY;
-            } else {
+    transfer: function(creep, para, phaseCursor) {
+        var target = Game.getObjectById(para.targetID);
+        var item = para.in[phaseCursor][0];
+        if (creep.store.getUsedCapacity(item) > 0) {
+            if (ERR_FULL == creep.transfer(target, item)) {
                 return C.TASKHANDLER_PHASE_RET_FLG_FINISH;
+            } else {
+                return C.TASKHANDLER_PHASE_RET_FLG_OCCUPY;
             }
         } else {
-            return C.TASKHANDLER_PHASE_RET_FLG_PEND;
+            return C.TASKHANDLER_PHASE_RET_FLG_FINISH;
         }
-        
     },
 
-    /* Handler 4: upgrade controller
+    /* Upgrade controller
     In: none
-    Out: none
     */
-    function handler_4_upgrade(creep, paraList, phaseCursor) {
-        var target = Game.getObjectById(paraList.targetID);
+    upgrade: function(creep, para, phaseCursor) {
+        var target = Game.getObjectById(para.targetID);
         if(creep.store[RESOURCE_ENERGY] > 0) {
-            creep.transfer(target, RESOURCE_ENERGY);
+            creep.upgradeController(target);
             return C.TASKHANDLER_PHASE_RET_FLG_OCCUPY;
         } else {
             return C.TASKHANDLER_PHASE_RET_FLG_FINISH;
         }
     },
 
-    /* Handler n: 
-    In: none
-    Out: none
+    /* Terminate the task when target's storage of an item reaches a given amount
+    In: 
+    [0] - (const) item type
+    [1] - (boolean) if true, target amount == full capacity
+    [2] - (optional, int) target amount
     */
-    // function handler_n_name(creep, paraList, phaseCursor) {
-        
-    // }
-]
+    termiByStore: function(creep, para, phaseCursor) {
+        var item = para.in[phaseCursor][0];
+        var flag = para.in[phaseCursor][1];
+        var target = Game.getObjectById(para.targetID);
+        if (flag) {
+            // Terminate until target is full of item
+            if (target.store.getFreeCapacity(item) > 0) {
+                return C.TASKHANDLER_PHASE_RET_FLG_FINISH;      // Return 'finish' will set phaseCursor to 0
+            } else {
+                return C.TASKHANDLER_PHASE_RET_FLG_TERMINATE;
+            }
+        } else {
+            if (target.store.getUsedCapacity(item) < para.in[phaseCursor][2] && target.store.getFreeCapacity(item) > 0) {
+                return C.TASKHANDLER_PHASE_RET_FLG_FINISH;
+            } else {
+                return C.TASKHANDLER_PHASE_RET_FLG_TERMINATE;
+            }
+        }
+    },
 
-module.exports = handlerList_worker;
+    /* Function
+    In: none
+    */
+    // f_name: function(creep, para, phaseCursor) {
+        
+    // },
+};
+
+module.exports = handlers_worker;
 

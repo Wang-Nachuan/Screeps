@@ -1,6 +1,7 @@
 const C = require("./constant");
+const WorkerTasks = require('./tasks_worker');
 
-var handlerList_spawn = [
+var handlers_spawn = {
     
     /* Handler 0: spawn a creep
     In:
@@ -9,9 +10,9 @@ var handlerList_spawn = [
     Out:
     [0] - (string) name of creep
     */
-    function handler_0_startSpawn(spawn, paraList, phaseCursor) {
-        var type = paraList.io[phaseCursor].in[0];
-        var body = paraList.io[phaseCursor].in[1];
+    startSpawn: function(spawn, para, phaseCursor) {
+        var type = para.in[phaseCursor][0];
+        var body = para.in[phaseCursor][1];
         var name;
         
         switch (type) {
@@ -23,10 +24,12 @@ var handlerList_spawn = [
                 break;
         }
 
-        paraList.io[phaseCursor].out[0] = name;
+        para.share = name;
 
         // Try to spawn
-        if (spawn.spawnCreep(body, name) == OK) {
+        var ret = spawn.spawnCreep(body, name);
+        if (ret == OK) {
+            // Update memory
             if (type == C.WORKER) {
                 Memory.statistics.creepWorkerNum += 1;
             } else {
@@ -43,8 +46,8 @@ var handlerList_spawn = [
     In: none
     Out: none
     */
-    function handler_1_finishSpawn(spawn, paraList, phaseCursor) {
-        var name = paraList.io[phaseCursor - 1].out[0];
+    finishSpawn: function(spawn, para, phaseCursor) {
+        var name = para.share;
         if(spawn.spawning == null) {
             Memory.newObject.push(name);
             return C.TASKHANDLER_PHASE_RET_FLG_FINISH;
@@ -52,6 +55,6 @@ var handlerList_spawn = [
             return C.TASKHANDLER_PHASE_RET_FLG_OCCUPY;
         }
     }
-];
+};
 
-module.exports = handlerList_spawn;
+module.exports = handlers_spawn;

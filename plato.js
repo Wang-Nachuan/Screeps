@@ -1,7 +1,7 @@
 const C = require("./constant");
 const TaskStamp = require("./taskStamp");
-const handlerList_spawn = require("./handlers_spawn");
-const handlerList_worker = require("./handlers_worker");
+const handlers_spawn = require("./handlers_spawn");
+const handlers_worker = require("./handlers_worker");
 
 class Plato {
 
@@ -96,9 +96,6 @@ class Plato {
 
                 // Assign task to free obj
                 if (!obj.memory.busy) {
-                    // if (obj.name == 'Spawn0') {
-                    //     console.log('[3]', cursor);
-                    // }
                     var find_flag = false;
 
                     // Loop through real-time/dynamic array to find a task
@@ -121,7 +118,7 @@ class Plato {
                                     obj.memory.busy = true;
                                     break;
                                 } else if (taskStamp.taskState == C.TASKSTAMP_TASKSTATE_PENDING) {
-                                    /* TODO: deal with pending tasks */
+                                    /* TODO: handle pending situation */
                                 } else {}
                             }
 
@@ -155,13 +152,13 @@ class Plato {
                     // Execute task
                     switch (obj.memory.role) {
                         case C.SPAWN:
-                            ret_flag = TaskStamp.execute(taskStamp, handlerList_spawn);
+                            ret_flag = TaskStamp.execute(taskStamp, handlers_spawn);
                             break;
                         case C.SOLDIER:
                             // ret_flag = TaskStamp.execute(taskStamp, taskList_soldier);
                             break;
                         case C.WORKER:
-                            ret_flag = TaskStamp.execute(taskStamp, handlerList_worker);
+                            ret_flag = TaskStamp.execute(taskStamp, handlers_worker);
                             break;
                     }
 
@@ -201,23 +198,21 @@ class Plato {
             if (objName[2] == 'a') {    // Spawn
                 var obj = Game.spawns[objName];
                 obj.memory.role = C.SPAWN;
-                obj.memory.busy = false;
-                obj.memory.taskCursor = null;
                 Memory.objectPool.spawn.push(obj.id);
                 Memory.statistics.spawnNum += 1;
             } else if (objName[2] == 'r') {     // Worker
                 var obj = Game.creeps[objName];
-                obj.memory.role = C.WORKER;
-                obj.memory.busy = false;
-                obj.memory.taskCursor = null;
+                obj.memory.role = C.WORKER;    
                 Memory.objectPool.worker.push(obj.id);
             } else if (objName[2] == 'l') {     // Soldier
                 var obj = Game.creeps[objName];
                 obj.memory.role = C.SOLDIER;
-                obj.memory.busy = false;
-                obj.memory.taskCursor = null;
                 Memory.objectPool.soldier.push(obj.id);
             } else {}
+
+            // Common attributes
+            obj.memory.busy = false;
+            obj.memory.taskCursor = null;
 
             Memory.newObject.splice(cursor, 1);
             cursor += 1;

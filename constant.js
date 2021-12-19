@@ -40,21 +40,10 @@ class Const {
 
     // Return flag of phase functions
     static TASKHANDLER_PHASE_RET_FLG_OCCUPY = 0;       // Occupy (creep normally working on the task)
-    static TASKHANDLER_PHASE_RET_FLG_FINISH = 1;       // Finish (current phase finished)
-    static TASKHANDLER_PHASE_RET_FLG_PEND = 2;         // Pend (cannot perform task now)
+    static TASKHANDLER_PHASE_RET_FLG_FINISH = 1;       // Finish (current phase finished, branch first choice)
+    static TASKHANDLER_PHASE_RET_FLG_PEND = 2;         // Pend (require subtask)
     static TASKHANDLER_PHASE_RET_FLG_TERMINATE = 3;    // Terminate (task stop normally)
     static TASKHANDLER_PHASE_RET_FLG_HALT = 4;         // Halt (task stop unnormally)
-
-    // Worker task handlers
-    static TASKHANDLER_WORKER_0_MOVETO = 0;         // MoveTO
-    static TASKHANDLER_WORKER_1_FIND = 1;           // Find
-    static TASKHANDLER_WORKER_2_HARVEST = 2;        // Harvest
-    static TASKHANDLER_WORKER_3_TRANSFER = 3;       // Transfer
-    static TASKHANDLER_WORKER_4_UPGRADE = 4;        // Upgrade
-
-    // Spawn task handlers
-    static TASKHANDLER_SPAWN_0_STARTSPAWN = 0;      // StartSpawn
-    static TASKHANDLER_SPAWN_1_FINISHSPAWN = 1;     // FinishSpawn
 
     /*----------------------------------- Items -----------------------------------*/
     // Item type
