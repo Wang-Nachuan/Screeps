@@ -28,12 +28,19 @@ class Plato {
 
             // ID pools of all objects
             Memory.objectPool = {spawn: [], soldier: [], worker: []};
+            Memory.objectPool.spawn.push(Game.spawns['Spawn0'].id);
+            Game.spawns['Spawn0'].memory.role = C.SPAWN;
+            Game.spawns['Spawn0'].memory.busy = false;
+            Game.spawns['Spawn0'].memory.taskCursor = null;
 
-            // Newly born object name list (e.g. 'Spawn0', 'Worker2', 'Soldier3')
-            Memory.newObject = ['Spawn0'];
+            // Name of owned rooms
+            Memory.ownRooms = [];
+            for (var room in Game.rooms) {
+                Memory.ownRooms.push(room);
+            }
             
             // Statistics
-            Memory.statistics = {spawnNum: 0, creepNum: 0, creepWorkerNum: 0, creepSoldierNum: 0};
+            Memory.statistics = {spawnNum: 1, creepNum: 0, creepWorkerNum: 0, creepSoldierNum: 0};
 
             // Set memory space for agents
             Memory.agents = {};
@@ -45,7 +52,6 @@ class Plato {
        Return: none
     */
     static routine() {
-        this.educate();
         this.assignTask();
     }
 

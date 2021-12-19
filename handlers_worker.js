@@ -15,14 +15,13 @@ var handlers_worker ={
         } else {
             target = new RoomPosition(para.targetPos[0], para.targetPos[1], para.targetPos[2]);
         }
-        // Move
-        creep.moveTo(target);
         // Check for reaching
         if (creep.pos.inRangeTo(target, range)) {
             return C.TASKHANDLER_PHASE_RET_FLG_FINISH;
-        } else {
-            return C.TASKHANDLER_PHASE_RET_FLG_OCCUPY;
         }
+        // Move
+        creep.moveTo(target);
+        return C.TASKHANDLER_PHASE_RET_FLG_OCCUPY;
     },
 
     /* Find a object, set target
@@ -100,6 +99,21 @@ var handlers_worker ={
         }
     },
 
+    /* Ignore the given branch, move to the next phase when creep's storage of an item < threshold
+    In: 
+    [0] - (const) item type
+    [1] - (float) ratio of threshold
+    */
+    branchByStore: function(creep, para, phaseCursor) {
+        var item = para.in[phaseCursor][0];
+        var ratio = para.in[phaseCursor][1];
+        if (creep.store.getUsedCapacity(item) / creep.store.getCapacity(item) < ratio) {
+            return C.TASKHANDLER_PHASE_RET_FLG_BRANCH;
+        } else {
+            return C.TASKHANDLER_PHASE_RET_FLG_FINISH;
+        }
+    },
+
     /* Terminate the task when target's storage of an item reaches a given amount
     In: 
     [0] - (const) item type
@@ -125,6 +139,80 @@ var handlers_worker ={
             }
         }
     },
+
+    /* Terminate the task when controller reaches target level
+    In: 
+    [0] - (int) target level of controller
+    */
+    termiByLevel: function(creep, para, phaseCursor) {
+        var level = para.in[phaseCursor][0];
+        var controller = Game.getObjectById(para.targetID);
+        if (controller.level >= level) {
+            return C.TASKHANDLER_PHASE_RET_FLG_TERMINATE;
+        } else {
+            return C.TASKHANDLER_PHASE_RET_FLG_FINISH;
+        }
+    },
+
+    /* Get a construction site ID from Memory.agents.Demeter.constructQueue, set target
+    In: none
+    */
+    getConstructSite: function(creep, para, phaseCursor) {
+        // If already have an ID on para.share, try to get the object
+        if (para.share != null) {
+            para.targetID = para.share;
+            return C.TASKHANDLER_PHASE_RET_FLG_FINISH;
+        }
+        var id = Memory.agents.Demeter.constructQueue.proposed.pop();
+        // If the queue is empty, terminate
+        if (id == undefined) {
+            return C.TASKHANDLER_PHASE_RET_FLG_TERMINATE;
+        }
+        Memory.agents.Demeter.constructQueue.scheduled.push(id);
+        para.share = id;
+        para.targetID = id;
+        return C.TASKHANDLER_PHASE_RET_FLG_FINISH;
+    },
+
+    /* Build structure on a construction site
+    In: none
+    */
+    buildStruct: function(creep, para, phaseCursor) {
+        var site = Game.getObjectById(para.targetID);
+        var prog = creep.memory.bodyCount.work * 5;     // One tick progress
+        var remain = site.progressTotal - site.progress;
+        if (creep.store.getUsedCapacity(RESOURCE_ENERGY) >= remain) {
+            // Building complete at this tick
+            if (prog >= remain) {
+                creep.build(site);
+                // Delete ID in queue
+                var idx = Memory.agents.Demeter.constructQueue.scheduled.indexOf(para.targetID);
+                Memory.agents.Demeter.constructQueue.scheduled.splice(idx, 1);
+                // Try to get new ID
+                var id = Memory.agents.Demeter.constructQueue.proposed.pop();
+                if (id == undefined) {
+                    return C.TASKHANDLER_PHASE_RET_FLG_TERMINATE;
+                }
+                Memory.agents.Demeter.constructQueue.scheduled.push(id);
+                para.share = id;
+                return C.TASKHANDLER_PHASE_RET_FLG_FINISH;      // Start a new cycle
+            } else {
+                creep.build(site);
+                return C.TASKHANDLER_PHASE_RET_FLG_OCCUPY;
+            }
+        } else {
+            if (creep.store.getUsedCapacity(RESOURCE_ENERGY) <= prog) {
+                creep.build(site);
+                return C.TASKHANDLER_PHASE_RET_FLG_FINISH;
+            } else {
+                creep.build(site);
+                return C.TASKHANDLER_PHASE_RET_FLG_OCCUPY;
+            }
+        }
+    },
+
+    // If the id is invalid, delete the corresponding 
+    
 
     /* Function
     In: none

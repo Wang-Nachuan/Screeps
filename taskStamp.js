@@ -24,7 +24,6 @@ class TaskStamp {
         // Set later
         this.phaseCursor = 0;                   // (int) Index of current task functions in above lists
         this.id = null;                         // (string) ID of creep that is working on the task
-
         this.taskState = C.TASKSTAMP_TASKSTATE_INACTIVE;             // (const) Active / Pending
     }
 
@@ -37,9 +36,8 @@ class TaskStamp {
     */
     static execute(taskStamp, handlers) {
         var obj = Game.getObjectById(taskStamp.id);
-
-        // Action
         var flage = handlers[taskStamp.handlerKey[taskStamp.phaseCursor]](obj, taskStamp.para, taskStamp.phaseCursor);
+
         if (flage == C.TASKHANDLER_PHASE_RET_FLG_FINISH) {
             // Update time stamp
             taskStamp.phaseCursor = taskStamp.phaseBrach[taskStamp.phaseCursor];
@@ -49,6 +47,9 @@ class TaskStamp {
             } else {
                 return C.TASKHANDLER_PHASE_RET_FLG_FINISH;
             }
+        } else if (flage == C.TASKHANDLER_PHASE_RET_FLG_BRANCH) {
+            taskStamp.phaseCursor += 1;
+            return C.TASKHANDLER_PHASE_RET_FLG_FINISH;
         } else {
             return flage;
         }

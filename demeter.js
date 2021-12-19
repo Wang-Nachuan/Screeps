@@ -8,14 +8,28 @@ const TIME_LINE_LEN = TIME_LINE.length;
 
 class Demeter extends Plato {
 
+    static get memory() {return Memory.agents.Demeter;}
+    static set memory(para) {Memory.agents.Demeter = para;}
+
     static init() {
         // Initialize memory when run constructor at the first time
         if (Memory.initFlag == 1) {
 
-            Memory.agents.Demeter = {
-                timelineCursor: 0
+            this.memory = {
+                // ID list of ConstructionSites
+                constructQueue: {
+                    proposed: [],
+                    scheduled: []
+                },
             }
-                
+            
+            // Set original task
+            this.setTask(WorkerTasks.spawn(C.WORKER, [WORK, WORK, CARRY, MOVE]), 2);
+            // this.setTask(WorkerTasks.spawn(C.WORKER, [WORK, CARRY, MOVE, MOVE, MOVE]), 2);
+            // this.setTask(WorkerTasks.harvestEnergy(Game.spawns['Spawn0'].id), 2);
+            // this.setTask(WorkerTasks.upgradeController(9), 2);
+            // this.setTask(WorkerTasks.upgradeController(2), 2);
+            this.setTask(WorkerTasks.buildStruct(), 0);
         }
     }
 
@@ -24,32 +38,31 @@ class Demeter extends Plato {
        Return: none
     */
     static routine() {
-        if (Memory.agents.Demeter.timelineCursor == 0) {
-            Memory.agents.Demeter.timelineCursor += 1;
-            this.setTask(WorkerTasks.spawn(C.WORKER, [WORK, CARRY, MOVE, MOVE, MOVE]), 2);
-            this.setTask(WorkerTasks.spawn(C.WORKER, [WORK, CARRY, MOVE, MOVE, MOVE]), 2);
-        }
-        if (Memory.agents.Demeter.timelineCursor == 1) {
-            Memory.agents.Demeter.timelineCursor += 1;
-            this.setTask(WorkerTasks.harvestEnergy(Game.spawns['Spawn0'].id), 0);
-            this.setTask(WorkerTasks.upgradeController(), 1);
-            this.setTask(WorkerTasks.upgradeController(), 1);
-        }
-        if (Memory.agents.Demeter.timelineCursor == 2) {
-            Memory.agents.Demeter.timelineCursor += 1;
-        }
+        this.monitorNewConstructSite();
     }
 
 
-    /* Function:
-       Input
-       - : 
-       - : 
-       Return
-       - 
+    /* Function: monitor manually added construction sites, add them to constructQueue
+       Input: none
+       Return: none 
     */
+    static monitorNewConstructSite() {
+
+        // Update constructQueue
+        for (var name of Memory.ownRooms) {
+            var room = Game.rooms[name];
+            var siteList = room.find(FIND_MY_CONSTRUCTION_SITES);
+            
+            for (var site of siteList) {
+                if ((!this.memory.constructQueue.proposed.includes(site.id)) && (!this.memory.constructQueue.scheduled.includes(site.id))) {
+                    this.memory.constructQueue.proposed.push(site.id);
+                }
+            }  
+        }
+
+        // Publish construction tasks
+    }
     
-    /*------------------------------ Shortcuts for creating taskStamp ------------------------------*/
 
    
 

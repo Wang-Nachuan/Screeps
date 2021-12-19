@@ -44,6 +44,7 @@ class Const {
     static TASKHANDLER_PHASE_RET_FLG_PEND = 2;         // Pend (require subtask)
     static TASKHANDLER_PHASE_RET_FLG_TERMINATE = 3;    // Terminate (task stop normally)
     static TASKHANDLER_PHASE_RET_FLG_HALT = 4;         // Halt (task stop unnormally)
+    static TASKHANDLER_PHASE_RET_FLG_BRANCH = 5;       // Branch (ignore the orignal branch data, set phaseCursor += 1)
 
     /*----------------------------------- Items -----------------------------------*/
     // Item type

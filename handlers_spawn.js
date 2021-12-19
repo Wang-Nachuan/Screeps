@@ -24,7 +24,7 @@ var handlers_spawn = {
                 break;
         }
 
-        para.share = name;
+        para.share = [name, body];
 
         // Try to spawn
         var ret = spawn.spawnCreep(body, name);
@@ -47,9 +47,54 @@ var handlers_spawn = {
     Out: none
     */
     finishSpawn: function(spawn, para, phaseCursor) {
-        var name = para.share;
+        var name = para.share[0];
+        var body = para.share[1];
         if(spawn.spawning == null) {
-            Memory.newObject.push(name);
+            var creep = Game.creeps[name];
+            // Add to pool
+            switch (name[0]) {
+                case 'w':   // worker
+                    creep.memory.role = C.WORKER;
+                    Memory.objectPool.worker.push(creep.id);
+                    break;
+                case 's':   // soldier
+                    creep.memory.role = C.SOLDIER;
+                    Memory.objectPool.soldier.push(creep.id);
+                    break
+            }
+            // Add other attributes
+            creep.memory.busy = false;
+            creep.memory.taskCursor = null;
+            var count = {move: 0, work: 0, carry: 0, attack: 0, rangedAttack: 0, heal: 0, claim: 0, tough: 0};
+            for (var part of body) {
+                switch (part) {
+                    case MOVE:
+                        count.move += 1;
+                        break;
+                    case WORK:
+                        count.work += 1;
+                        break;
+                    case CARRY:
+                        count.carry += 1;
+                        break;
+                    case ATTACK:
+                        count.attack += 1;
+                        break;
+                    case RANGED_ATTACK:
+                        count.rangedAttack += 1;
+                        break;
+                    case HEAL:
+                        count.heal += 1;
+                        break;
+                    case CLAIM:
+                        count.claim += 1;
+                        break;
+                    case TOUGH:
+                        count.tough += 1;
+                        break;
+                }
+            }
+            creep.memory.bodyCount = count;
             return C.TASKHANDLER_PHASE_RET_FLG_FINISH;
         } else {
             return C.TASKHANDLER_PHASE_RET_FLG_OCCUPY;
