@@ -1,5 +1,3 @@
-module.exports = Const;
-
 class Const {
 
     /*----------------------------------- General -----------------------------------*/
@@ -38,14 +36,15 @@ class Const {
     static TASK_STATE_ACTIVE = 1;      // Active
     static TASK_STATE_PENDING = 2;     // Pending
 
-    /*------------------------------- Task Operations -------------------------------*/
+    /*----------------------------------- TaskHandler -----------------------------------*/
 
     // Return flag of phase functions
-    static TASK_OP_RET_FLG_OCCUPY = 0;       // Occupy (creep normally working on the operation)
-    static TASK_OP_RET_FLG_FINISH = 1;       // Finish (current operation finished, branch first choice)
-    static TASK_OP_RET_FLG_PEND = 2;         // Pend (require subtask)
-    static TASK_OP_RET_FLG_TERMINATE = 3;    // Terminate (task stop normally)
-    static TASK_OP_RET_FLG_HALT = 4;         // Halt (task stop unnormally)
+    static TASKHANDLER_PHASE_RET_FLG_OCCUPY = 0;       // Occupy (creep normally working on the task)
+    static TASKHANDLER_PHASE_RET_FLG_FINISH = 1;       // Finish (current phase finished, branch first choice)
+    static TASKHANDLER_PHASE_RET_FLG_PEND = 2;         // Pend (require subtask)
+    static TASKHANDLER_PHASE_RET_FLG_TERMINATE = 3;    // Terminate (task stop normally)
+    static TASKHANDLER_PHASE_RET_FLG_HALT = 4;         // Halt (task stop unnormally)
+    static TASKHANDLER_PHASE_RET_FLG_BRANCH = 5;       // Branch (ignore the orignal branch data, set phaseCursor += 1)
 
     /*----------------------------------- Items -----------------------------------*/
     // Item type
@@ -55,3 +54,5 @@ class Const {
     static ITEM_COMPOSITE = 3;      // Composite
     static ITEM_COMMODITIY = 4;     // Commodity
 }
+
+module.exports = Const;
