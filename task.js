@@ -63,7 +63,7 @@ class Task {
        Return: flage
     */
     static execute(task) {
-        var module = Game.getModule(task.modulePath);
+        var module = require(task.modulePath);
         var creep = Game.getObjectById(task.ownerId);
         var node = task.nodes[task.cursor];
 
