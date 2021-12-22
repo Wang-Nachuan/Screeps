@@ -1,5 +1,5 @@
 module.exports = function () {
-    _.assign(Creep.prototype, methodExtension);
+    _.assign(Structure.prototype, methodExtension);
     for (var setField of fieldExtension) {
         setField;
     }
@@ -17,7 +17,7 @@ const methodExtension = {
 const fieldExtension = [
     
     // isBusy
-    Object.defineProperty(Creep.prototype, 'isBusy', 
+    Object.defineProperty(Structure.prototype, 'isBusy', 
         {
             get: function() {
                 // If no value in this tick, search in memory
@@ -40,7 +40,7 @@ const fieldExtension = [
     ),
 
     // role
-    Object.defineProperty(Creep.prototype, 'role', 
+    Object.defineProperty(Structure.prototype, 'role', 
         {
             get: function() {
                 if (!this._role) {
@@ -61,7 +61,7 @@ const fieldExtension = [
     ),
 
     // taskCursor
-    Object.defineProperty(Creep.prototype, 'taskCursor', 
+    Object.defineProperty(Structure.prototype, 'taskCursor', 
         {
             get: function() {
                 if (!this._taskCursor) {
@@ -81,59 +81,8 @@ const fieldExtension = [
         }
     ),
 
-    // bodyCount
-    Object.defineProperty(Creep.prototype, 'bodyCount', 
-        {
-            get: function() {
-                if (!this._bodyCount) {
-                    if (!this.memory.bodyCount) {
-                        // Count body parts of the creep
-                        var count = {move: 0, work: 0, carry: 0, attack: 0, rangedAttack: 0, heal: 0, claim: 0, tough: 0};
-                        for (var part of this.body) {
-                            switch (part.type) {
-                                case MOVE:
-                                    count.move += 1;
-                                    break;
-                                case WORK:
-                                    count.work += 1;
-                                    break;
-                                case CARRY:
-                                    count.carry += 1;
-                                    break;
-                                case ATTACK:
-                                    count.attack += 1;
-                                    break;
-                                case RANGED_ATTACK:
-                                    count.rangedAttack += 1;
-                                    break;
-                                case HEAL:
-                                    count.heal += 1;
-                                    break;
-                                case CLAIM:
-                                    count.claim += 1;
-                                    break;
-                                case TOUGH:
-                                    count.tough += 1;
-                                    break;
-                            }
-                        }
-                        this.memory.bodyCount = count;
-                    }
-                    this._bodyCount = this.memory.bodyCount;
-                }
-                return this._bodyCount;
-            },
-            set: function(newValue) {
-                this.memory.bodyCount = newValue;
-                this._bodyCount = newValue;
-            },
-            enumerable: false,
-            configurable: true
-        }
-    ),
-
     // // name
-    // Object.defineProperty(Creep.prototype, 'name', 
+    // Object.defineProperty(Structure.prototype, 'name', 
     //     {
     //         get: function() {
     //             if (!this._name) {

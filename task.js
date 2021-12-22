@@ -1,13 +1,19 @@
+/* Name: task.js
+   Function: 
+   - Store everything about a task
+   - Provide relavent API
+*/
 
 const C = require("./constant");
-module.exports = Task;
 
 class Task {
 
-    constructor(type, numNodes, nodes, modulePath, func_st, para_st, func_op, para_op, func_br, para_br) {
+    constructor(type, room, energy, numNodes, nodes, modulePath, func_st, para_st, func_op, para_op, func_br, para_br) {
         // Set when created
         this.type = type;                   // (Const) Type of performer
-        this.numNodes = numNodes;           // (num) Number of nodes
+        this.room = room;                   // (String) Which room's energy will be used
+        this.energy = energy;               // (Num) Expected energy consumption (0 for no consumption or harvesting energy)
+        this.numNodes = numNodes;           // (Num) Number of nodes invovled
         this.nodes = nodes;                 // (List of Node) [Node0, Node1, ...]
         this.modulePath = modulePath;       // (String) Module that contain desired operations
         this.function = {
@@ -34,7 +40,7 @@ class Task {
     */
     static setOwner(task, creep) {
         task.ownerId = creep.id;
-        var module = Game.getModule(task.modulePath);
+        var module = require(task.modulePath);
         task.cursor = module[task.function.st](creep, task.nodes[0].id, this.para.st);
         task.state = C.TASK_STATE_ACTIVE;
         task.isMoving = true;
@@ -90,3 +96,5 @@ class Task {
         }
     }
 }
+
+module.exports = Task;

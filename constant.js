@@ -1,4 +1,6 @@
-module.exports = Const;
+/* Name: constant.js
+   Function: store constants for whole project
+*/
 
 class Const {
 
@@ -13,16 +15,11 @@ class Const {
     static SPAWN = 'spawn';
     static SOLDIER = 'soldier';
     static WORKER = 'worker';
+
+    /*----------------------------------- Memory -----------------------------------*/
     
-
-    /*----------------------------------- Plato -----------------------------------*/
-
-    // Task array constants
-    static PLATO_LEN_TASKARRAY_REALTIME = 3;
-    static PLATO_LEN_TASKARRAY_DYNAMIC = 3;
-
-    // Input of setSpawnReq function
-    // Same as "Roles of objects" in General section
+    // Task queue
+    static MEMORY_TASKQUEUE_LEN = 5;
 
     /*----------------------------------- Task -----------------------------------*/
 
@@ -55,3 +52,5 @@ class Const {
     static ITEM_COMPOSITE = 3;      // Composite
     static ITEM_COMMODITIY = 4;     // Commodity
 }
+
+module.exports = Const;

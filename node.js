@@ -1,5 +1,8 @@
+/* Name: node.js
+   Function: represention of a position/static object in game
+*/
+
 const C = require("./constant");
-module.exports = Node;
 
 class Node {
 
@@ -21,3 +24,5 @@ class Node {
         return Game.getModule(node.monitor.modulePath)[node.monitor.key](node.id);
     }
 }
+
+module.exports = Node;
