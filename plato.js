@@ -1,31 +1,52 @@
 /* Name: plato.js
    Function: 
    - Prototype for all agents
-   - Provides memory r/w API
-   - Accept tasks; issus tasks based on resource production, consumption and prediction (provided by Demeter); maintain task queue
+   - Issue tasks based on energy consumption
+   - Grant energy usage of structures
+   - (Future) Manage energy consumptioin based on prediction and warfare, i.e. energy deficit & tilt
 */
 
 const C = require("./constant");
 
 class Plato {
 
-    /* Update some records at the begining of each tick
+    /* Propose a task
+       Input: task, priority
+       Return: none
+    */
+    static propTask(task, prio) {
+        Memory.propTaskQueue[task.type][prio].push(task);
+    }
+
+    /* Claim some amount of energy
+       Input: room, energy
+       Return: true if granted, fale otherwise
+    */
+    static claimEnergy(room, energy) {
+        var data = Memory.statistics.energy[room];
+
+        if (energy <= data.available) {
+            data.available -= energy;
+            data.pinned += energy;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /* Wrapper function run in the main loop
        Input: none
        Return: none
     */
-   static update() {
-        // Update energy statistics
-        for (var roomName in Memory.statistics.energy) {
-            var data = Memory.statistics.energy[roomName];
-            data.available = Game.rooms[roomName].energyAvailable - data.planned;
-        }
+    static wrapper() {
+        this.#issueTask();
     }
 
     /* Search within a priority level, insert the task to a propriate position
        Input: task, priority
        Return: cursor of task's position
     */
-    static setTask(task, prio) {
+    static #setTask(task, prio) {
        var level = Memory.taskQueue[task.type][prio];
        var cursor = 0;
 
@@ -42,26 +63,11 @@ class Plato {
         return [prio, cursor];
     }
 
-    /* Delete a task in task queue or replace it with a null
-       Input: task
-       Return: none
-    */
-    static delTask(task) {
-        var level = Memory.taskQueue[task.type][task.cursor[0]];
-        var idx = task.cursor[1];
-        
-        if (idx == level.length - 1) {
-            level.pop();
-        } else {
-            level[idx] = null;
-        }
-    }
-
     /* Issue proposed tasks based on energy consumption and priority
        Input: none
        Return: none
     */
-    static issueTask() {
+    static #issueTask() {
         // Loop through queues
         for (var type in Memory.propTaskQueue) {
             var queue = Memory.propTaskQueue[type];
@@ -77,25 +83,19 @@ class Plato {
 
                     if (task.energy <= data.available) {
                         // Add to task queue if energy consumption is acceptable
-                        this.setTask(task, prio);
+                        this.#setTask(task, prio);
                         // Delet the corresponding task in proposed queue
                         level.splice(idx, 1);
-                        // Lock the required amount of energy
+                        // Pin the required amount of energy
                         data.available -= task.energy;
-                        data.planned += task.energy;
+                        data.pinned += task.energy;
                     }
                 }
             }             
         }
     }
 
-    /* Propose a task
-       Input: task, priority
-       Return: none
-    */
-    static propTask(task, prio) {
-        Memory.propTaskQueue[task.type][prio].push(task);
-    }
+    
 
     /* ...
        Input:

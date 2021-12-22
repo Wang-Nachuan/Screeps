@@ -1,7 +1,12 @@
-require('./mount')();
-require('./memory')();
+require("./mount")();
+require("./memory")();
+const Plato = require("./plato");
+const Euclid = require("./agent.euclid");
+const Demeter = require("./agent.demeter");
 
 // Main loop (order matters)
 module.exports.loop = function () {
-    // console.log(1);
+    Demeter.wrapper();
+    Plato.wrapper();
+    Euclid.wrapper();
 }

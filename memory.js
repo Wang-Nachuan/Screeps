@@ -33,7 +33,7 @@ module.exports = function () {
         Memory.statistics = {
             structure: {spawn: 1},
             creep: {worker: 0, soldier: 0},
-            energy: {}      // roomName: {available: 0, planned: 0}
+            energy: {}      // roomName: {available: 0, pinned: 0}
         };
 
         // Memory space for agents
@@ -54,7 +54,7 @@ module.exports = function () {
             Memory.rooms.visile.push(room);
             Memory.rooms.owned.push(room);
             Memory.rooms.haveSpawn.push(room);
-            Memory.statistics.energy[room] = {available: 0, planned: 0};
+            Memory.statistics.energy[room] = {available: 0, pinned: 0};
         }
     }
 };
