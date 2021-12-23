@@ -31,9 +31,9 @@ class Const {
     static TASK_TYPE_DYNAMIC = 1;      // Dynamic
 
     // Task state
-    static TASK_STATE_INACTIVE = 0;    // Inactive
-    static TASK_STATE_ACTIVE = 1;      // Active
-    static TASK_STATE_PENDING = 2;     // Pending
+    static TASK_STATE_PROPOSED = 0;    // Proposed
+    static TASK_STATE_ISSUED = 1;      // Issued
+    static TASK_STATE_SCHEDULED = 2;   // Scheduled
 
     /*------------------------------- Task Operations -------------------------------*/
 

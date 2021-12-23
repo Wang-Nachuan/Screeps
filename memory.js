@@ -2,7 +2,7 @@
    Function: initialize memory
 */
 
-const C = require("./constant");
+const C = require('./constant');
 
 module.exports = function () {
     if (!Memory.initFlag) {
@@ -10,14 +10,14 @@ module.exports = function () {
 
         // Proposed tasks Queue
         Memory.propTaskQueue = {
-            spawn: Array(C.MEMORY_TASKQUEUE_LEN),
+            // spawn: Array(C.MEMORY_TASKQUEUE_LEN),
             soldier: Array(C.MEMORY_TASKQUEUE_LEN),
             worker: Array(C.MEMORY_TASKQUEUE_LEN)
         };
 
         // Task Queue
         Memory.taskQueue = {
-            spawn: Array(C.MEMORY_TASKQUEUE_LEN),
+            // spawn: Array(C.MEMORY_TASKQUEUE_LEN),
             soldier: Array(C.MEMORY_TASKQUEUE_LEN),
             worker: Array(C.MEMORY_TASKQUEUE_LEN)
         };
@@ -41,7 +41,7 @@ module.exports = function () {
 
         /*---------------------------- Add inital input ---------------------------*/ 
         
-        for (var i of ['spawn', 'soldier', 'worker']) {
+        for (var i in Memory.taskQueue) {
             for (var j = 0; j < C.MEMORY_TASKQUEUE_LEN; j++) {
                 Memory.taskQueue[i][j] = [];
                 Memory.propTaskQueue[i][j] = [];
@@ -51,7 +51,7 @@ module.exports = function () {
         Memory.idPool.spawn.push(Game.spawns['Spawn1'].id);
 
         for (var room in Game.rooms) {
-            Memory.rooms.visile.push(room);
+            Memory.rooms.visibable.push(room);
             Memory.rooms.owned.push(room);
             Memory.rooms.haveSpawn.push(room);
             Memory.statistics.energy[room] = {available: 0, pinned: 0};

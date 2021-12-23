@@ -2,26 +2,18 @@
    Function: represention of a position/static object in game
 */
 
-const C = require("./constant");
+const C = require('./constant');
 
 class Node {
 
-    constructor(pos, type, id = null, monitor = null) {
+    constructor(pos, type, id = null) {
         this.pos = pos;             // (RoomPosition) {x: _, y: _, roomName: _}
         this.type = type;           // (String) type of object at the position, see OBSTACLE_OBJECT_TYPES
-        this.id = id;               // (String) id of object, if any
-        this.monitor = monitor;     // (Object) {modulePath: 'path of module', key: 'key of monitor functioin'}
+        this.id = id;               // (String) id of object
     }
-
-    /* Run the monitor function (if exist) of this node
-       Input: (node object) node object
-       Return: whatever the function return / false if no monitor or id
-    */
-    static runMonitor(node) {
-        if (node.monitor == null || node.id == null) {
-            return false;
-        }
-        return require(node.monitor.modulePath)[node.monitor.key](node.id);
+    
+    static pos(node) {
+        return new RoomPosition(node.pos.x, node.pos.y, node.pos.roomName);
     }
 }
 

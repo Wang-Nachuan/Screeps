@@ -4,7 +4,8 @@
    - Provide relavent API
 */
 
-const C = require("./constant");
+const Node = require('./node');
+const C = require('./constant');
 
 class Task {
 
@@ -30,19 +31,27 @@ class Task {
         // Set later
         this.cursor = null;                 // (Num) Index of current target node
         this.ownerId = null;                // (String) Id of task owner
-        this.state = C.TASK_STATE_INACTIVE; // (Const) State of task
+        this.state = C.TASK_STATE_PROPOSED; // (Const) State of task
         this.isMoving = false;              // (boolean) True if creep is moving to the node
+    }
+
+    /* Find the actual starting node of task
+       Input: task, creep
+       Output: cursor index of staring node
+    */
+    static startIdx(task, creep) {
+        var module = require(task.modulePath);
+        return module[task.function.st](creep, task.nodes[0], task.para.st);
     }
 
     /* Set the owner of task, execute the start function
        Input: task, creep object
        Return: none
     */
-    static setOwner(task, creep) {
+    static activate(task, creep, startIdx) {
         task.ownerId = creep.id;
-        var module = require(task.modulePath);
-        task.cursor = module[task.function.st](creep, task.nodes[0].id, this.para.st);
-        task.state = C.TASK_STATE_ACTIVE;
+        task.cursor = startIdx;
+        task.state = C.TASK_STATE_SCHEDULED;
         task.isMoving = true;
     }
 
@@ -50,13 +59,13 @@ class Task {
        Input: creep object, RoomPosition object, range of stop
        Return: true if still moving, false if reached the position
     */
-   static moveTo(creep, pos, range) {
+    static moveTo(creep, pos, range) {
         if (creep.inRangeTo(pos, range)) {
             return false;
         }
         creep.moveTo(pos);
         return true;
-   }
+    }
 
     /* Execute and update a task in one tick
        Input: task object
@@ -69,7 +78,7 @@ class Task {
 
         // Moving
         if (task.isMoving) {
-            var pos = new RoomPosition(node.pos.x, node.pos.y, node.pos.roomName);
+            var pos = Node.pos(node);
             task.isMoving = this.moveTo(creep, pos, task.para.mv[task.cursor]);
             if (task.isMoving) {
                 return C.TASK_OP_RET_FLG_OCCUPY;
@@ -77,12 +86,12 @@ class Task {
         }
 
         // Executing operation
-        var flage = module[task.function.op[task.cursor]](creep, node.id, task.para.op[task.cursor]);
+        var flage = module[task.function.op[task.cursor]](creep, node, task.para.op[task.cursor]);
 
         if (flage == C.TASK_OP_RET_FLG_FINISH) {
             // If current operation finishes, update cursor
             if (task.para.br[task.cursor] != null) {
-                task.cursor = module[task.function.br[task.cursor]](creep, node.id, task.para.br[task.cursor]);
+                task.cursor = module[task.function.br[task.cursor]](creep, node, task.para.br[task.cursor]);
             } else {
                 task.cursor += 1;
             }

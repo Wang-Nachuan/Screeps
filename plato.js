@@ -6,9 +6,11 @@
    - (Future) Manage energy consumptioin based on prediction and warfare, i.e. energy deficit & tilt
 */
 
-const C = require("./constant");
+const C = require('./constant');
 
 class Plato {
+
+    /*-------------------- Public Methods --------------------*/
 
     /* Propose a task
        Input: task, priority
@@ -16,6 +18,14 @@ class Plato {
     */
     static propTask(task, prio) {
         Memory.propTaskQueue[task.type][prio].push(task);
+    }
+
+    /* Propose a spawn request
+       Input: creep name, type, body parts
+       Return: none
+    */
+    static propSpawnReq(name, type, body) {
+
     }
 
     /* Claim some amount of energy
@@ -39,17 +49,20 @@ class Plato {
        Return: none
     */
     static wrapper() {
-        this.#issueTask();
+        this.issueTask();
     }
+
+    /*-------------------- Private Methods --------------------*/
 
     /* Search within a priority level, insert the task to a propriate position
        Input: task, priority
        Return: cursor of task's position
     */
-    static #setTask(task, prio) {
-       var level = Memory.taskQueue[task.type][prio];
-       var cursor = 0;
+    static setTask(task, prio) {
+        var level = Memory.taskQueue[task.type][prio];
+        var cursor = 0;
 
+        task.state = C.TASK_STATE_ISSUED;
         for (var pos of level) {
             if (pos == null) {
                 level[cursor] = task;
@@ -57,7 +70,6 @@ class Plato {
             }
             cursor += 1;
         }
-
         // If no empty space, add task at the end
         level.push(task);
         return [prio, cursor];
@@ -67,7 +79,7 @@ class Plato {
        Input: none
        Return: none
     */
-    static #issueTask() {
+    static issueTask() {
         // Loop through queues
         for (var type in Memory.propTaskQueue) {
             var queue = Memory.propTaskQueue[type];
@@ -83,7 +95,7 @@ class Plato {
 
                     if (task.energy <= data.available) {
                         // Add to task queue if energy consumption is acceptable
-                        this.#setTask(task, prio);
+                        this.setTask(task, prio);
                         // Delet the corresponding task in proposed queue
                         level.splice(idx, 1);
                         // Pin the required amount of energy
@@ -91,7 +103,7 @@ class Plato {
                         data.pinned += task.energy;
                     }
                 }
-            }             
+            }
         }
     }
 

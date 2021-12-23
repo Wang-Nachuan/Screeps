@@ -5,24 +5,28 @@
    - Spawning worker creeps
 */
 
-const Plato = require("./plato");
-const C = require("./constant");
+const Plato = require('./plato');
+const C = require('./constant');
 
 class Demeter extends Plato {
+
+    /*-------------------- Public Methods --------------------*/
 
     /* Wrapper function run in the main loop
        Input: none
        Return: none
     */
     static wrapper() {
-        this.#update();
+        this.update();
     }
+
+    /*-------------------- Private Methods --------------------*/
 
     /* Update some records at the begining of each tick
        Input: none
        Return: none
     */
-   static #update() {
+   static update() {
         // Update energy statistics
         for (var roomName in Memory.statistics.energy) {
             var data = Memory.statistics.energy[roomName];
