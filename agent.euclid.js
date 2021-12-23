@@ -98,6 +98,9 @@ class Euclid extends Plato {
                 }
 
                 // Execute the task
+                if (creep.isBusy) {
+                    /* TODO */
+                }
             }
         }
     }
