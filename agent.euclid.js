@@ -173,6 +173,8 @@ class Euclid extends Plato {
                             spawn.taskCursor = [prio, idx];
                             // Start spawning
                             spawn.spawnCreep(req.body, req.name);
+                            // Consume the pinned energy
+                            Memory.statistics.energy[req.room].pinned -= req.energy;
                         }
                     }
                 }

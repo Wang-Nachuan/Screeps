@@ -20,7 +20,7 @@ class Demeter extends Plato {
         this._update();
         if (!Memory.tempFlag) {
             Memory.tempFlag = 1;
-            this.propSpawnReq('worker1', C.WORKER, Memory.rooms.haveSpawn[0], [WORK, CARRY, MOVE, MOVE], 0);
+            this.propSpawnReq(C.WORKER, Memory.rooms.haveSpawn[0], [WORK, CARRY, MOVE, MOVE], 0);
         }
     }
 

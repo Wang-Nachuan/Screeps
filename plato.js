@@ -25,8 +25,12 @@ class Plato {
        Input: creep name, type, room to spawn, body parts, priority
        Return: none
     */
-    static propSpawnReq(name, type, room, body, prio) {
+    static propSpawnReq(type, room, body, prio) {
         var energy = 0;     // Energy required to spawn the creep
+
+        // Update statistic
+        Memory.statistics.creep[type] += 1;
+        var name = type[0] + Memory.statistics.creep[type];
 
         // Calculate energy consumption
         for (var part of body) {energy += BODYPART_COST[part];}
