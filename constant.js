@@ -20,20 +20,15 @@ class Const {
     
     // Task queue
     static MEMORY_TASKQUEUE_LEN = 5;
+    static MEMORY_SPAWNQUEUE_LEN = 3;
 
     /*----------------------------------- Task -----------------------------------*/
 
-    // Desired task performer
-    // Same as "Roles of objects" in General section
-
-    // Task type
-    static TASK_TYPE_REALTIME = 0;     // Real-time
-    static TASK_TYPE_DYNAMIC = 1;      // Dynamic
-
     // Task state
-    static TASK_STATE_PROPOSED = 0;    // Proposed
-    static TASK_STATE_ISSUED = 1;      // Issued
-    static TASK_STATE_SCHEDULED = 2;   // Scheduled
+    static TASK_STATE_PROPOSED = 0;     // Proposed
+    static TASK_STATE_ISSUED = 1;       // Issued
+    static TASK_STATE_SCHEDULED = 2;    // Scheduled
+    static TASK_STATE_PENDED = 3;       // Pended
 
     /*------------------------------- Task Operations -------------------------------*/
 
@@ -45,6 +40,7 @@ class Const {
     static TASK_OP_RET_FLG_HALT = 4;         // Halt (task stop unnormally)
 
     /*----------------------------------- Items -----------------------------------*/
+
     // Item type
     static ITEM_ENERGE = 0;         // Energy
     static ITEM_MINERAL = 1;        // Mineral

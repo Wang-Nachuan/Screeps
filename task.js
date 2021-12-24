@@ -44,17 +44,6 @@ class Task {
         return module[task.function.st](creep, task.nodes[0], task.para.st);
     }
 
-    /* Set the owner of task, execute the start function
-       Input: task, creep object
-       Return: none
-    */
-    static activate(task, creep, startIdx) {
-        task.ownerId = creep.id;
-        task.cursor = startIdx;
-        task.state = C.TASK_STATE_SCHEDULED;
-        task.isMoving = true;
-    }
-
     /* Optimized moving function for creep
        Input: creep object, RoomPosition object, range of stop
        Return: true if still moving, false if reached the position

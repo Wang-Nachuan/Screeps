@@ -21,11 +21,25 @@ class Plato {
     }
 
     /* Propose a spawn request
-       Input: creep name, type, body parts
+       Input: creep name, type, room to spawn, body parts, priority
        Return: none
     */
-    static propSpawnReq(name, type, body) {
+    static propSpawnReq(name, type, room, body, prio) {
+        var energy = 0;     // Energy required to spawn the creep
 
+        // Calculate energy consumption
+        for (var part of body) {energy += BODYPART_COST[part];}
+
+        // Set request
+        var req = {
+            name: name, 
+            type: type, 
+            room: room, 
+            body: body, 
+            energy: energy,
+            state: C.TASK_STATE_PROPOSED
+        };
+        Memory.spawnQueue.prop[prio].push(req);
     }
 
     /* Claim some amount of energy
@@ -49,42 +63,39 @@ class Plato {
        Return: none
     */
     static wrapper() {
-        this.issueTask();
+        // Order matters
+        this._issueSpawnReq();
+        this._issueTask();
     }
 
     /*-------------------- Private Methods --------------------*/
 
     /* Search within a priority level, insert the task to a propriate position
        Input: task, priority
-       Return: cursor of task's position
+       Return: none
     */
-    static setTask(task, prio) {
-        var level = Memory.taskQueue[task.type][prio];
-        var cursor = 0;
-
+    static _setTask(task, level) {
         task.state = C.TASK_STATE_ISSUED;
-        for (var pos of level) {
-            if (pos == null) {
-                level[cursor] = task;
-                return [prio, cursor];
+        for (var idx in level) {
+            if (level[idx] == null) {
+                level[idx] = task;
+                return;
             }
-            cursor += 1;
         }
         // If no empty space, add task at the end
         level.push(task);
-        return [prio, cursor];
     }
 
     /* Issue proposed tasks based on energy consumption and priority
        Input: none
        Return: none
     */
-    static issueTask() {
+    static _issueTask() {
         // Loop through queues
         for (var type in Memory.propTaskQueue) {
             var queue = Memory.propTaskQueue[type];
 
-            // Loop through each priority level
+            // Loop through all priority levels
             for (var prio in queue) {
                 var level = queue[prio];
 
@@ -95,7 +106,7 @@ class Plato {
 
                     if (task.energy <= data.available) {
                         // Add to task queue if energy consumption is acceptable
-                        this.setTask(task, prio);
+                        this._setTask(task, Memory.TaskQueue[type][prio]);
                         // Delet the corresponding task in proposed queue
                         level.splice(idx, 1);
                         // Pin the required amount of energy
@@ -107,7 +118,29 @@ class Plato {
         }
     }
 
-    
+    /* Issue proposed spawn requests based on energy consumption and priority
+       Input: none
+       Return: none
+    */
+    static _issueSpawnReq() {
+        // Loop through all priority levels
+        for (var prio in Memory.spawnQueue.prop) {
+            level = Memory.spawnQueue.prop[prio];
+
+            // Loop through all requests
+            for (var idx in level) {
+                var req = level[idx];
+                var data = Memory.statistics.energy[req.room];
+
+                if (req.energy <= data.available) {
+                    this._setTask(req, Memory.spawnQueue.sche[prio]);
+                    level.splice(idx, 1);
+                    data.available -= req.energy;
+                    data.pinned += req.energy;
+                }
+            }
+        }
+    }
 
     /* ...
        Input:

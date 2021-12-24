@@ -8,23 +8,26 @@ module.exports = function () {
     if (!Memory.initFlag) {
         Memory.initFlag = 0;
 
-        // Proposed tasks Queue
+        // Proposed tasks queue
         Memory.propTaskQueue = {
-            // spawn: Array(C.MEMORY_TASKQUEUE_LEN),
             soldier: Array(C.MEMORY_TASKQUEUE_LEN),
             worker: Array(C.MEMORY_TASKQUEUE_LEN)
         };
 
-        // Task Queue
+        // Task queue
         Memory.taskQueue = {
-            // spawn: Array(C.MEMORY_TASKQUEUE_LEN),
             soldier: Array(C.MEMORY_TASKQUEUE_LEN),
             worker: Array(C.MEMORY_TASKQUEUE_LEN)
         };
+
+        // Spawn request queue
+        Memory.spawnQueue = {
+            prop: Array(C.MEMORY_SPAWNQUEUE_LEN),   // Proposed
+            sche: Array(C.MEMORY_SPAWNQUEUE_LEN)    // Scheduled
+        }
         
         // ID pool
         Memory.idPool = {spawn: [], soldier: [], worker: []};
-        
 
         // Name of owned rooms
         Memory.rooms = {visibable: [], owned: [], haveSpawn: []};
@@ -39,13 +42,17 @@ module.exports = function () {
         // Memory space for agents
         Memory.agents = {};
 
-        /*---------------------------- Add inital input ---------------------------*/ 
-        
+        // Initialization
         for (var i in Memory.taskQueue) {
             for (var j = 0; j < C.MEMORY_TASKQUEUE_LEN; j++) {
                 Memory.taskQueue[i][j] = [];
                 Memory.propTaskQueue[i][j] = [];
             }
+        }
+
+        for (var i = 0; i < C.MEMORY_SPAWNQUEUE_LEN; i++) {
+            Memory.spawnQueue.prop[i] = [];
+            Memory.spawnQueue.sche[i] = [];
         }
 
         Memory.idPool.spawn.push(Game.spawns['Spawn1'].id);

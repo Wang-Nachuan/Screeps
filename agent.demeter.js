@@ -17,7 +17,11 @@ class Demeter extends Plato {
        Return: none
     */
     static wrapper() {
-        this.update();
+        this._update();
+        if (!Memory.tempFlag) {
+            Memory.tempFlag = 0;
+            this.propSpawnReq('worker1', C.WORKER, Memory.rooms.haveSpawn[0], [WORK, CARRY, MOVE, MOVE], 0);
+        }
     }
 
     /*-------------------- Private Methods --------------------*/
@@ -26,7 +30,7 @@ class Demeter extends Plato {
        Input: none
        Return: none
     */
-   static update() {
+    static _update() {
         // Update energy statistics
         for (var roomName in Memory.statistics.energy) {
             var data = Memory.statistics.energy[roomName];
