@@ -32,6 +32,19 @@ var handlers_worker = {
         return C.TASK_OP_RET_FLG_FINISH;
     },
 
+    /* Upgrade the controller
+       Input: none
+    */
+    op_upgrade: function(creep, node, para) {
+        var target = Game.getObjectById(node.id);
+        if(creep.store[RESOURCE_ENERGY] > 0) {
+            creep.upgradeController(target);
+            return C.TASK_OP_RET_FLG_OCCUPY;
+        } else {
+            return C.TASK_OP_RET_FLG_FINISH;
+        }
+    },
+
     /*--------------------- Branch ---------------------*/
 
     /* Branch by creep's item storage
@@ -61,6 +74,21 @@ var handlers_worker = {
         var item = para[1];
         var amount = para[2];
         if (target.store.getUsedCapacity(item) < amount) {
+            return para[0][0];
+        } else {
+            return para[0][1];
+        }
+    },
+
+    /* Branch by room control level
+       Input:
+       [0] - (list of num) index branching to, i.e. [choice1, choice2, ...]
+       [1] - (num) target room control level
+    */
+    br_rcl: function(creep, node, para) {
+        var target = Game.getObjectById(node.id);
+        var level = para[1];
+        if (target.level < level) {
             return para[0][0];
         } else {
             return para[0][1];

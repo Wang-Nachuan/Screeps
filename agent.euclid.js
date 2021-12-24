@@ -70,7 +70,7 @@ class Euclid extends Plato {
                         for (var i in level) {
                             var task = level[i];
 
-                            if (task.state == C.TASK_STATE_ISSUED) {
+                            if (task != null && task.state == C.TASK_STATE_ISSUED) {
                                 var ret = this.cost(task, creep);
 
                                 if (ret[0] < minCost) {

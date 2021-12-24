@@ -31,7 +31,7 @@ module.exports = function () {
         Memory.creepPool = {soldier: [], worker: []};
 
         // Node pool
-        Memory.nodePool = {spawn: [], source: [], mineral: []};
+        Memory.nodePool = {spawn: [], source: [], mineral: [], controller: []};
 
         // Name of owned rooms
         Memory.rooms = {visibable: [], owned: [], haveSpawn: []};
@@ -74,6 +74,8 @@ module.exports = function () {
                     Memory.nodePool[type[i]].push(new Node(obj.pos, type[i], obj.id));
                 }
             }
+
+            Memory.nodePool.controller.push(new Node(room.controller.pos, 'controller', room.controller.id));
         }
     }
 };

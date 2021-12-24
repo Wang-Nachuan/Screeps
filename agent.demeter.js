@@ -20,7 +20,12 @@ class Demeter extends Plato {
         if (!Memory.tempFlag) {
             Memory.tempFlag = 1;
             this.propSpawnReq(C.WORKER, Memory.rooms.haveSpawn[0], [WORK, CARRY, MOVE, MOVE], 0);
+            this.propSpawnReq(C.WORKER, Memory.rooms.haveSpawn[0], [WORK, CARRY, MOVE, MOVE], 0);
+            this.propSpawnReq(C.WORKER, Memory.rooms.haveSpawn[0], [WORK, CARRY, MOVE, MOVE], 0);
             this.propTask(tasks_worker.harvestEnergy(Memory.nodePool.source[0], Memory.nodePool.spawn[0]), 0);
+            this.propTask(tasks_worker.upgradeController(Memory.nodePool.source[0], Memory.nodePool.controller[0], 2), 1);
+            this.propTask(tasks_worker.upgradeController(Memory.nodePool.source[0], Memory.nodePool.controller[0], 2), 1);
+            this.propTask(tasks_worker.upgradeController(Memory.nodePool.source[0], Memory.nodePool.controller[0], 8), 1);
         }
     }
 
