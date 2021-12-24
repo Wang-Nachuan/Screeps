@@ -69,8 +69,8 @@ class Plato {
     */
     static wrapper() {
         // Order matters
-        this._issueSpawnReq();
-        this._issueTask();
+        this.issueSpawnReq();
+        this.issueTask();
     }
 
     /*-------------------- Private Methods --------------------*/
@@ -79,7 +79,7 @@ class Plato {
        Input: task, priority
        Return: none
     */
-    static _setTask(task, level) {
+    static setTask(task, level) {
         task.state = C.TASK_STATE_ISSUED;
         for (var idx in level) {
             if (level[idx] == null) {
@@ -95,7 +95,7 @@ class Plato {
        Input: none
        Return: none
     */
-    static _issueTask() {
+    static issueTask() {
         // Loop through queues
         for (var type in Memory.propTaskQueue) {
             var queue = Memory.propTaskQueue[type];
@@ -111,7 +111,7 @@ class Plato {
 
                     if (task.energy <= data.available) {
                         // Add to task queue if energy consumption is acceptable
-                        this._setTask(task, Memory.TaskQueue[type][prio]);
+                        this.setTask(task, Memory.TaskQueue[type][prio]);
                         // Delet the corresponding task in proposed queue
                         level.splice(idx, 1);
                         // Pin the required amount of energy
@@ -127,7 +127,7 @@ class Plato {
        Input: none
        Return: none
     */
-    static _issueSpawnReq() {
+    static issueSpawnReq() {
         // Loop through all priority levels
         for (var prio in Memory.spawnQueue.prop) {
             var level = Memory.spawnQueue.prop[prio];
@@ -138,7 +138,7 @@ class Plato {
                 var data = Memory.statistics.energy[req.room];
 
                 if (req.energy <= data.available) {
-                    this._setTask(req, Memory.spawnQueue.sche[prio]);
+                    this.setTask(req, Memory.spawnQueue.sche[prio]);
                     level.splice(idx, 1);
                     data.available -= req.energy;
                     data.pinned += req.energy;

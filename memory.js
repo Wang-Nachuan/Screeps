@@ -2,6 +2,7 @@
    Function: initialize memory
 */
 
+const Node = require('./node');
 const C = require('./constant');
 
 module.exports = function () {
@@ -26,8 +27,11 @@ module.exports = function () {
             sche: Array(C.MEMORY_SPAWNQUEUE_LEN)    // Scheduled
         }
         
-        // ID pool
-        Memory.idPool = {spawn: [], soldier: [], worker: []};
+        // Creep pool
+        Memory.creepPool = {soldier: [], worker: []};
+
+        // Node pool
+        Memory.nodePool = {spawn: []};
 
         // Name of owned rooms
         Memory.rooms = {visibable: [], owned: [], haveSpawn: []};
@@ -55,13 +59,16 @@ module.exports = function () {
             Memory.spawnQueue.sche[i] = [];
         }
 
-        Memory.idPool.spawn.push(Game.spawns['Spawn1'].id);
+        for (var name in Game.spawns) {
+            var spawn = Game.spawns[name];
+            Memory.nodePool.spawn.push(new Node(spawn.pos, C.SPAWN, spawn.id));
+        }
 
-        for (var room in Game.rooms) {
-            Memory.rooms.visibable.push(room);
-            Memory.rooms.owned.push(room);
-            Memory.rooms.haveSpawn.push(room);
-            Memory.statistics.energy[room] = {available: 300, pinned: 0};
+        for (var name in Game.rooms) {
+            Memory.rooms.visibable.push(name);
+            Memory.rooms.owned.push(name);
+            Memory.rooms.haveSpawn.push(name);
+            Memory.statistics.energy[name] = {available: 300, pinned: 0};
         }
     }
 };

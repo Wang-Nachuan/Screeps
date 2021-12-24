@@ -10,24 +10,20 @@ const C = require('./constant');
 
 class Euclid extends Plato {
 
-    /*-------------------- Public Methods --------------------*/
-
     /* Wrapper function run in the main loop
        Input: none
        Return: none
     */
     static wrapper() {
-        this._scheSpawnReq();
-        this._scheTask();
+        this.scheSpawnReq();
+        this.scheTask();
     }
-
-    /*-------------------- Private Methods --------------------*/
 
     /* Delete a task in a given level or replace it with a null
        Input: type, priority level, index witin the level
        Return: none
     */
-    static _delTask(level, idx) {
+    static delTask(level, idx) {
         if (idx == level.length - 1) {
             level.pop();
         } else {
@@ -39,7 +35,7 @@ class Euclid extends Plato {
         Input: task, object
         Output: int cost, starting index
     */
-    static _cost(task, creep) {
+    static cost(task, creep) {
         var startIdx = Task.startIdx(task, creep);
         var startNode = task.nodes[startIdx];
         var cost = creep.pos.getDirectionTo(Node.pos(startNode));
@@ -51,13 +47,13 @@ class Euclid extends Plato {
        Input: none
        Return: none
     */
-    static _scheTask() {
+    static scheTask() {
         // Loop through all types of creep
         for (var type in Memory.taskQueue) {
             var queue = Memory.taskQueue[type];
 
             // Loop through all creeps in the ID pool
-            for (var id of Memory.idPool[type]) {
+            for (var id of Memory.creepPool[type]) {
                 var creep = Game.getObjectById(id);
                 var termi_flag = false;     // Flage of terminating loops
 
@@ -75,7 +71,7 @@ class Euclid extends Plato {
                             var task = level[i];
 
                             if (task.state == C.TASK_STATE_ISSUED) {
-                                var ret = this._cost(task, creep);
+                                var ret = this.cost(task, creep);
 
                                 if (ret[0] < minCost) {
                                     minCost = ret[0];
@@ -122,12 +118,12 @@ class Euclid extends Plato {
                             /* TODO: inform agents if needed */
                             break;
                         case C.TASK_OP_RET_FLG_TERMINATE:
-                            this._delTask(Memory.taskQueue[creep.taskCursor[0]][creep.taskCursor[1]], creep.taskCursor[2]);
+                            this.delTask(Memory.taskQueue[creep.taskCursor[0]][creep.taskCursor[1]], creep.taskCursor[2]);
                             creep.isBusy = false;
                             creep.taskCursor = null;
                             break;
                         case C.TASK_OP_RET_FLG_HALT:
-                            this._delTask(Memory.taskQueue[creep.taskCursor[0]][creep.taskCursor[1]], creep.taskCursor[2]);
+                            this.delTask(Memory.taskQueue[creep.taskCursor[0]][creep.taskCursor[1]], creep.taskCursor[2]);
                             creep.isBusy = false;
                             creep.taskCursor = null;
                             /* TODO: inform agents if needed */
@@ -142,16 +138,20 @@ class Euclid extends Plato {
        Input: none
        Return: none
     */
-    static _scheSpawnReq() {
+    static scheSpawnReq() {
         // Loop through all spawns
-        for (var id of Memory.idPool.spawn) {
-            var spawn = Game.getObjectById(id);
+        for (var node of Memory.nodePool.spawn) {
+            var spawn = Game.getObjectById(node.id);
 
             // Execute the request for each spawn
             if (spawn.isBusy) {
                 // Monitor the spawning process
                 if (spawn.spawning == null) {
-                    this._delTask(Memory.spawnQueue.sche[spawn.taskCursor[0]], spawn.taskCursor[1]);
+                    var level = Memory.spawnQueue.sche[spawn.taskCursor[0]];
+                    var idx = spawn.taskCursor[1];
+                    var req = level[idx];
+                    Memory.creepPool[req.type].push(Game.creeps[req.name].id);
+                    this.delTask(level, idx);
                     spawn.isBusy = false;
                     spawn.taskCursor = null;
                 }

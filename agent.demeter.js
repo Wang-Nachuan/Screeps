@@ -7,30 +7,28 @@
 
 const Plato = require('./plato');
 const C = require('./constant');
+const tasks_worker = require('./task.worker');
 
 class Demeter extends Plato {
-
-    /*-------------------- Public Methods --------------------*/
 
     /* Wrapper function run in the main loop
        Input: none
        Return: none
     */
     static wrapper() {
-        this._update();
+        this.update();
         if (!Memory.tempFlag) {
             Memory.tempFlag = 1;
             this.propSpawnReq(C.WORKER, Memory.rooms.haveSpawn[0], [WORK, CARRY, MOVE, MOVE], 0);
+            // this.propTask(tasks_worker.harvestEnergy())
         }
     }
-
-    /*-------------------- Private Methods --------------------*/
 
     /* Update some records at the begining of each tick
        Input: none
        Return: none
     */
-    static _update() {
+    static update() {
         // Update energy statistics
         for (var roomName in Memory.statistics.energy) {
             var data = Memory.statistics.energy[roomName];
@@ -39,6 +37,14 @@ class Demeter extends Plato {
                 data.available = 0;
             }
         }
+    }
+
+    /* Scan a room, store any relavent data
+       Input: room
+       Return: none
+    */
+    static scan(room) {
+        
     }
 
     /* ...

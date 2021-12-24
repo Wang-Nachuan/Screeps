@@ -56,7 +56,7 @@ var handlers_worker = {
     },
 
     /* Harvest item from target
-    In: none
+       In: none
     */
     harvest: function(creep, para, phaseCursor) {
         var target = Game.getObjectById(para.targetID);
