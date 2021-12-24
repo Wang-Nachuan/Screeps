@@ -12,6 +12,8 @@ var tasks_worker = {
     */
     harvestEnergy: function(fromNode, toNode) {
         var nodes = [fromNode, toNode];
+        // Range
+        var para_mv = [1, 1];
         // Start
         var func_st = 'br_creepStore';
         var para_st = [[0, 1], RESOURCE_ENERGY, 0.5];
@@ -21,7 +23,7 @@ var tasks_worker = {
         // Branch
         var func_br = [null, 'br_targetStore'];
         var para_br = [null, [[0, 2], RESOURCE_ENERGY, Game.getObjectById(toNode.id).store.getCapacity(RESOURCE_ENERGY)]];
-        return new Task(C.WORKER, null, 0, 2, nodes, './handler.worker', func_st, para_st, func_op, para_op, func_br, para_br);
+        return new Task(C.WORKER, null, 0, 2, nodes, './handler.worker', para_mv, func_st, para_st, func_op, para_op, func_br, para_br);
     },
 
     /* ...

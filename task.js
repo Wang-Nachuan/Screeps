@@ -9,7 +9,7 @@ const C = require('./constant');
 
 class Task {
 
-    constructor(type, room, energy, numNodes, nodes, modulePath, func_st, para_st, func_op, para_op, func_br, para_br) {
+    constructor(type, room, energy, numNodes, nodes, modulePath, para_mv, func_st, para_st, func_op, para_op, func_br, para_br) {
         // Set when created
         this.type = type;                   // (Const) Type of performer
         this.room = room;                   // (String) Which room's energy will be used, null if no energy consumption
@@ -49,7 +49,7 @@ class Task {
        Return: true if still moving, false if reached the position
     */
     static moveTo(creep, pos, range) {
-        if (creep.inRangeTo(pos, range)) {
+        if (creep.pos.inRangeTo(pos, range)) {
             return false;
         }
         creep.moveTo(pos);
@@ -81,8 +81,10 @@ class Task {
             // If current operation finishes, update cursor
             if (task.func.br[task.cursor] != null) {
                 task.cursor = module[task.func.br[task.cursor]](creep, node, task.para.br[task.cursor]);
+                task.isMoving = true;
             } else {
                 task.cursor += 1;
+                task.isMoving = true;
             }
             if (task.cursor >= task.numNodes) {
                 return C.TASK_OP_RET_FLG_TERMINATE;

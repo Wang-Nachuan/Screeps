@@ -18,7 +18,6 @@ class Plato {
     */
     static propTask(task, prio) {
         Memory.propTaskQueue[task.type][prio].push(task);
-        console.log('[1]');
     }
 
     /* Propose a spawn request
@@ -109,15 +108,16 @@ class Plato {
                     var task = level[idx]
                     var data = Memory.statistics.energy[task.room];
 
-                    if (task.energy <= data.available) {
-                        // Add to task queue if energy consumption is acceptable
-                        this.setTask(task, Memory.TaskQueue[type][prio]);
-                        // Delet the corresponding task in proposed queue
+                    if (task.energy == 0) {
+                        this.setTask(task, Memory.taskQueue[type][prio]);
+                        level.splice(idx, 1);
+                    } else if (task.energy <= data.available) {
+                        this.setTask(task, Memory.taskQueue[type][prio]);
                         level.splice(idx, 1);
                         // Pin the required amount of energy
                         data.available -= task.energy;
                         data.pinned += task.energy;
-                    }
+                    } else {}
                 }
             }
         }

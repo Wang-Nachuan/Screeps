@@ -31,7 +31,7 @@ module.exports = function () {
         Memory.creepPool = {soldier: [], worker: []};
 
         // Node pool
-        Memory.nodePool = {spawn: []};
+        Memory.nodePool = {spawn: [], source: [], mineral: []};
 
         // Name of owned rooms
         Memory.rooms = {visibable: [], owned: [], haveSpawn: []};
@@ -59,16 +59,21 @@ module.exports = function () {
             Memory.spawnQueue.sche[i] = [];
         }
 
-        for (var name in Game.spawns) {
-            var spawn = Game.spawns[name];
-            Memory.nodePool.spawn.push(new Node(spawn.pos, C.SPAWN, spawn.id));
-        }
-
         for (var name in Game.rooms) {
             Memory.rooms.visibable.push(name);
             Memory.rooms.owned.push(name);
             Memory.rooms.haveSpawn.push(name);
             Memory.statistics.energy[name] = {available: 300, pinned: 0};
+
+            var room = Game.rooms[name];
+            var para = [FIND_MY_SPAWNS, FIND_SOURCES, FIND_MINERALS];
+            var type = ['spawn', 'source', 'mineral'];
+            for (var i = 0; i < para.length; i++) {
+                var ret = room.find(para[i]);
+                for (var obj of ret) {
+                    Memory.nodePool[type[i]].push(new Node(obj.pos, type[i], obj.id));
+                }
+            }
         }
     }
 };
