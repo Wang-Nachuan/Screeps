@@ -19,7 +19,7 @@ class Demeter extends Plato {
     static wrapper() {
         this._update();
         if (!Memory.tempFlag) {
-            Memory.tempFlag = 0;
+            Memory.tempFlag = 1;
             this.propSpawnReq('worker1', C.WORKER, Memory.rooms.haveSpawn[0], [WORK, CARRY, MOVE, MOVE], 0);
         }
     }
@@ -34,7 +34,10 @@ class Demeter extends Plato {
         // Update energy statistics
         for (var roomName in Memory.statistics.energy) {
             var data = Memory.statistics.energy[roomName];
-            data.available = Game.rooms[roomName].energyAvailable - data.planned;
+            data.available = Game.rooms[roomName].energyAvailable - data.pinned;
+            if (data.available < 0) {
+                data.available = 0;
+            }
         }
     }
 
@@ -43,3 +46,5 @@ class Demeter extends Plato {
        Return:
     */
 }
+
+module.exports = Demeter;

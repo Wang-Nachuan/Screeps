@@ -152,15 +152,15 @@ class Euclid extends Plato {
                 // Monitor the spawning process
                 if (spawn.spawning == null) {
                     this._delTask(Memory.spawnQueue.sche[spawn.taskCursor[0]], spawn.taskCursor[1]);
-                    spawn.isBusy = true;
-                    spawn.taskCursor = [prio, idx];
+                    spawn.isBusy = false;
+                    spawn.taskCursor = null;
                 }
             }
 
             // If spawn has no request, find a request
             if (!spawn.isBusy) {
                 // Loop through all priority levels
-                for (var prio in  Memory.spawnQueue.sche) {
+                for (var prio in Memory.spawnQueue.sche) {
                     var level = Memory.spawnQueue.sche[prio];
 
                     // Loop through all request
@@ -185,3 +185,5 @@ class Euclid extends Plato {
        Return:
     */
 }
+
+module.exports = Euclid;

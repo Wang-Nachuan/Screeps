@@ -6,7 +6,7 @@ const C = require('./constant');
 
 module.exports = function () {
     if (!Memory.initFlag) {
-        Memory.initFlag = 0;
+        Memory.initFlag = 1;
 
         // Proposed tasks queue
         Memory.propTaskQueue = {
@@ -61,7 +61,7 @@ module.exports = function () {
             Memory.rooms.visibable.push(room);
             Memory.rooms.owned.push(room);
             Memory.rooms.haveSpawn.push(room);
-            Memory.statistics.energy[room] = {available: 0, pinned: 0};
+            Memory.statistics.energy[room] = {available: 300, pinned: 0};
         }
     }
 };

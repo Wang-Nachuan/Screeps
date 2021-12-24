@@ -18,6 +18,7 @@ class Plato {
     */
     static propTask(task, prio) {
         Memory.propTaskQueue[task.type][prio].push(task);
+        console.log('[1]');
     }
 
     /* Propose a spawn request
@@ -125,7 +126,7 @@ class Plato {
     static _issueSpawnReq() {
         // Loop through all priority levels
         for (var prio in Memory.spawnQueue.prop) {
-            level = Memory.spawnQueue.prop[prio];
+            var level = Memory.spawnQueue.prop[prio];
 
             // Loop through all requests
             for (var idx in level) {
