@@ -176,10 +176,9 @@ class Plato {
         // Generate construction task
         for (var i in Memory.constructQueue.prop) {
             // Propose task
-            var site = Game.getObjectById(Memory.constructQueue.prop[i]);
-            var fromNode = Memory.nodePool.source[0];
-            var toNode = new Node(site.pos, 'constructionSites', site.id);
-            this.propTask(tasks_worker.buildStruct(fromNode, toNode), 4);
+            // var fromNode = Memory.nodePool.source[0];
+            // var toNode = new Node(site.pos, 'constructionSites', site.id);
+            // this.propTask(tasks_worker.buildStruct(fromNode, toNode), 4);
 
             // Move to schedules queue
             Memory.constructQueue.sche.push(Memory.constructQueue.prop[i]);

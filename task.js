@@ -63,7 +63,7 @@ class Task {
     static execute(task) {
         var module = require(task.modulePath);
         var creep = Game.getObjectById(task.ownerId);
-        var node = task.nodes[task.cursor];
+        var node = Node.concretize(task.nodes[task.cursor]);
 
         // Moving
         if (task.isMoving) {
@@ -86,6 +86,7 @@ class Task {
                 task.cursor += 1;
                 task.isMoving = true;
             }
+            Node.virtualize(node);      // Virtualize node back at finish stage
             if (task.cursor >= task.numNodes) {
                 return C.TASK_OP_RET_FLG_TERMINATE;
             } else {

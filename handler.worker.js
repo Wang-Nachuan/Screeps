@@ -124,6 +124,17 @@ var handlers_worker = {
         }
     },
 
+    /* Branch by whether the scheduled construction queue is empty
+       Input: none
+    */
+    br_cqIsEmpty: function(creep, node, para) {
+        if (Memory.constructQueue.sche.length != 0) {
+            return para[0][0];
+        } else {
+            return para[0][1];
+        }
+    },
+
     /* ...
        Input:
     */

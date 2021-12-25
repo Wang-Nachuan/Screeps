@@ -59,7 +59,7 @@ var tasks_worker = {
         var func_op = ['op_harvest', 'op_build'];
         var para_op = [null, null];
         // Branch
-        var func_br = [null, 'br_targetExist'];
+        var func_br = [null, 'br_cqIsEmpty'];
         var para_br = [null, [[0, 2]]];
         return new Task(C.WORKER, null, 0, 2, nodes, './handler.worker', para_mv, func_st, para_st, func_op, para_op, func_br, para_br);
     },
