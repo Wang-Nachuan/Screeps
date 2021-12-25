@@ -3,9 +3,12 @@
    - Prototype for all agents
    - Issue tasks based on energy consumption
    - Grant energy usage of structures
+   - Maintain task/spawn/construct queue
    - (Future) Manage energy consumptioin based on prediction and warfare, i.e. energy deficit & tilt
 */
 
+const tasks_worker = require('./task.worker');
+const Node = require('./node');
 const C = require('./constant');
 
 class Plato {
@@ -46,6 +49,14 @@ class Plato {
         Memory.spawnQueue.prop[prio].push(req);
     }
 
+    /* Propose a construction request
+       Input: id
+       Return: none
+    */
+    static propConstructReq(id) {
+        Memory.constructQueue.push(id);
+    }
+
     /* Claim some amount of energy
        Input: room, energy
        Return: true if granted, fale otherwise
@@ -69,6 +80,7 @@ class Plato {
     static wrapper() {
         // Order matters
         this.issueSpawnReq();
+        this.issueConstructReq();
         this.issueTask();
     }
 
@@ -79,7 +91,6 @@ class Plato {
        Return: none
     */
     static setTask(task, level) {
-        task.state = C.TASK_STATE_ISSUED;
         for (var idx in level) {
             if (level[idx] == null) {
                 level[idx] = task;
@@ -110,9 +121,11 @@ class Plato {
 
                     if (task.energy == 0) {
                         this.setTask(task, Memory.taskQueue[type][prio]);
+                        task.state = C.TASK_STATE_ISSUED;
                         level.splice(idx, 1);
                     } else if (task.energy <= data.available) {
                         this.setTask(task, Memory.taskQueue[type][prio]);
+                        task.state = C.TASK_STATE_ISSUED;
                         level.splice(idx, 1);
                         // Pin the required amount of energy
                         data.available -= task.energy;
@@ -139,10 +152,46 @@ class Plato {
 
                 if (req.energy <= data.available) {
                     this.setTask(req, Memory.spawnQueue.sche[prio]);
+                    req.state = C.TASK_STATE_ISSUED;
                     level.splice(idx, 1);
                     data.available -= req.energy;
                     data.pinned += req.energy;
                 }
+            }
+        }
+    }
+
+    /* Add all manually set construction site to queue, propose construction tasks
+       Input: none
+       Return: none
+    */
+    static issueConstructReq() {
+        // Find all maually set construction site
+        for (var id in Game.constructionSites) {
+            if ((!Memory.constructQueue.prop.includes(id)) && (!Memory.constructQueue.sche.includes(id))) {
+                Memory.constructQueue.prop.push(id);
+            }
+        }
+
+        // Generate construction task
+        for (var i in Memory.constructQueue.prop) {
+            // Propose task
+            var site = Game.getObjectById(Memory.constructQueue.prop[i]);
+            var fromNode = Memory.nodePool.source[0];
+            var toNode = new Node(site.pos, 'constructionSites', site.id);
+            this.propTask(tasks_worker.buildStruct(fromNode, toNode), 4);
+
+            // Move to schedules queue
+            Memory.constructQueue.sche.push(Memory.constructQueue.prop[i]);
+            Memory.constructQueue.prop.splice(i, 1);
+
+            /* TODO: Propose two version of tasks (using source energy/using stored energy) */
+        }
+
+        // Clean the scheduled queue
+        for (var i in Memory.constructQueue.sche) {
+            if (null == Game.getObjectById(Memory.constructQueue.sche[i])) {
+                Memory.constructQueue.sche.splice(i, 1);
             }
         }
     }

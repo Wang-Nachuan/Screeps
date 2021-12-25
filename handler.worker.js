@@ -45,6 +45,22 @@ var handlers_worker = {
         }
     },
 
+    /* Work on construction site
+       Input: none
+    */
+    op_build: function(creep, node, para) {
+        var target = Game.getObjectById(node.id);
+        if (target == null) {
+            return C.TASK_OP_RET_FLG_FINISH;
+        }
+        if (creep.store.getUsedCapacity(RESOURCE_ENERGY) > 0) {
+            creep.build(target);
+            return C.TASK_OP_RET_FLG_OCCUPY;
+        } else {
+            return C.TASK_OP_RET_FLG_FINISH;
+        }
+    },
+
     /*--------------------- Branch ---------------------*/
 
     /* Branch by creep's item storage
@@ -89,6 +105,19 @@ var handlers_worker = {
         var target = Game.getObjectById(node.id);
         var level = para[1];
         if (target.level < level) {
+            return para[0][0];
+        } else {
+            return para[0][1];
+        }
+    },
+
+    /* Branch by whether target exist
+       Input:
+       [0] - (list of num) index branching to, i.e. [choice1, choice2, ...]
+    */
+    br_targetExist: function(creep, node, para) {
+        var target = Game.getObjectById(node.id);
+        if (target != null) {
             return para[0][0];
         } else {
             return para[0][1];

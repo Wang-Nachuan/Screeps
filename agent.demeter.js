@@ -16,31 +16,15 @@ class Demeter extends Plato {
        Return: none
     */
     static wrapper() {
-        this.update();
         if (!Memory.tempFlag) {
             Memory.tempFlag = 1;
-            this.propSpawnReq(C.WORKER, Memory.rooms.haveSpawn[0], [WORK, CARRY, MOVE, MOVE], 0);
-            this.propSpawnReq(C.WORKER, Memory.rooms.haveSpawn[0], [WORK, CARRY, MOVE, MOVE], 0);
-            this.propSpawnReq(C.WORKER, Memory.rooms.haveSpawn[0], [WORK, CARRY, MOVE, MOVE], 0);
-            this.propTask(tasks_worker.harvestEnergy(Memory.nodePool.source[0], Memory.nodePool.spawn[0]), 0);
-            this.propTask(tasks_worker.upgradeController(Memory.nodePool.source[0], Memory.nodePool.controller[0], 2), 1);
-            this.propTask(tasks_worker.upgradeController(Memory.nodePool.source[0], Memory.nodePool.controller[0], 2), 1);
-            this.propTask(tasks_worker.upgradeController(Memory.nodePool.source[0], Memory.nodePool.controller[0], 8), 1);
-        }
-    }
-
-    /* Update some records at the begining of each tick
-       Input: none
-       Return: none
-    */
-    static update() {
-        // Update energy statistics
-        for (var roomName in Memory.statistics.energy) {
-            var data = Memory.statistics.energy[roomName];
-            data.available = Game.rooms[roomName].energyAvailable - data.pinned;
-            if (data.available < 0) {
-                data.available = 0;
-            }
+            this.propSpawnReq(C.WORKER, Memory.rooms.haveSpawn[0], [WORK, WORK, CARRY, MOVE], 0);
+            // this.propSpawnReq(C.WORKER, Memory.rooms.haveSpawn[0], [WORK, CARRY, MOVE, MOVE], 0);
+            // this.propSpawnReq(C.WORKER, Memory.rooms.haveSpawn[0], [WORK, CARRY, MOVE, MOVE], 0);
+            // this.propTask(tasks_worker.harvestEnergy(Memory.nodePool.source[0], Memory.nodePool.spawn[0]), 0);
+            // this.propTask(tasks_worker.upgradeController(Memory.nodePool.source[0], Memory.nodePool.controller[0], 2), 1);
+            // this.propTask(tasks_worker.upgradeController(Memory.nodePool.source[0], Memory.nodePool.controller[0], 2), 1);
+            // this.propTask(tasks_worker.upgradeController(Memory.nodePool.source[0], Memory.nodePool.controller[0], 8), 1);
         }
     }
 

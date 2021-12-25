@@ -26,6 +26,12 @@ module.exports = function () {
             prop: Array(C.MEMORY_SPAWNQUEUE_LEN),   // Proposed
             sche: Array(C.MEMORY_SPAWNQUEUE_LEN)    // Scheduled
         }
+
+        // Construction request queue
+        Memory.constructQueue = {
+            prop: [],   // Proposed
+            sche: []    // Scheduled
+        }
         
         // Creep pool
         Memory.creepPool = {soldier: [], worker: []};

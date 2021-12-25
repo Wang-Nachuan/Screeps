@@ -45,6 +45,25 @@ var tasks_worker = {
         return new Task(C.WORKER, null, 0, 2, nodes, './handler.worker', para_mv, func_st, para_st, func_op, para_op, func_br, para_br);
     },
 
+    /* Harvest energy srouce to build construction
+       Input: from node (energy source), to node (construction site)
+    */
+    buildStruct: function(fromNode, toNode) {
+        var nodes = [fromNode, toNode];
+        // Range
+        var para_mv = [1, 3];
+        // Start
+        var func_st = 'br_creepStore';
+        var para_st = [[0, 1], RESOURCE_ENERGY, 0.5];
+        // Operation
+        var func_op = ['op_harvest', 'op_build'];
+        var para_op = [null, null];
+        // Branch
+        var func_br = [null, 'br_targetExist'];
+        var para_br = [null, [[0, 2]]];
+        return new Task(C.WORKER, null, 0, 2, nodes, './handler.worker', para_mv, func_st, para_st, func_op, para_op, func_br, para_br);
+    },
+
     /* ...
        Input:
     */
