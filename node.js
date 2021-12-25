@@ -24,9 +24,11 @@ class Node {
     static concretize(node) {
         if (node.isVirtual) {
             var target = this.filters[node.filter](Game.rooms[node.pos.roomName]);
-            node.pos = target.pos;
-            node.id = target.id;
-            node.isVirtual = false;
+            if (target != undefined) {
+                node.pos = target.pos;
+                node.id = target.id;
+                node.isVirtual = false;
+            }
         }
         return node;
     }
