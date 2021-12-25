@@ -43,12 +43,12 @@ class Node {
     static filters = {
 
         // Active source
-        'source': function(room) {
+        source: function(room) {
             return room.find(FIND_SOURCES_ACTIVE)[0];
         },
 
         // Energy storage structure with free capacity
-        'energyStore': function (room) {
+        energyStore: function (room) {
             return room.find(FIND_MY_STRUCTURES, {
                 filter: (obj) => {
                     return (obj.structureType == STRUCTURE_EXTENSION || obj.structureType == STRUCTURE_SPAWN) &&
@@ -58,7 +58,7 @@ class Node {
         },
 
         // Construction site that has been issued
-        'constructSite': function(room) {
+        constructSite: function(room) {
             return room.find(FIND_MY_CONSTRUCTION_SITES, {
                 filter: (obj) => {
                     return Memory.constructQueue.sche.includes(obj.id);
