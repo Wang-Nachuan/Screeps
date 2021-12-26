@@ -1,6 +1,7 @@
 /* Name: agent.demeter.js
    Function: 
    - Manage resource harvest & transportation
+   - Building structures
    - Predict resource increment
    - Spawning worker creeps
 */

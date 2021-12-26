@@ -58,9 +58,20 @@ module.exports = function () {
         };
 
         // Memory space for agents
-        Memory.agents = {};
+        Memory.agents = {
+            demeter: {},
+            hephaestus: {},
+            minerva: {}
+        };
 
-        // Initialization
+        /*------------------- Demeter --------------------*/
+
+        // Messaage queue
+        Memory.agents.demeter.msgQueue = [];
+
+        /*--------------- Initialization -----------------*/
+
+        // Initialization of basic data
         for (var i in Memory.taskQueue) {
             for (var j = 0; j < C.MEMORY_TASKQUEUE_LEN; j++) {
                 Memory.taskQueue[i][j] = [];

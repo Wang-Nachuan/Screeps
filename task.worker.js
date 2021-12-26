@@ -15,7 +15,7 @@ var tasks_worker = {
         // Range
         var para_mv = [1, 1];
         // Start
-        var func_st = 'br_creepStore';
+        var func_st = 'st_creepStore';
         var para_st = [[0, 1], RESOURCE_ENERGY, 0.5];
         // Operation
         var func_op = ['op_harvest', 'op_transfer'];
@@ -34,7 +34,7 @@ var tasks_worker = {
         // Range
         var para_mv = [1, 3];
         // Start
-        var func_st = 'br_creepStore';
+        var func_st = 'st_creepStore';
         var para_st = [[0, 1], RESOURCE_ENERGY, 0.5];
         // Operation
         var func_op = ['op_harvest', 'op_upgrade'];
@@ -53,7 +53,7 @@ var tasks_worker = {
         // Range
         var para_mv = [1, 3];
         // Start
-        var func_st = 'br_creepStore';
+        var func_st = 'st_creepStore';
         var para_st = [[0, 1], RESOURCE_ENERGY, 0.5];
         // Operation
         var func_op = ['op_harvest', 'op_build'];

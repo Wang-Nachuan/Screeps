@@ -9,14 +9,14 @@ const C = require('./constant');
 
 class Task {
 
-    constructor(type, room, energy, numNodes, nodes, modulePath, para_mv, func_st, para_st, func_op, para_op, func_br, para_br, func_ed = null, para_ed = null) {
+    constructor(type, room, energy, numNodes, nodes, module, para_mv, func_st, para_st, func_op, para_op, func_br, para_br, func_ed = null, para_ed = null, token = null) {
         // Set when created
         this.type = type;                   // (Const) Type of performer
         this.room = room;                   // (String) Which room's energy will be used, null if no energy consumption
         this.energy = energy;               // (Num) Expected energy consumption (0 for no consumption or harvesting energy)
         this.numNodes = numNodes;           // (Num) Number of nodes invovled
         this.nodes = nodes;                 // (List of Node) [Node0, Node1, ...]
-        this.modulePath = modulePath;       // (String) Module that contain desired operations
+        this.module = module;               // (String) Module that contain desired operations
         this.func = {
             st: func_st,                    // (String) Key of start function
             op: func_op,                    // (List of string) [OpKey0, OpKey1, ...], key of operation to each node
@@ -30,6 +30,7 @@ class Task {
             br: para_br,                    // (List of list) [[BrInput00, BrInput01, ...], [BrInput10, BrInput11, ...], ...], null if no branch
             ed: para_ed                     // (List) [EdInput0, EdInput1, ...]
         };
+        token = token;                      // (Num) In hex format, generate a message to corresponding agent if token is specified
         // Set later
         this.cursor = null;                 // (Num) Index of current target node
         this.ownerId = null;                // (String) Id of task owner
@@ -42,7 +43,7 @@ class Task {
        Output: cursor index of staring node
     */
     static startIdx(task, creep) {
-        var module = require(task.modulePath);
+        var module = require(task.module);
         Node.concretize(task.nodes[0]);
         var idx = module[task.func.st](creep, task.nodes[0], task.para.st);
         Node.virtualize(task.nodes[0]);
@@ -66,7 +67,7 @@ class Task {
        Return: flage
     */
     static execute(task) {
-        var module = require(task.modulePath);
+        var module = require(task.module);
         var creep = Game.getObjectById(task.ownerId);
         var node = Node.concretize(task.nodes[task.cursor]);
 

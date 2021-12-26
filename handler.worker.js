@@ -63,6 +63,22 @@ var handlers_worker = {
 
     /*--------------------- Start ----------------------*/
 
+    /* Enter task by creep's item storage
+       Input:
+       [0] - (list of num) index branching to, i.e. [choice1, choice2, ...]
+       [1] - (const) type of item
+       [2] - (float) ratio of storage
+    */
+    st_creepStore: function(creep, node, para) {
+        var item = para[1];
+        var ratio = para[2];
+        if (creep.store.getUsedCapacity(item) / creep.store.getCapacity(item) < ratio) {
+            return para[0][0];
+        } else {
+            return para[0][1];
+        }
+    },
+
     /*---------------------- End -----------------------*/
 
     /* Decrement the Memory.constructQueue.numTask by 1
@@ -76,22 +92,6 @@ var handlers_worker = {
     },
 
     /*--------------------- Branch ---------------------*/
-
-    /* Branch by creep's item storage
-       Input:
-       [0] - (list of num) index branching to, i.e. [choice1, choice2, ...]
-       [1] - (const) type of item
-       [2] - (float) ratio of storage
-    */
-    br_creepStore: function(creep, node, para) {
-        var item = para[1];
-        var ratio = para[2];
-        if (creep.store.getUsedCapacity(item) / creep.store.getCapacity(item) < ratio) {
-            return para[0][0];
-        } else {
-            return para[0][1];
-        }
-    },
 
     /* Branch by target's item storage
        Input:

@@ -10,12 +10,25 @@ class Const {
     static PRIO_HOLYSHIT=  0;
     static PRIO_URGENT =  1;
     static PRIO_NORMAL = 2;
-
+    
+    // Object types
     static SPAWN = 'spawn';
     static SOLDIER = 'soldier';
     static WORKER = 'worker';
     static CONSTRUCT_SITE = 'constructionSite';
     static SOURCE = 'source';
+
+    /* 16-bit task token
+       [0:7] - index within process
+       [8:11] - process header
+       [12:15] - agent header
+    */
+
+    // Token header for each agents
+    static TOKEN_HEADER_PLATO = 0x0000;         // Plato
+    static TOKEN_HEADER_EUCLID = 0x1000;        // Euclid
+    static TOKEN_HEADER_DEMETER = 0x2000;       // Demeter
+    static TOKEN_HEADER_HEPHAESTUS = 0x3000;    // Hephaestus
 
     /*----------------------------------- Memory -----------------------------------*/
     

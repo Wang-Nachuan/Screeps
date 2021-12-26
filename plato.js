@@ -39,7 +39,7 @@ class Plato {
 
         // Update statistic
         Memory.statistics.creep[type] += 1;
-        var name = type[0] + Memory.statistics.creep[type];
+        var name = type[0] + (Memory.statistics.creep[type] % 1000);
 
         // Calculate energy consumption
         for (var part of body_real) {energy += BODYPART_COST[part];}
@@ -79,6 +79,11 @@ class Plato {
             return false;
         }
     }
+
+    /* Start a process
+       Input: none
+       Return: none
+    */
 
     /* Wrapper function run in the main loop
        Input: none
