@@ -69,6 +69,9 @@ module.exports = function () {
         // Messaage queue
         Memory.agents.demeter.msgQueue = [];
 
+        // Process queue
+        Memory.agents.demeter.proQueue = [];
+
         /*--------------- Initialization -----------------*/
 
         // Initialization of basic data

@@ -81,9 +81,12 @@ class Plato {
     }
 
     /* Start a process
-       Input: none
+       Input: agent name, process object
        Return: none
     */
+    static startProcess(agent, process) {
+        Memory.agents[agent].proQueue.push(process);
+    }
 
     /* Wrapper function run in the main loop
        Input: none
