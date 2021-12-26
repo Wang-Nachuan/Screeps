@@ -18,7 +18,7 @@ class Task {
         this.nodes = nodes;                 // (List of Node) [Node0, Node1, ...]
         this.modulePath = modulePath;       // (String) Module that contain desired operations
         this.func = {
-            st: func_st,                    // (String) Key of branch function
+            st: func_st,                    // (String) Key of start function
             op: func_op,                    // (List of string) [OpKey0, OpKey1, ...], key of operation to each node
             br: func_br,                    // (List of string) [BrKey0, BrKey1, ...], key of branch function at each node, null if no branch
             ed: func_ed                     // (String) Key of end function
@@ -43,7 +43,10 @@ class Task {
     */
     static startIdx(task, creep) {
         var module = require(task.modulePath);
-        return module[task.func.st](creep, task.nodes[0], task.para.st);
+        Node.concretize(task.nodes[0]);
+        var idx = module[task.func.st](creep, task.nodes[0], task.para.st);
+        Node.virtualize(task.nodes[0]);
+        return idx;
     }
 
     /* Optimized moving function for creep
@@ -66,6 +69,13 @@ class Task {
         var module = require(task.modulePath);
         var creep = Game.getObjectById(task.ownerId);
         var node = Node.concretize(task.nodes[task.cursor]);
+
+        // Checking for node validity
+        if (node == null) {
+            // Execute end function and terminate the task
+            if (task.func.ed != null) {module[task.func.ed](creep, node, task.para.ed);}
+            return C.TASK_OP_RET_FLG_TERMINATE;
+        }
 
         // Moving
         if (task.isMoving) {

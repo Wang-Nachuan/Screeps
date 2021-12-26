@@ -28,6 +28,8 @@ class Node {
                 node.pos = target.pos;
                 node.id = target.id;
                 node.isVirtual = false;
+            } else {
+                return null;
             }
         }
         return node;
@@ -53,8 +55,18 @@ class Node {
         energyStore: function (room) {
             return room.find(FIND_MY_STRUCTURES, {
                 filter: (obj) => {
-                    return (obj.structureType == STRUCTURE_EXTENSION || obj.structureType == STRUCTURE_SPAWN) &&
+                    return ([STRUCTURE_EXTENSION, STRUCTURE_SPAWN, STRUCTURE_STORAGE].includes(obj.structureType)) &&
                         structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+                }
+            })[0];
+        },
+
+        // Energy storage structure with used capacity
+        energyAvai: function (room) {
+            return room.find(FIND_MY_STRUCTURES, {
+                filter: (obj) => {
+                    return ([STRUCTURE_EXTENSION, STRUCTURE_SPAWN, STRUCTURE_STORAGE].includes(obj.structureType)) &&
+                        structure.store.getUsedCapacity(RESOURCE_ENERGY) > 0;
                 }
             })[0];
         },

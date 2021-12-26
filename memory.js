@@ -9,6 +9,8 @@ module.exports = function () {
     if (!Memory.initFlag) {
         Memory.initFlag = 1;
 
+        /*-------------------- Queues --------------------*/
+
         // Proposed tasks queue
         Memory.propTaskQueue = {
             soldier: Array(C.MEMORY_TASKQUEUE_LEN),
@@ -30,9 +32,12 @@ module.exports = function () {
         // Construction request queue
         Memory.constructQueue = {
             prop: [],   // Proposed
-            sche: []    // Scheduled
+            sche: [],   // Scheduled
+            numTask: {}     // RoomName: number
         }
         
+        /*-------------------- Pools ---------------------*/
+
         // Creep pool
         Memory.creepPool = {soldier: [], worker: []};
 
@@ -42,11 +47,14 @@ module.exports = function () {
         // Name of owned rooms
         Memory.rooms = {visibable: [], owned: [], haveSpawn: []};
 
+        /*-------------------- Others ---------------------*/
+
         // Statistics
         Memory.statistics = {
             structure: {spawn: 1},
             creep: {worker: 0, soldier: 0},
-            energy: {}      // roomName: {available: 0, pinned: 0}
+            energy: {},     // roomName: {available: 0, pinned: 0}
+            stdBody: {}     // roomName: {worker: [...], countWorker: {...}, soldier: [...], countSoldier: {...}, ...}
         };
 
         // Memory space for agents
@@ -70,6 +78,12 @@ module.exports = function () {
             Memory.rooms.owned.push(name);
             Memory.rooms.haveSpawn.push(name);
             Memory.statistics.energy[name] = {available: 300, pinned: 0};
+            Memory.statistics.stdBody[name] = {
+                worker: [WORK, CARRY, CARRY, MOVE, MOVE], 
+                countWorker: {move: 2, work: 1, carry: 2, attack: 0, rangedAttack: 0, heal: 0, claim: 0, tough: 0}, 
+                soldier: [], 
+                countSoldier: {move: 0, work: 0, carry: 0, attack: 0, rangedAttack: 0, heal: 0, claim: 0, tough: 0}
+            };
 
             var room = Game.rooms[name];
             var para = [FIND_MY_SPAWNS, FIND_SOURCES, FIND_MINERALS];

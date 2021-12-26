@@ -13,5 +13,4 @@ module.exports.loop = function () {
     // Execution statge
     Plato.wrapper();
     Euclid.wrapper();
-    
 }

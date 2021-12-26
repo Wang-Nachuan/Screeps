@@ -61,6 +61,20 @@ var handlers_worker = {
         }
     },
 
+    /*--------------------- Start ----------------------*/
+
+    /*---------------------- End -----------------------*/
+
+    /* Decrement the Memory.constructQueue.numTask by 1
+       Input:
+       [0] - room name
+    */
+    ed_decTaskNum: function(creep, node, para) {
+        if (Memory.constructQueue.numTask[para[0]] > 0) {
+            Memory.constructQueue.numTask[para[0]] -= 1;
+        }
+    },
+
     /*--------------------- Branch ---------------------*/
 
     /* Branch by creep's item storage

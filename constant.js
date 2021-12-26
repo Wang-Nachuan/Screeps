@@ -11,10 +11,11 @@ class Const {
     static PRIO_URGENT =  1;
     static PRIO_NORMAL = 2;
 
-    // Roles of objects
     static SPAWN = 'spawn';
     static SOLDIER = 'soldier';
     static WORKER = 'worker';
+    static CONSTRUCT_SITE = 'constructionSite';
+    static SOURCE = 'source';
 
     /*----------------------------------- Memory -----------------------------------*/
     

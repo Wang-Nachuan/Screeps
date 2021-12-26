@@ -46,9 +46,9 @@ var tasks_worker = {
     },
 
     /* Harvest energy srouce to build construction
-       Input: from node (energy source), to node (construction site)
+       Input: from node (energy source), to node (construction site), energy consumption, room name
     */
-    buildStruct: function(fromNode, toNode) {
+    buildStruct: function(fromNode, toNode, energy, room) {
         var nodes = [fromNode, toNode];
         // Range
         var para_mv = [1, 3];
@@ -61,7 +61,10 @@ var tasks_worker = {
         // Branch
         var func_br = [null, 'br_cqIsEmpty'];
         var para_br = [null, [[0, 2]]];
-        return new Task(C.WORKER, null, 0, 2, nodes, './handler.worker', para_mv, func_st, para_st, func_op, para_op, func_br, para_br);
+        // End
+        var func_ed = 'ed_decTaskNum';
+        var para_ed = [room];
+        return new Task(C.WORKER, null, energy, 2, nodes, './handler.worker', para_mv, func_st, para_st, func_op, para_op, func_br, para_br, func_ed, para_ed);
     },
 
     /* ...
