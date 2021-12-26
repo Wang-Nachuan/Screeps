@@ -9,7 +9,7 @@ const C = require('./constant');
 
 class Task {
 
-    constructor(type, room, energy, numNodes, nodes, modulePath, para_mv, func_st, para_st, func_op, para_op, func_br, para_br) {
+    constructor(type, room, energy, numNodes, nodes, modulePath, para_mv, func_st, para_st, func_op, para_op, func_br, para_br, func_ed = null, para_ed = null) {
         // Set when created
         this.type = type;                   // (Const) Type of performer
         this.room = room;                   // (String) Which room's energy will be used, null if no energy consumption
@@ -20,13 +20,15 @@ class Task {
         this.func = {
             st: func_st,                    // (String) Key of branch function
             op: func_op,                    // (List of string) [OpKey0, OpKey1, ...], key of operation to each node
-            br: func_br                     // (List of string) [BrKey0, BrKey1, ...], key of branch function at each node, null if no branch
+            br: func_br,                    // (List of string) [BrKey0, BrKey1, ...], key of branch function at each node, null if no branch
+            ed: func_ed                     // (String) Key of end function
         }
         this.para = {
             st: para_st,                    // (List) [StInput0, StInput1, ...]
             mv: para_mv,                    // (List) [Range0, Range1, ...], acceptable range to node
             op: para_op,                    // (List of list) [[OpInput00, OpInput01, ...], [OpInput10, OpInput11, ...], ...]
             br: para_br,                    // (List of list) [[BrInput00, BrInput01, ...], [BrInput10, BrInput11, ...], ...], null if no branch
+            ed: para_ed                     // (List) [EdInput0, EdInput1, ...]
         };
         // Set later
         this.cursor = null;                 // (Num) Index of current target node
@@ -86,12 +88,16 @@ class Task {
                 task.cursor += 1;
                 task.isMoving = true;
             }
-            Node.virtualize(node);      // Virtualize node back at finish stage
             if (task.cursor >= task.numNodes) {
+                if (task.func.ed != null) {module[task.func.ed](creep, node, task.para.ed);}
                 return C.TASK_OP_RET_FLG_TERMINATE;
             } else {
+                Node.virtualize(node);
                 return C.TASK_OP_RET_FLG_FINISH;
             }
+        } else if (flage == C.TASK_OP_RET_FLG_TERMINATE || flage == C.TASK_OP_RET_FLG_HALT) {
+            if (task.func.ed != null) {module[task.func.ed](creep, node, task.para.ed);}
+            return flage;
         } else {
             return flage;
         }
