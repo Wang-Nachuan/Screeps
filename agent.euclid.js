@@ -118,11 +118,13 @@ class Euclid extends Plato {
                             /* TODO: inform agents if needed */
                             break;
                         case C.TASK_OP_RET_FLG_TERMINATE:
+                            this.sendMsg([task.token, C.MSG_TASK_TERMINATE]);
                             this.delTask(Memory.taskQueue[creep.taskCursor[0]][creep.taskCursor[1]], creep.taskCursor[2]);
                             creep.isBusy = false;
                             creep.taskCursor = null;
                             break;
                         case C.TASK_OP_RET_FLG_HALT:
+                            this.sendMsg([task.token, C.MSG_TASK_HALT]);
                             this.delTask(Memory.taskQueue[creep.taskCursor[0]][creep.taskCursor[1]], creep.taskCursor[2]);
                             creep.isBusy = false;
                             creep.taskCursor = null;
@@ -150,7 +152,11 @@ class Euclid extends Plato {
                     var level = Memory.spawnQueue.sche[spawn.taskCursor[0]];
                     var idx = spawn.taskCursor[1];
                     var req = level[idx];
+                    // Send terminate message
+                    this.sendMsg([req.token, C.MSG_SPAWN_TERMINATE]);
+                    // Add creep to the pool
                     Memory.creepPool[req.type].push(Game.creeps[req.name].id);
+                    // Delete task, free spawn
                     this.delTask(level, idx);
                     spawn.isBusy = false;
                     spawn.taskCursor = null;

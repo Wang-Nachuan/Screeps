@@ -45,7 +45,7 @@ module.exports = function () {
         Memory.nodePool = {spawn: [], source: [], mineral: [], controller: []};
 
         // Name of owned rooms
-        Memory.rooms = {visibable: [], owned: [], haveSpawn: []};
+        Memory.rooms = {visibable: [], owned: [], haveSpawn: [], developing: []};
 
         /*-------------------- Others ---------------------*/
 
@@ -71,6 +71,10 @@ module.exports = function () {
 
         // Process queue
         Memory.agents.demeter.proQueue = [];
+
+        Memory.agents.demeter.statistics = {
+            proNum: 0,
+        }
 
         /*--------------- Initialization -----------------*/
 

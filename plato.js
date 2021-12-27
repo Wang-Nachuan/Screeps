@@ -13,6 +13,17 @@ const C = require('./constant');
 
 class Plato {
 
+    /* Wrapper function run in the main loop
+       Input: none
+       Return: none
+    */
+       static wrapper() {
+        // Order matters
+        this.issueSpawnReq();
+        this.issueConstructReq();
+        this.issueTask();
+    }
+
     /*-------------------- Public Methods --------------------*/
 
     /* Propose a task
@@ -27,7 +38,7 @@ class Plato {
        Input: creep name, type, room to spawn, body parts, priority
        Return: none
     */
-    static propSpawnReq(type, room, prio, body=null) {
+    static propSpawnReq(type, room, prio, body=null, token=null) {
         var energy = 0;     // Energy required to spawn the creep
         var body_real;
 
@@ -51,7 +62,8 @@ class Plato {
             room: room, 
             body: body_real, 
             energy: energy,
-            state: C.TASK_STATE_PROPOSED
+            state: C.TASK_STATE_PROPOSED,
+            token: token
         };
         Memory.spawnQueue.prop[prio].push(req);
     }
@@ -80,29 +92,29 @@ class Plato {
         }
     }
 
-    /* Start a process
-       Input: agent name, process object
-       Return: none
+    /* Send message to a agent's message queue
+       Input: message [token, message type, additional information (option)]
+       Return: 
     */
-    static startProcess(agent, process) {
-        Memory.agents[agent].proQueue.push(process);
-    }
-
-    /* Wrapper function run in the main loop
-       Input: none
-       Return: none
-    */
-    static wrapper() {
-        // Order matters
-        this.issueSpawnReq();
-        this.issueConstructReq();
-        this.issueTask();
+    static sendMsg(msg) {
+        // Check validity
+        if (msg[0] == null) {
+            return;
+        }
+        // Deliver message
+        switch (msg[0] & 0xF000) {
+            case C.TOKEN_HEADER_DEMETER:
+                Memory.agents.demeter.msgQueue.push(msg);
+                break;
+            default:
+                break;
+        }
     }
 
     /*-------------------- Private Methods --------------------*/
 
     /* Search within a priority level, insert the task to a propriate position
-       Input: task, priority
+       Input: task, priority level
        Return: none
     */
     static setTask(task, level) {

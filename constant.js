@@ -18,9 +18,9 @@ class Const {
     static CONSTRUCT_SITE = 'constructionSite';
     static SOURCE = 'source';
 
-    /* 16-bit task token
+    /* Token:
        [0:7] - index within process
-       [8:11] - process header
+       [8:11] - process header, 0xF for idividual event 
        [12:15] - agent header
     */
 
@@ -29,6 +29,12 @@ class Const {
     static TOKEN_HEADER_EUCLID = 0x1000;        // Euclid
     static TOKEN_HEADER_DEMETER = 0x2000;       // Demeter
     static TOKEN_HEADER_HEPHAESTUS = 0x3000;    // Hephaestus
+
+    // Message type
+    static MSG_TASK_TERMINATE = 0;      // Task terminate
+    static MSG_SPAWN_TERMINATE = 0;     // Spawn terminate
+    static MSG_TASK_HALT = 0;           // Task halt
+    static MSG_PROCESS_TERMINATE = 0;   // Process terminate
 
     /*----------------------------------- Memory -----------------------------------*/
     
