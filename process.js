@@ -22,6 +22,7 @@ class Process {
     */
     static start(queue, process, funcList) {
         var find_flage = false;
+        var header = process.token;
 
         // Add task to the queue
         for (var i in queue) {
@@ -39,7 +40,7 @@ class Process {
         // Execute all functions that have no predecessor
         for (var i in process.dep) {
             if (process.dep[i] == 0) {
-                funcList[i].func(process.room);
+                funcList[i].func(process.room, header);
             }
         }
     }
@@ -58,12 +59,18 @@ class Process {
     }
 
     /* Promote the execution a process
-       Input: process object, function lists
+       Input: process object, function lists, index of function
        Return: false if process is not found
     */
-    static prompt(process, funcList) {
+    static promote(process, funcList, token) {
+        var idx = token & 0x00FF;
+        var header = token & 0xFF00;
+
+        console.log('[0]', idx, header);
+
         // Update dependence list
         for (var i of funcList[idx].dep) {
+            console.log('[1]', i)
             process.dep[i] -= 1;
             if (process.dep[i] == 0) {
                 funcList[i].func(process.room, header);
