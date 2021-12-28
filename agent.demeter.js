@@ -52,6 +52,7 @@ class Demeter extends Plato {
                     break;
                 case C.MSG_PROCESS_TERMINATE:
                     Process.end(this.memory.proQueue, msg[0]);
+                    this.memory.statistics.proNum -= 1;
                     break;
                 default:
                     break;
@@ -103,9 +104,10 @@ class Demeter extends Plato {
                 // For test only
                 var fromNode = Memory.nodePool.source[0];
                 var toNode = Memory.nodePool.spawn[0];
-                var task = tasks_worker.harvestEnergy(fromNode, toNode);
-                Demeter.propTask(task, 2);
-                Demeter.propTask(task, 2);
+                var task1 = tasks_worker.harvestEnergy(fromNode, toNode);
+                var task2 = tasks_worker.harvestEnergy(fromNode, toNode);
+                Demeter.propTask(task1, 2);
+                Demeter.propTask(task2, 2);
             },
             dep: [1]
         },
@@ -121,10 +123,12 @@ class Demeter extends Plato {
                 var fromNode = new Node({x: 0, y: 0, roomName: room}, 'source', null, true, 'source');
                 var controller = Memory.nodePool.controller[0];
                 var toNode = new Node(controller.pos, 'controller', controller.id);
-                var task = tasks_worker.upgradeController(fromNode, toNode, 2, token);
-                Demeter.propTask(task, 3);
-                Demeter.propTask(task, 3);
-                Demeter.propTask(task, 3);
+                var task1 = tasks_worker.upgradeController(fromNode, toNode, 2, token);
+                var task2 = tasks_worker.upgradeController(fromNode, toNode, 2, token);
+                var task3 = tasks_worker.upgradeController(fromNode, toNode, 2, token);
+                Demeter.propTask(task1, 3);
+                Demeter.propTask(task2, 3);
+                Demeter.propTask(task3, 3);
             },
             dep: [2]
         },

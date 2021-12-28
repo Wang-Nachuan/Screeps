@@ -51,7 +51,7 @@ class Process {
     */
     static end(queue, token) {
         var idx = (token & 0x0F00) >>> 8;
-        if (idx == queue - 1) {
+        if (idx == queue.length - 1) {
             queue.pop();
         } else {
             queue[idx] = null;

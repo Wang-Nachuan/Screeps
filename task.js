@@ -30,7 +30,7 @@ class Task {
             br: para_br,                    // (List of list) [[BrInput00, BrInput01, ...], [BrInput10, BrInput11, ...], ...], null if no branch
             ed: para_ed                     // (List) [EdInput0, EdInput1, ...]
         };
-        token = token;                      // (Num) In hex format, generate a message to corresponding agent if token is specified
+        this.token = token;                 // (Num) In hex format, generate a message to corresponding agent if token is specified
         // Set later
         this.cursor = null;                 // (Num) Index of current target node
         this.ownerId = null;                // (String) Id of task owner

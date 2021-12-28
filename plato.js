@@ -97,6 +97,7 @@ class Plato {
        Return: 
     */
     static sendMsg(msg) {
+        console.log(msg);
         // Check validity
         if (msg[0] == null) {
             return;

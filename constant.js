@@ -32,9 +32,9 @@ class Const {
 
     // Message type
     static MSG_TASK_TERMINATE = 0;      // Task terminate
-    static MSG_SPAWN_TERMINATE = 0;     // Spawn terminate
-    static MSG_TASK_HALT = 0;           // Task halt
-    static MSG_PROCESS_TERMINATE = 0;   // Process terminate
+    static MSG_SPAWN_TERMINATE = 1;     // Spawn terminate
+    static MSG_TASK_HALT = 2;           // Task halt
+    static MSG_PROCESS_TERMINATE = 3;   // Process terminate
 
     /*----------------------------------- Memory -----------------------------------*/
     
