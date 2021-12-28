@@ -97,13 +97,15 @@ class Plato {
        Return: 
     */
     static sendMsg(msg) {
-        console.log(msg);
         // Check validity
         if (msg[0] == null) {
             return;
         }
         // Deliver message
         switch (msg[0] & 0xF000) {
+            case C.TOKEN_HEADER_PLATO:
+                /* TODO: Store or print the message */
+                break;
             case C.TOKEN_HEADER_DEMETER:
                 Memory.agents.demeter.msgQueue.push(msg);
                 break;

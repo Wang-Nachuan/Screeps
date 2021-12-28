@@ -38,7 +38,7 @@ class Euclid extends Plato {
     static cost(task, creep) {
         var startIdx = Task.startIdx(task, creep);
         var startNode = task.nodes[startIdx];
-        var cost = creep.pos.getDirectionTo(Node.pos(startNode));
+        var cost = creep.pos.getRangeTo(Node.pos(startNode));
         return [cost, startIdx];
     }
 
@@ -141,46 +141,49 @@ class Euclid extends Plato {
        Return: none
     */
     static scheSpawnReq() {
-        // Loop through all spawns
-        for (var node of Memory.nodePool.spawn) {
-            var spawn = Game.getObjectById(node.id);
+        // Loop through all rooms
+        for (var room in Memory.nodePool) {
+            // Loop through all spawns
+            for (var node of Memory.nodePool[room].spawn) {
+                var spawn = Game.getObjectById(node.id);
 
-            // Execute the request for each spawn
-            if (spawn.isBusy) {
-                // Monitor the spawning process
-                if (spawn.spawning == null) {
-                    var level = Memory.spawnQueue.sche[spawn.taskCursor[0]];
-                    var idx = spawn.taskCursor[1];
-                    var req = level[idx];
-                    // Send terminate message
-                    this.sendMsg([req.token, C.MSG_SPAWN_TERMINATE]);
-                    // Add creep to the pool
-                    Memory.creepPool[req.type].push(Game.creeps[req.name].id);
-                    // Delete task, free spawn
-                    this.delTask(level, idx);
-                    spawn.isBusy = false;
-                    spawn.taskCursor = null;
-                }
-            }
-
-            // If spawn has no request, find a request
-            if (!spawn.isBusy) {
-                // Loop through all priority levels
-                for (var prio in Memory.spawnQueue.sche) {
-                    var level = Memory.spawnQueue.sche[prio];
-
-                    // Loop through all request
-                    for (var idx in level) {
+                // Execute the request for each spawn
+                if (spawn.isBusy) {
+                    // Monitor the spawning process
+                    if (spawn.spawning == null) {
+                        var level = Memory.spawnQueue.sche[spawn.taskCursor[0]];
+                        var idx = spawn.taskCursor[1];
                         var req = level[idx];
-                        
-                        if (req.state == C.TASK_STATE_ISSUED && req.room == spawn.room.name) {
-                            req.state = C.TASK_STATE_SCHEDULED;
-                            spawn.isBusy = true;
-                            spawn.taskCursor = [prio, idx];
-                            // Start spawning
-                            spawn.spawnCreep(req.body, req.name);
-                            // Consume the pinned energy
-                            Memory.statistics.energy[req.room].pinned -= req.energy;
+                        // Send terminate message
+                        this.sendMsg([req.token, C.MSG_SPAWN_TERMINATE]);
+                        // Add creep to the pool
+                        Memory.creepPool[req.type].push(Game.creeps[req.name].id);
+                        // Delete task, free spawn
+                        this.delTask(level, idx);
+                        spawn.isBusy = false;
+                        spawn.taskCursor = null;
+                    }
+                }
+
+                // If spawn has no request, find a request
+                if (!spawn.isBusy) {
+                    // Loop through all priority levels
+                    for (var prio in Memory.spawnQueue.sche) {
+                        var level = Memory.spawnQueue.sche[prio];
+
+                        // Loop through all request
+                        for (var idx in level) {
+                            var req = level[idx];
+                            
+                            if (req.state == C.TASK_STATE_ISSUED && req.room == spawn.room.name) {
+                                req.state = C.TASK_STATE_SCHEDULED;
+                                spawn.isBusy = true;
+                                spawn.taskCursor = [prio, idx];
+                                // Start spawning
+                                spawn.spawnCreep(req.body, req.name);
+                                // Consume the pinned energy
+                                Memory.statistics.energy[req.room].pinned -= req.energy;
+                            }
                         }
                     }
                 }

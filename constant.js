@@ -11,12 +11,17 @@ class Const {
     static PRIO_URGENT =  1;
     static PRIO_NORMAL = 2;
     
-    // Object types
-    static SPAWN = 'spawn';
+    // Creep types
     static SOLDIER = 'soldier';
     static WORKER = 'worker';
-    static CONSTRUCT_SITE = 'constructionSite';
+
+    // Structure types
+    // See official API document
+
+    // Other types
     static SOURCE = 'source';
+    static MINERAL = 'mineral';
+    static CONSTRUCT_SITE = 'constructionSite';
 
     /* Token:
        [0:7] - index within process
@@ -35,6 +40,7 @@ class Const {
     static MSG_SPAWN_TERMINATE = 1;     // Spawn terminate
     static MSG_TASK_HALT = 2;           // Task halt
     static MSG_PROCESS_TERMINATE = 3;   // Process terminate
+    static MSG_REPORT_EMERGENCY = 4;    // Report emergency
 
     /*----------------------------------- Memory -----------------------------------*/
     

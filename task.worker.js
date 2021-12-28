@@ -8,9 +8,9 @@ const Task = require("./task");
 var tasks_worker = {
 
     /* Harvet energy srouce to fill the structure
-       Input: from node (energy source), to node (structure)
+       Input: from node (energy source), to node (structure), target amount of energy, request constant
     */
-    harvestEnergy: function(fromNode, toNode, token=null) {
+    harvestEnergy: function(fromNode, toNode, target_amount, request, token=null) {
         var nodes = [fromNode, toNode];
         // Range
         var para_mv = [1, 1];
@@ -22,8 +22,11 @@ var tasks_worker = {
         var para_op = [null, [RESOURCE_ENERGY]];
         // Branch
         var func_br = [null, 'br_targetStore'];
-        var para_br = [null, [[0, 2], RESOURCE_ENERGY, Game.getObjectById(toNode.id).store.getCapacity(RESOURCE_ENERGY)]];
-        return new Task(C.WORKER, null, 0, 2, nodes, './handler.worker', para_mv, func_st, para_st, func_op, para_op, func_br, para_br, null, null, token);
+        var para_br = [null, [[0, 2], RESOURCE_ENERGY, target_amount]];
+        // End
+        var func_ed = 'ed_delReq';
+        var para_ed = [request];
+        return new Task(C.WORKER, null, 0, 2, nodes, './handler.worker', para_mv, func_st, para_st, func_op, para_op, func_br, para_br, func_ed, para_ed, token);
     },
 
     /* Harvest energy srouce to upgrade controller
@@ -62,7 +65,7 @@ var tasks_worker = {
         var func_br = [null, 'br_cqIsEmpty'];
         var para_br = [null, [[0, 2]]];
         // End
-        var func_ed = 'ed_decTaskNum';
+        var func_ed = 'ed_decConstructCount';
         var para_ed = [room];
         return new Task(C.WORKER, null, energy, 2, nodes, './handler.worker', para_mv, func_st, para_st, func_op, para_op, func_br, para_br, func_ed, para_ed, token);
     },

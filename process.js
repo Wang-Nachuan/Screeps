@@ -66,11 +66,8 @@ class Process {
         var idx = token & 0x00FF;
         var header = token & 0xFF00;
 
-        console.log('[0]', idx, header);
-
         // Update dependence list
         for (var i of funcList[idx].dep) {
-            console.log('[1]', i)
             process.dep[i] -= 1;
             if (process.dep[i] == 0) {
                 funcList[i].func(process.room, header);

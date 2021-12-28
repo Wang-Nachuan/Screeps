@@ -12,6 +12,10 @@ const Process = require('./process');
 const C = require('./constant');
 const tasks_worker = require('./task.worker');
 
+// Local constants
+const REQUEST_ENERGY = 0;
+const REQUEST_REPAIRE = 1;
+
 class Demeter extends Plato {
 
     static get memory() {return Memory.agents.demeter;}
@@ -23,17 +27,8 @@ class Demeter extends Plato {
     */
     static wrapper() {
         this.deliverMsg();
-
-        for (var room of Memory.rooms.haveSpawn) {
-            if (!Memory.rooms.developing.includes(room)) {
-                if (this.memory.statistics.proNum <= 16) {
-                    this.memory.statistics.proNum += 1;
-                    Memory.rooms.developing.push(room);
-                    var pro = new Process(C.TOKEN_HEADER_DEMETER, 'develop', room, [0, 4, 1]);
-                    Process.start(this.memory.proQueue, pro, this.process_develop);
-                }
-            }
-        }
+        this.startProcess();
+        this.monitorStruct();
     }
 
     /* Deliver messages in the message queue
@@ -62,6 +57,23 @@ class Demeter extends Plato {
         this.memory.msgQueue = [];
     }
 
+    /* Loop through all rooms, start process for eligible rooms
+       Input: none
+       Return: none
+    */
+    static startProcess() {
+        for (var room of Memory.rooms.haveSpawn) {
+            if (!Memory.rooms.developing.includes(room)) {
+                if (this.memory.statistics.proNum <= 16) {
+                    this.memory.statistics.proNum += 1;
+                    Memory.rooms.developing.push(room);
+                    var pro = new Process(C.TOKEN_HEADER_DEMETER, 'develop', room, [0, 4, 1]);
+                    Process.start(this.memory.proQueue, pro, this.process_develop);
+                }
+            }
+        }
+    }
+
     /* Update process state in the process queue
        Input: massage
        Return: none
@@ -79,6 +91,66 @@ class Demeter extends Plato {
         }
 
         Process.promote(process, funcList, msg[0]);
+    }
+
+    /* Monitor state of structures in each room, propose tasks if needed
+       Input: none
+       Return: none;
+    */
+    static monitorStruct() {
+        // Loop through all rooms
+        for (var room in Memory.nodePool) {
+            var pool_room = Memory.nodePool[room];
+
+            // Loop through all structures
+            for(var type in pool_room) {
+                var pool_struct = pool_room[type];
+
+                // Loop through each structure
+                for (var i in pool_struct) {
+                    var node = pool_struct[i];
+                    var struct = Game.getObjectById(node.id);
+
+                    // If not find, report the event, delete the node
+                    if (struct == null) {
+                        this.sendMsg([C.TOKEN_HEADER_PLATO, C.MSG_REPORT_EMERGENCY, {
+                                text: '[WARNING] DEMETER: a structure is missing',
+                                info: null
+                            }
+                        ]);
+                        pool_struct.splice(i, 1);
+                    }
+
+                    // If hits lost, report the event
+                    /* TODO */
+
+                    // Call corresponding monitor function
+                    var func = this.monitor_functions[node.type];
+                    if (func != undefined) {
+                        func(room, struct, node);
+                    }
+                }
+            }
+        }
+    }
+
+    static monitor_functions = {
+        spawn: function(room, struct, node) {
+            if (struct.store.getFreeCapacity(RESOURCE_ENERGY) && (!node.request.includes(REQUEST_ENERGY))) {
+                // Propose task
+                var fromNode = new Node({x: 0, y: 0, roomName: room}, C.SOURCE, null, true, 'source');
+                var task = tasks_worker.harvestEnergy(fromNode, node, struct.store.getCapacity(RESOURCE_ENERGY), REQUEST_ENERGY);
+                Demeter.propTask(task, 2);
+                // Record that task has been proposed
+                node.request.push(REQUEST_ENERGY);
+            }
+        },
+        extension: function(room, struct, node) {
+
+        },
+        road: function(room, struct, node) {
+
+        },
     }
 
     /*-------------------- Processes --------------------*/
@@ -100,14 +172,6 @@ class Demeter extends Plato {
                 Demeter.propSpawnReq(C.WORKER, room, 0, null, token);
                 Demeter.propSpawnReq(C.WORKER, room, 0, null, token);
                 Demeter.propSpawnReq(C.WORKER, room, 0, null, token);
-
-                // For test only
-                var fromNode = Memory.nodePool.source[0];
-                var toNode = Memory.nodePool.spawn[0];
-                var task1 = tasks_worker.harvestEnergy(fromNode, toNode);
-                var task2 = tasks_worker.harvestEnergy(fromNode, toNode);
-                Demeter.propTask(task1, 2);
-                Demeter.propTask(task2, 2);
             },
             dep: [1]
         },
@@ -118,10 +182,9 @@ class Demeter extends Plato {
         */
         {
             func: function(room, header) {
-                console.log('[Message] Task proposed');
                 var token = header | 0x0001;
                 var fromNode = new Node({x: 0, y: 0, roomName: room}, 'source', null, true, 'source');
-                var controller = Memory.nodePool.controller[0];
+                var controller = Memory.nodePool[room].controller[0];
                 var toNode = new Node(controller.pos, 'controller', controller.id);
                 var task1 = tasks_worker.upgradeController(fromNode, toNode, 2, token);
                 var task2 = tasks_worker.upgradeController(fromNode, toNode, 2, token);
@@ -140,8 +203,7 @@ class Demeter extends Plato {
         {
             func: function(room, header) {
                 var token = header | 0x0002;
-                console.log('[Message] Process terminated.');
-                
+                console.log("[Message] Process 'develop' terminated.");
             },
             dep: []
         },

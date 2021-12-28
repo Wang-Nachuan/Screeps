@@ -85,9 +85,29 @@ var handlers_worker = {
        Input:
        [0] - room name
     */
-    ed_decTaskNum: function(creep, node, para) {
+    ed_decConstructCount: function(creep, node, para) {
         if (Memory.constructQueue.numTask[para[0]] > 0) {
             Memory.constructQueue.numTask[para[0]] -= 1;
+        }
+    },
+
+    /* Delete the specified request in node's request list 
+       Input:
+       [0] - request
+    */
+    ed_delReq: function(creep, node, para) {
+        var req = para[0];
+        var pool = Memory.nodePool[node.pos.roomName][node.type];
+
+        // Detach object from the node (do not need to search in memory)
+        if (pool != undefined) {
+            for (var i of pool) {
+                if (i.id == node.id) {
+                    var idx = i.request.indexOf(req);
+                    i.request.splice(idx, 1)
+                    break;
+                }
+            }
         }
     },
 

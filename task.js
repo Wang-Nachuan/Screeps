@@ -44,9 +44,9 @@ class Task {
     */
     static startIdx(task, creep) {
         var module = require(task.module);
-        Node.concretize(task.nodes[0]);
+        Node.concretize(task.nodes[0], creep);
         var idx = module[task.func.st](creep, task.nodes[0], task.para.st);
-        Node.virtualize(task.nodes[0]);
+        Node.virtualize(task.nodes[0], creep);
         return idx;
     }
 
@@ -69,7 +69,7 @@ class Task {
     static execute(task) {
         var module = require(task.module);
         var creep = Game.getObjectById(task.ownerId);
-        var node = Node.concretize(task.nodes[task.cursor]);
+        var node = Node.concretize(task.nodes[task.cursor], creep);
 
         // Checking for node validity
         if (node == null) {
@@ -100,10 +100,11 @@ class Task {
                 task.isMoving = true;
             }
             if (task.cursor >= task.numNodes) {
+                Node.virtualize(node, creep);
                 if (task.func.ed != null) {module[task.func.ed](creep, node, task.para.ed);}
                 return C.TASK_OP_RET_FLG_TERMINATE;
             } else {
-                Node.virtualize(node);
+                Node.virtualize(node, creep);
                 return C.TASK_OP_RET_FLG_FINISH;
             }
         } else if (flage == C.TASK_OP_RET_FLG_TERMINATE || flage == C.TASK_OP_RET_FLG_HALT) {

@@ -17,7 +17,7 @@ const methodExtension = {
 const fieldExtension = [
     
     // isBusy
-    Object.defineProperty(Structure.prototype, 'isBusy', 
+    Object.defineProperty(StructureSpawn.prototype, 'isBusy', 
         {
             get: function() {
                 // If no value in this tick, search in memory
@@ -40,7 +40,7 @@ const fieldExtension = [
     ),
 
     // role
-    Object.defineProperty(Structure.prototype, 'role', 
+    Object.defineProperty(StructureSpawn.prototype, 'role', 
         {
             get: function() {
                 if (!this._role) {
@@ -61,7 +61,7 @@ const fieldExtension = [
     ),
 
     // taskCursor
-    Object.defineProperty(Structure.prototype, 'taskCursor', 
+    Object.defineProperty(StructureSpawn.prototype, 'taskCursor', 
         {
             get: function() {
                 if (!this._taskCursor) {

@@ -42,7 +42,7 @@ module.exports = function () {
         Memory.creepPool = {soldier: [], worker: []};
 
         // Node pool
-        Memory.nodePool = {spawn: [], source: [], mineral: [], controller: []};
+        Memory.nodePool = {};
 
         // Name of owned rooms
         Memory.rooms = {visibable: [], owned: [], haveSpawn: [], developing: []};
@@ -74,11 +74,12 @@ module.exports = function () {
 
         Memory.agents.demeter.statistics = {
             proNum: 0,
+            attachLimit: 3,
         }
 
         /*--------------- Initialization -----------------*/
 
-        // Initialization of basic data
+        // Init queues
         for (var i in Memory.taskQueue) {
             for (var j = 0; j < C.MEMORY_TASKQUEUE_LEN; j++) {
                 Memory.taskQueue[i][j] = [];
@@ -92,9 +93,11 @@ module.exports = function () {
         }
 
         for (var name in Game.rooms) {
+            // Room
             Memory.rooms.visibable.push(name);
             Memory.rooms.owned.push(name);
             Memory.rooms.haveSpawn.push(name);
+            // Statistics
             Memory.statistics.energy[name] = {available: 300, pinned: 0};
             Memory.statistics.stdBody[name] = {
                 worker: [WORK, CARRY, CARRY, MOVE, MOVE], 
@@ -102,18 +105,44 @@ module.exports = function () {
                 soldier: [], 
                 countSoldier: {move: 0, work: 0, carry: 0, attack: 0, rangedAttack: 0, heal: 0, claim: 0, tough: 0}
             };
-
+            // Node pool
             var room = Game.rooms[name];
             var para = [FIND_MY_SPAWNS, FIND_SOURCES, FIND_MINERALS];
-            var type = ['spawn', 'source', 'mineral'];
+            var type = [STRUCTURE_SPAWN, C.SOURCE, C.MINERAL];
+            Memory.nodePool[name] = {
+                // Structure
+                spawn: [], 
+                extension: [], 
+                road: [],
+                constructedWall: [],
+                rampart: [],
+                keeperLair: [],
+                portal: [],
+                controller: [],
+                link: [],
+                storage: [],
+                tower: [],
+                observer: [],
+                powerBank: [],
+                powerSpawn: [],
+                extractor: [],
+                lab: [],
+                terminal: [],
+                container: [],
+                nuker: [],
+                factory: [],
+                invaderCore: [],
+                // Others
+                source: [], 
+                mineral: []
+            };
             for (var i = 0; i < para.length; i++) {
                 var ret = room.find(para[i]);
                 for (var obj of ret) {
-                    Memory.nodePool[type[i]].push(new Node(obj.pos, type[i], obj.id));
+                    Memory.nodePool[name][type[i]].push(new Node(obj.pos, type[i], obj.id));
                 }
             }
-
-            Memory.nodePool.controller.push(new Node(room.controller.pos, 'controller', room.controller.id));
+            Memory.nodePool[name].controller.push(new Node(room.controller.pos, 'controller', room.controller.id));
         }
     }
 };
