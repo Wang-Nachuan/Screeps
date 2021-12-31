@@ -50,7 +50,12 @@ class Plato {
 
         // Update statistic
         Memory.statistics.creep[type] += 1;
-        var name = type[0] + (Memory.statistics.creep[type] % 1000);
+        var name;
+        // Find a unique name
+        do {
+            Memory.statistics.creep.nameCount = (Memory.statistics.creep.nameCount + 1) % 8000;
+            name = type[0] + Memory.statistics.creep.nameCount;
+        } while (Game.creeps[name] != undefined);
 
         // Calculate energy consumption
         for (var part of body_real) {energy += BODYPART_COST[part];}

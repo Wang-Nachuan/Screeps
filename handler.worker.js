@@ -11,7 +11,7 @@ var handlers_worker = {
     /* Harvest energy/mineral from target
        Input: none
     */
-    op_harvest: function(creep, node, para) {
+    op_harvest: function(creep, node, para, task) {
         var target = Game.getObjectById(node.id);
         if(creep.store.getFreeCapacity() > 0) {
             creep.harvest(target);
@@ -25,7 +25,7 @@ var handlers_worker = {
        Input:
        [0] - (const) type of item to be transfered
     */
-    op_transfer: function(creep, node, para) {
+    op_transfer: function(creep, node, para, task) {
         var target = Game.getObjectById(node.id);
         var item = para[0];
         creep.transfer(target, item)
@@ -35,7 +35,7 @@ var handlers_worker = {
     /* Upgrade the controller
        Input: none
     */
-    op_upgrade: function(creep, node, para) {
+    op_upgrade: function(creep, node, para, task) {
         var target = Game.getObjectById(node.id);
         if(creep.store[RESOURCE_ENERGY] > 0) {
             creep.upgradeController(target);
@@ -48,7 +48,7 @@ var handlers_worker = {
     /* Work on construction site
        Input: none
     */
-    op_build: function(creep, node, para) {
+    op_build: function(creep, node, para, task) {
         var target = Game.getObjectById(node.id);
         if (target == null) {
             return C.TASK_OP_RET_FLG_FINISH;
@@ -69,7 +69,7 @@ var handlers_worker = {
        [1] - (const) type of item
        [2] - (float) ratio of storage
     */
-    st_creepStore: function(creep, node, para) {
+    st_creepStore: function(creep, node, para, task) {
         var item = para[1];
         var ratio = para[2];
         if (creep.store.getUsedCapacity(item) / creep.store.getCapacity(item) < ratio) {
@@ -85,7 +85,7 @@ var handlers_worker = {
        Input:
        [0] - room name
     */
-    ed_decConstructCount: function(creep, node, para) {
+    ed_decConstructCount: function(creep, node, para, task) {
         if (Memory.constructQueue.numTask[para[0]] > 0) {
             Memory.constructQueue.numTask[para[0]] -= 1;
         }
@@ -95,7 +95,7 @@ var handlers_worker = {
        Input:
        [0] - request
     */
-    ed_delReq: function(creep, node, para) {
+    ed_delReq: function(creep, node, para, task) {
         var req = para[0];
         var pool = Memory.nodePool[node.pos.roomName][node.type];
 
@@ -119,7 +119,7 @@ var handlers_worker = {
        [1] - (const) type of item
        [2] - (float) target amount
     */
-    br_targetStore: function(creep, node, para) {
+    br_targetStore: function(creep, node, para, task) {
         var target = Game.getObjectById(node.id);
         var item = para[1];
         var amount = para[2];
@@ -135,7 +135,7 @@ var handlers_worker = {
        [0] - (list of num) index branching to, i.e. [choice1, choice2, ...]
        [1] - (num) target room control level
     */
-    br_rcl: function(creep, node, para) {
+    br_rcl: function(creep, node, para, task) {
         var target = Game.getObjectById(node.id);
         var level = para[1];
         if (target.level < level) {
@@ -149,7 +149,7 @@ var handlers_worker = {
        Input:
        [0] - (list of num) index branching to, i.e. [choice1, choice2, ...]
     */
-    br_targetExist: function(creep, node, para) {
+    br_targetExist: function(creep, node, para, task) {
         var target = Game.getObjectById(node.id);
         if (target != null) {
             return para[0][0];
@@ -161,7 +161,7 @@ var handlers_worker = {
     /* Branch by whether the scheduled construction queue is empty
        Input: none
     */
-    br_cqIsEmpty: function(creep, node, para) {
+    br_cqIsEmpty: function(creep, node, para, task) {
         if (Memory.constructQueue.sche.length != 0) {
             return para[0][0];
         } else {

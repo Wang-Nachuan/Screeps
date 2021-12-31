@@ -42,6 +42,29 @@ class Euclid extends Plato {
         return [cost, startIdx];
     }
 
+    /* Let creep suicide, update memory and task, return ordered but unused energy, notify agent
+       Input: creep object
+       Output: none
+    */
+    static buryCreep(creep) {
+        var id = creep.id;
+        var name = creep.name;
+        var pool = Memory.creepPool[creep.role];
+        var task = Memory.taskQueue[creep.taskCursor[0]][creep.taskCursor[1]][creep.taskCursor[2]];
+
+        // Delete id from creep pool
+        pool.splice(pool.indexOf(id), 1);
+
+        // Update task state
+        task.state = C.TASK_STATE_PENDED;
+
+        // Let creep suicide, free memory 
+        creep.suicide();
+        delete Memory.creeps[name];
+
+        // Notify agnent
+        this.sendMsg({/* TODO: message content */});
+    }
 
     /* Assign each creep with a task
        Input: none
@@ -57,6 +80,11 @@ class Euclid extends Plato {
                 var creep = Game.getObjectById(id);
                 var termi_flag = false;     // Flage of terminating loops
 
+                // Monitor the life condition of creep
+                if (creep.ticksToLive <= 5) {
+                    this.buryCreep(creep);
+                }
+
                 // If creep has no task, find a task
                 if (!creep.isBusy) {
 
@@ -70,7 +98,16 @@ class Euclid extends Plato {
                         for (var i in level) {
                             var task = level[i];
 
-                            if (task != null && task.state == C.TASK_STATE_ISSUED) {
+                            // Skip empty location
+                            if (task == null) {continue;}
+
+                            // If task is pended, try to claim the lost energy for this task
+                            if (task.state == C.TASK_STATE_PENDED) {
+
+                            }
+
+                            // Compare and find the task with smaller cost
+                            if (task.state == C.TASK_STATE_ISSUED) {
                                 var ret = this.cost(task, creep);
 
                                 if (ret[0] < minCost) {

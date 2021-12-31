@@ -52,7 +52,7 @@ module.exports = function () {
         // Statistics
         Memory.statistics = {
             structure: {spawn: 1},
-            creep: {worker: 0, soldier: 0},
+            creep: {worker: 0, soldier: 0, nameCount: 0},
             energy: {},     // roomName: {available: 0, pinned: 0}
             stdBody: {}     // roomName: {worker: [...], countWorker: {...}, soldier: [...], countSoldier: {...}, ...}
         };
