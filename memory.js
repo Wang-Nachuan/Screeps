@@ -54,7 +54,7 @@ module.exports = function () {
             structure: {spawn: 1},
             creep: {worker: 0, soldier: 0, nameCount: 0},
             energy: {},     // roomName: {available: 0, pinned: 0}
-            stdBody: {}     // roomName: {worker: [...], countWorker: {...}, soldier: [...], countSoldier: {...}, ...}
+            stdBody: {},     // roomName: {worker: [...], countWorker: {...}, soldier: [...], countSoldier: {...}, ...}
         };
 
         // Memory space for agents
@@ -73,8 +73,9 @@ module.exports = function () {
         Memory.agents.demeter.proQueue = [];
 
         Memory.agents.demeter.statistics = {
-            proNum: 0,
+            proNum: 0,      // Process number
             attachLimit: 3,
+            targetNum: {worker: 0}
         }
 
         /*--------------- Initialization -----------------*/
@@ -143,6 +144,8 @@ module.exports = function () {
                 }
             }
             Memory.nodePool[name].controller.push(new Node(room.controller.pos, 'controller', room.controller.id));
+
+            /*------------------- Demeter --------------------*/
         }
     }
 };

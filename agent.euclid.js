@@ -55,15 +55,27 @@ class Euclid extends Plato {
         // Delete id from creep pool
         pool.splice(pool.indexOf(id), 1);
 
+        // Update statisics
+        Memory.statistics.creep[creep.type] -= 1;
+
         // Update task state
+        task.cursor = null;
+        task.ownerId = null;
         task.state = C.TASK_STATE_PENDED;
+        task.isMoving = false;
 
         // Let creep suicide, free memory 
         creep.suicide();
         delete Memory.creeps[name];
 
         // Notify agnent
-        this.sendMsg({/* TODO: message content */});
+        var msg = [C.TOKEN_HEADER_DEMETER, null, task.room];
+        switch (task.type) {
+            case C.WORKER:
+                msg[1] = C.MSG_DEATH_WORKER;
+                break;
+        }
+        this.sendMsg(msg);
     }
 
     /* Assign each creep with a task
@@ -81,8 +93,9 @@ class Euclid extends Plato {
                 var termi_flag = false;     // Flage of terminating loops
 
                 // Monitor the life condition of creep
-                if (creep.ticksToLive <= 5) {
+                if (creep.ticksToLive <= 1300) {
                     this.buryCreep(creep);
+                    break;
                 }
 
                 // If creep has no task, find a task
@@ -103,7 +116,11 @@ class Euclid extends Plato {
 
                             // If task is pended, try to claim the lost energy for this task
                             if (task.state == C.TASK_STATE_PENDED) {
-
+                                if (this.claimEnergy(task.room, task.energyStore)) {
+                                    task.energy += task.energyStore;
+                                    task.energyStore = 0;
+                                    task.state = C.TASK_STATE_ISSUED;
+                                }
                             }
 
                             // Compare and find the task with smaller cost
@@ -148,23 +165,23 @@ class Euclid extends Plato {
                             // Do nothing
                             break;
                         case C.TASK_OP_RET_FLG_PEND:
-                            task.ownerId = null;
-                            task.state = C.TASK_STATE_PENDED;
-                            creep.isBusy = false;
-                            creep.taskCursor = null;
-                            /* TODO: inform agents if needed */
+                            /* Not specified yet */
                             break;
                         case C.TASK_OP_RET_FLG_TERMINATE:
                             this.sendMsg([task.token, C.MSG_TASK_TERMINATE]);
                             this.delTask(Memory.taskQueue[creep.taskCursor[0]][creep.taskCursor[1]], creep.taskCursor[2]);
                             creep.isBusy = false;
                             creep.taskCursor = null;
+                            // Give ordered but unused energy back
+                            Memory.statistics.energy[task.room].pinned -= (task.energy - task.energyAcq);
                             break;
                         case C.TASK_OP_RET_FLG_HALT:
                             this.sendMsg([task.token, C.MSG_TASK_HALT]);
                             this.delTask(Memory.taskQueue[creep.taskCursor[0]][creep.taskCursor[1]], creep.taskCursor[2]);
                             creep.isBusy = false;
                             creep.taskCursor = null;
+                            // Give ordered but unused energy back
+                            Memory.statistics.energy[task.room].pinned -= (task.energy - task.energyAcq);
                             /* TODO: inform agents if needed */
                             break;
                     }
@@ -191,10 +208,12 @@ class Euclid extends Plato {
                         var level = Memory.spawnQueue.sche[spawn.taskCursor[0]];
                         var idx = spawn.taskCursor[1];
                         var req = level[idx];
+                        var creep = Game.creeps[req.name];
                         // Send terminate message
                         this.sendMsg([req.token, C.MSG_SPAWN_TERMINATE]);
                         // Add creep to the pool
-                        Memory.creepPool[req.type].push(Game.creeps[req.name].id);
+                        creep.role = req.type;
+                        Memory.creepPool[req.type].push(creep.id);
                         // Delete task, free spawn
                         this.delTask(level, idx);
                         spawn.isBusy = false;
@@ -211,6 +230,8 @@ class Euclid extends Plato {
                         // Loop through all request
                         for (var idx in level) {
                             var req = level[idx];
+
+                            if (req == null) {continue;}
                             
                             if (req.state == C.TASK_STATE_ISSUED && req.room == spawn.room.name) {
                                 req.state = C.TASK_STATE_SCHEDULED;

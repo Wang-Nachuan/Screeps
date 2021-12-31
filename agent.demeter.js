@@ -28,6 +28,7 @@ class Demeter extends Plato {
     static wrapper() {
         this.deliverMsg();
         this.startProcess();
+        this.monitorCreepNum();
         this.monitorStruct();
     }
 
@@ -45,9 +46,15 @@ class Demeter extends Plato {
                 case C.MSG_SPAWN_TERMINATE:
                     this.promoProcess(msg);
                     break;
+                case C.MSG_TASK_HALT:
+                    break;
                 case C.MSG_PROCESS_TERMINATE:
                     Process.end(this.memory.proQueue, msg[0]);
                     this.memory.statistics.proNum -= 1;
+                    break;
+                case C.MSG_REPORT_EMERGENCY:
+                    break
+                case C.MSG_DEATH_WORKER:
                     break;
                 default:
                     break;
@@ -67,7 +74,7 @@ class Demeter extends Plato {
                 if (this.memory.statistics.proNum <= 16) {
                     this.memory.statistics.proNum += 1;
                     Memory.rooms.developing.push(room);
-                    var pro = new Process(C.TOKEN_HEADER_DEMETER, 'develop', room, [0, 4, 1]);
+                    var pro = new Process(C.TOKEN_HEADER_DEMETER, 'develop', room, [0, 0, 1]);
                     Process.start(this.memory.proQueue, pro, this.process_develop);
                 }
             }
@@ -93,9 +100,27 @@ class Demeter extends Plato {
         Process.promote(process, funcList, msg[0]);
     }
 
+    /* Monitor number of creeps, propose spawn request if needed
+       Input: none
+       Return: none
+    */
+    static monitorCreepNum() {
+        for (var type in this.memory.statistics.targetNum) {
+            var target = this.memory.statistics.targetNum[type];
+
+            if (target > Memory.statistics.creep[type]) {
+                var num = target - Memory.statistics.creep[type];
+
+                for (var i = 0; i < num; i++) {
+                    this.propSpawnReq(type, Memory.rooms.haveSpawn[0], 1);
+                }
+            }
+        }
+    }
+
     /* Monitor state of structures in each room, propose tasks if needed
        Input: none
-       Return: none;
+       Return: none
     */
     static monitorStruct() {
         // Loop through all rooms
@@ -157,53 +182,50 @@ class Demeter extends Plato {
 
     /* Process: develop main room
        Token header: 0x2000
-       Dependece: [0, 4, 1]
+       Dependece: [0, 0, 1]
     */
     static process_develop = [
 
-        /* Index 0: spawn creeps (x3)
+        /* Index 0: spawn creeps
            Predecessor: none (=0)
-           Posdecessor: 1
+           Posdecessor: 
         */
         {
             func: function(room, header) {
                 var token = header | 0x0000;
-                Demeter.propSpawnReq(C.WORKER, room, 0, null, token);
-                Demeter.propSpawnReq(C.WORKER, room, 0, null, token);
-                Demeter.propSpawnReq(C.WORKER, room, 0, null, token);
-                Demeter.propSpawnReq(C.WORKER, room, 0, null, token);
+                Demeter.memory.statistics.targetNum.worker += 2;
             },
-            dep: [1]
+            dep: []
         },
 
         /* Index 1: upgrade controller (RCL->2, x2)
-           Predecessor: [0]x4 (=4)
-           Posdecessor: 2
+           Predecessor: none
+           Posdecessor: none
         */
         {
             func: function(room, header) {
-                var token = header | 0x0001;
-                var fromNode = new Node({x: 0, y: 0, roomName: room}, 'source', null, true, 'source');
-                var controller = Memory.nodePool[room].controller[0];
-                var toNode = new Node(controller.pos, 'controller', controller.id);
-                var task1 = tasks_worker.upgradeController(fromNode, toNode, 2, token);
-                var task2 = tasks_worker.upgradeController(fromNode, toNode, 2, token);
-                var task3 = tasks_worker.upgradeController(fromNode, toNode, 2, token);
-                Demeter.propTask(task1, 3);
-                Demeter.propTask(task2, 3);
-                Demeter.propTask(task3, 3);
+                // var token = header | 0x0001;
+                // var fromNode = new Node({x: 0, y: 0, roomName: room}, 'source', null, true, 'source');
+                // var controller = Memory.nodePool[room].controller[0];
+                // var toNode = new Node(controller.pos, 'controller', controller.id);
+                // var task1 = tasks_worker.upgradeController(fromNode, toNode, 2, token);
+                // var task2 = tasks_worker.upgradeController(fromNode, toNode, 2, token);
+                // var task3 = tasks_worker.upgradeController(fromNode, toNode, 2, token);
+                // Demeter.propTask(task1, 3);
+                // Demeter.propTask(task2, 3);
+                // Demeter.propTask(task3, 3);
             },
             dep: [2]
         },
 
         /* Index ?: the end of process, send 'process terminate' message to message queue
-           Predecessor: [1]x1 (=1)
+           Predecessor: 1
            Posdecessor: none
         */
         {
             func: function(room, header) {
-                var token = header | 0x0002;
-                console.log("[Message] Process 'develop' terminated.");
+                // var token = header | 0x0002;
+                // console.log("[Message] Process 'develop' terminated.");
             },
             dep: []
         },

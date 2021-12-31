@@ -50,6 +50,7 @@ class Plato {
 
         // Update statistic
         Memory.statistics.creep[type] += 1;
+
         var name;
         // Find a unique name
         do {
@@ -87,7 +88,7 @@ class Plato {
     */
     static claimEnergy(room, energy) {
         var data = Memory.statistics.energy[room];
-
+        
         if (energy <= data.available) {
             data.available -= energy;
             data.pinned += energy;

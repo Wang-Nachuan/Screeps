@@ -35,12 +35,17 @@ class Const {
     static TOKEN_HEADER_DEMETER = 0x2000;       // Demeter
     static TOKEN_HEADER_HEPHAESTUS = 0x3000;    // Hephaestus
 
+    /* Message:
+       [token, message type, additional information (option)]
+    */
+
     // Message type
     static MSG_TASK_TERMINATE = 0;      // Task terminate
     static MSG_SPAWN_TERMINATE = 1;     // Spawn terminate
     static MSG_TASK_HALT = 2;           // Task halt
     static MSG_PROCESS_TERMINATE = 3;   // Process terminate
     static MSG_REPORT_EMERGENCY = 4;    // Report emergency
+    static MSG_DEATH_WORKER = 5;        // A worker is dead
 
     /*----------------------------------- Memory -----------------------------------*/
     
