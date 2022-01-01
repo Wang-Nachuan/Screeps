@@ -107,10 +107,10 @@ class Demeter extends Plato {
     static monitorCreepNum() {
         for (var type in this.memory.statistics.targetNum) {
             var target = this.memory.statistics.targetNum[type];
-
+            
             if (target > Memory.statistics.creep[type]) {
                 var num = target - Memory.statistics.creep[type];
-
+                
                 for (var i = 0; i < num; i++) {
                     this.propSpawnReq(type, Memory.rooms.haveSpawn[0], 1);
                 }

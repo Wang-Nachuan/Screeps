@@ -56,13 +56,17 @@ class Euclid extends Plato {
         pool.splice(pool.indexOf(id), 1);
 
         // Update statisics
-        Memory.statistics.creep[creep.type] -= 1;
+        Memory.statistics.creep[creep.role] -= 1;
 
         // Update task state
         task.cursor = null;
         task.ownerId = null;
-        task.state = C.TASK_STATE_PENDED;
         task.isMoving = false;
+        if (task.room != null) {
+            task.state = C.TASK_STATE_PENDED;
+        } else {
+            task.state = C.TASK_STATE_ISSUED;
+        }
 
         // Let creep suicide, free memory 
         creep.suicide();
@@ -93,7 +97,7 @@ class Euclid extends Plato {
                 var termi_flag = false;     // Flage of terminating loops
 
                 // Monitor the life condition of creep
-                if (creep.ticksToLive <= 1300) {
+                if (creep.ticksToLive <= 1350) {
                     this.buryCreep(creep);
                     break;
                 }
