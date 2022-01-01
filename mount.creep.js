@@ -132,6 +132,27 @@ const fieldExtension = [
         }
     ),
 
+    // Process
+    Object.defineProperty(Creep.prototype, 'process', 
+        {
+            get: function() {
+                if (!this._process) {
+                    if (!this.memory.process) {
+                        this.memory.process = null;
+                    }
+                    this._process = this.memory.process;
+                }
+                return this._process;
+            },
+            set: function(newValue) {
+                this.memory.process = newValue;
+                this._process = newValue;
+            },
+            enumerable: false,
+            configurable: true
+        }
+    ),
+
     // // name
     // Object.defineProperty(Creep.prototype, 'name', 
     //     {

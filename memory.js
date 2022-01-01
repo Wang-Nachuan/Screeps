@@ -47,6 +47,22 @@ module.exports = function () {
         // Name of owned rooms
         Memory.rooms = {visibable: [], owned: [], haveSpawn: [], developing: []};
 
+        /*------------------- Process ---------------------*/
+
+        // Process queue
+        Memory.proQueue = {
+            demeter: Array(16, null),
+            hephaestus: Array(16, null),
+            minerva: Array(16, null)
+        }
+
+        // Message queue
+        Memory.msgQueue = {
+            demeter: [],
+            hephaestus: [],
+            minerva: []
+        }
+
         /*-------------------- Others ---------------------*/
 
         // Statistics
@@ -66,16 +82,8 @@ module.exports = function () {
 
         /*------------------- Demeter --------------------*/
 
-        // Messaage queue
-        Memory.agents.demeter.msgQueue = [];
-
-        // Process queue
-        Memory.agents.demeter.proQueue = [];
-
         Memory.agents.demeter.statistics = {
-            proNum: 0,      // Process number
             attachLimit: 3,
-            targetNum: {worker: 0}
         }
 
         /*--------------- Initialization -----------------*/

@@ -68,18 +68,18 @@ class Euclid extends Plato {
             task.state = C.TASK_STATE_ISSUED;
         }
 
-        // Let creep suicide, free memory 
-        creep.suicide();
-        delete Memory.creeps[name];
-
         // Notify agnent
-        var msg = [C.TOKEN_HEADER_DEMETER, null, task.room];
+        var msg;
         switch (task.type) {
             case C.WORKER:
-                msg[1] = C.MSG_DEATH_WORKER;
+                msg = [C.TOKEN_HEADER_DEMETER, C.MSG_CREEP_DEATH, [creep.type, creep.process]];
                 break;
         }
         this.sendMsg(msg);
+
+        // Let creep suicide, free memory 
+        creep.suicide();
+        delete Memory.creeps[name];
     }
 
     /* Assign each creep with a task
@@ -213,10 +213,10 @@ class Euclid extends Plato {
                         var idx = spawn.taskCursor[1];
                         var req = level[idx];
                         var creep = Game.creeps[req.name];
-                        // Send terminate message
-                        this.sendMsg([req.token, C.MSG_SPAWN_TERMINATE]);
-                        // Add creep to the pool
+                        // Set attributes
                         creep.role = req.type;
+                        creep.process = req.token;
+                        // Add creep to the pool
                         Memory.creepPool[req.type].push(creep.id);
                         // Delete task, free spawn
                         this.delTask(level, idx);

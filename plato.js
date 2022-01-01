@@ -7,9 +7,10 @@
    - (Future) Manage energy consumptioin based on prediction and warfare, i.e. energy deficit & tilt
 */
 
-const tasks_worker = require('./task.worker');
 const Node = require('./node');
+const Process = require('./process');
 const C = require('./constant');
+const tasks_worker = require('./task.worker');
 
 class Plato {
 
@@ -17,7 +18,7 @@ class Plato {
        Input: none
        Return: none
     */
-       static wrapper() {
+    static wrapper() {
         // Order matters
         this.issueSpawnReq();
         this.issueConstructReq();
@@ -35,10 +36,10 @@ class Plato {
     }
 
     /* Propose a spawn request
-       Input: creep name, type, room to spawn, body parts, priority
+       Input: creep name, type, room to spawn, token of process, priority
        Return: none
     */
-    static propSpawnReq(type, room, prio, body=null, token=null) {
+    static propSpawnReq(type, room, token, prio, body=null) {
         var energy = 0;     // Energy required to spawn the creep
         var body_real;
 
@@ -118,6 +119,38 @@ class Plato {
             default:
                 break;
         }
+    }
+
+    /* Start a process for agent
+       Input: agent name, process object
+       Return: true if sucess, false if process number reaches limit
+    */
+    static startProcess(agent, process) {
+        var find_flage = false;
+        var queue = Memory.proQueue[agent];
+        var idx;
+
+        // Find a position in the process queue
+        for (idx = 0; idx < queue.length; i++) {
+            if (queue[idx] == null) {
+                var token = idx << 8;
+                switch (agent) {
+                    case 'demeter':
+                        token |= C.TOKEN_HEADER_DEMETER;
+                        break;
+                }
+                queue[idx] = process;
+                process.token = token;
+                find_flage = true;
+                break;
+            }
+        }
+
+        // Return if the queue is full
+        if (!find_flage) {return false;}
+
+        // Run start function for the process
+        Process.start(process);
     }
 
     /*-------------------- Private Methods --------------------*/
@@ -294,6 +327,30 @@ class Plato {
                 Memory.constructQueue.numTask[name] = target_numTask;
             }
         }
+    }
+
+    /* New methods */
+
+
+    /* Update process state in the process queue
+       Input: massage
+       Return: none
+    */
+    static promoProcess() {
+        for (var agent in Memory.msgQueue) {
+            for (var msg of Memory.msgQueue[agent]) {
+                var process = Memory.proQueue[agent][(msg[0] & 0x0F00) >>> 8];
+                Process.promote(process, msg[0]);
+            }
+        }
+    }
+
+    /* Monitor creep number for all process, propose spawn request if needed
+       Input: none
+       Return: none
+    */
+    static monitorTargetNum() {
+        
     }
 
     /* ...

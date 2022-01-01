@@ -7,4 +7,12 @@
 7. 给所有handler加记录代码
 ----------
 1. proposeSpawn代码需要实现对多房spawn的调度: 给定一个pos, 选取最近的spawn进行孵化
-2. 任务的房间归属, 是个大问题
+----------
+1. monitorCreepNum监视所有进程的creep数量需求
+2. (Done) 每个creep出生即属于一个进程, creep.process存的是进程token
+3. 补充creep时要设置它的process
+----------
+1. monitorTargetNum需要改动
+2. 结构要改防止循环引用(process模块独立于agent, agent只负责监视和发起process)
+3. 需要一个getProcess函数, 接受token返回process
+4. creep死亡时要更新对应process里的参数, 不需要发message

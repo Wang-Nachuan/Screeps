@@ -45,7 +45,7 @@ class Const {
     static MSG_TASK_HALT = 2;           // Task halt
     static MSG_PROCESS_TERMINATE = 3;   // Process terminate
     static MSG_REPORT_EMERGENCY = 4;    // Report emergency
-    static MSG_DEATH_WORKER = 5;        // A worker is dead
+    static MSG_CREEP_DEATH = 5;         // A creep is dead
 
     /*----------------------------------- Memory -----------------------------------*/
     
