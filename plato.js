@@ -105,40 +105,34 @@ class Plato {
     */
     static sendMsg(msg) {
         // Check validity
-        if (msg[0] == null) {
-            return;
-        }
+        if (msg[0] == null) {return;}
         // Deliver message
-        switch (msg[0] & 0xF000) {
-            case C.TOKEN_HEADER_PLATO:
-                /* TODO: Store or print the message */
-                break;
-            case C.TOKEN_HEADER_DEMETER:
-                Memory.agents.demeter.msgQueue.push(msg);
-                break;
-            default:
-                break;
-        }
+        Memory.msgQueue[msg[0] >>> 12].push(msg);
+    }
+
+    /* Get process
+       Input: token
+       Return: process object
+    */
+    static getProcess(token) {
+        var agent_idx = (token & 0xF000) >>> 12;
+        var pro_idx = (token & 0x0F00) >>> 8;
+        return Memory.proQueue[agent_idx][pro_idx];
     }
 
     /* Start a process for agent
-       Input: agent name, process object
+       Input: agent header, process object, list of process functions
        Return: true if sucess, false if process number reaches limit
     */
-    static startProcess(agent, process) {
+    static propProcess(agentHeader, process, proFuncList) {
         var find_flage = false;
-        var queue = Memory.proQueue[agent];
+        var queue = Memory.proQueue[agentHeader >>> 12];
         var idx;
 
-        // Find a position in the process queue
-        for (idx = 0; idx < queue.length; i++) {
+        // Find a position in the process queue, set token
+        for (idx = 0; idx < queue.length; idx++) {
             if (queue[idx] == null) {
-                var token = idx << 8;
-                switch (agent) {
-                    case 'demeter':
-                        token |= C.TOKEN_HEADER_DEMETER;
-                        break;
-                }
+                var token = agentHeader | (idx << 8);
                 queue[idx] = process;
                 process.token = token;
                 find_flage = true;
@@ -150,8 +144,49 @@ class Plato {
         if (!find_flage) {return false;}
 
         // Run start function for the process
-        Process.start(process);
+        Process.start(process, proFuncList);
     }
+
+    /* Update process state in the process queue
+       Input: token, list of processes
+       Return: none
+    */
+    static promoProcess(token, proFuncList) {
+        var process = this.getProcess(token);
+        Process.promote(process, msg[0], proFuncList);
+    }
+
+    /* Delete a process in the queue
+       Input: token
+       Return: none
+    */
+    static endProcess(token) {
+        var agent_idx = (token & 0xF000) >>> 12;
+        var pro_idx = (token & 0x0F00) >>> 8;
+        Memory.proQueue[agent_idx][pro_idx] = null;
+    }
+
+    /* Monitor creep number for an agent's process
+       Input: none
+       Return: none
+    */
+    static monitorTargetNum(agentHeader) {
+        var queue = Memory.proQueue[agentHeader >>> 12];
+
+        for (var process of queue) {
+            if (process == null) {continue;}
+            for (var type in process.targetNum) {
+                if (process.realNum[type] < process.targetNum[type]) {
+                    var diff = process.targetNum[type] - process.realNum[type];
+                    for (var i = 0; i < diff; i++) {
+                        this.propSpawnReq(type, process.room, process.token, 1);
+                    }
+                    process.realNum[type] = process.targetNum[type];
+                }
+            }
+        }
+    }
+
 
     /*-------------------- Private Methods --------------------*/
 
@@ -327,30 +362,6 @@ class Plato {
                 Memory.constructQueue.numTask[name] = target_numTask;
             }
         }
-    }
-
-    /* New methods */
-
-
-    /* Update process state in the process queue
-       Input: massage
-       Return: none
-    */
-    static promoProcess() {
-        for (var agent in Memory.msgQueue) {
-            for (var msg of Memory.msgQueue[agent]) {
-                var process = Memory.proQueue[agent][(msg[0] & 0x0F00) >>> 8];
-                Process.promote(process, msg[0]);
-            }
-        }
-    }
-
-    /* Monitor creep number for all process, propose spawn request if needed
-       Input: none
-       Return: none
-    */
-    static monitorTargetNum() {
-        
     }
 
     /* ...

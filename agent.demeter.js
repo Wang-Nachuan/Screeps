@@ -27,9 +27,9 @@ class Demeter extends Plato {
     */
     static wrapper() {
         this.deliverMsg();
-        this.startProcess();
-        this.monitorCreepNum();
         this.monitorStruct();
+        this.monitorProcess();
+        this.monitorTargetNum(C.TOKEN_HEADER_DEMETER);
     }
 
     /* Deliver messages in the message queue
@@ -38,19 +38,16 @@ class Demeter extends Plato {
     */
     static deliverMsg() {
         // Call functions to process the message
-        for (var msg of this.memory.msgQueue) {
+        var queue = Memory.msgQueue[C.TOKEN_HEADER_DEMETER >>> 12];
+        for (var msg of queue) {
             switch (msg[1]) {
                 case C.MSG_TASK_TERMINATE:
-                    this.promoProcess(msg);
-                    break;
-                case C.MSG_SPAWN_TERMINATE:
-                    this.promoProcess(msg);
+                    this.promoProcess(msg[0], process);
                     break;
                 case C.MSG_TASK_HALT:
                     break;
                 case C.MSG_PROCESS_TERMINATE:
-                    Process.end(this.memory.proQueue, msg[0]);
-                    this.memory.statistics.proNum -= 1;
+                    this.endProcess(msg[0]);
                     break;
                 case C.MSG_REPORT_EMERGENCY:
                     break
@@ -60,8 +57,8 @@ class Demeter extends Plato {
                     break;
             }
         }
-        // Reset message queue
-        this.memory.msgQueue = [];
+        // Clean message queue
+        queue = [];
     }
 
     /* Monitor state of structures in each room, propose tasks if needed
@@ -126,51 +123,69 @@ class Demeter extends Plato {
 
     /*-------------------- Processes --------------------*/
 
-    /* Process: develop main room
-       Token header: 0x2000
-       Dependece: [0, 0, 1]
+    /* Monitor state of each room, propose process if needed
+       Input: none
+       Return: none
     */
-    static process_develop = [
+    static monitorProcess() {
+        for (var room of Memory.rooms.haveSpawn) {
+            if (!Memory.rooms.developing.includes(room)) {
+                Memory.rooms.developing.push(room);
+                var process = new Process('develop', room);
+                this.propProcess(C.TOKEN_HEADER_DEMETER, process, this.process_functions);
+            }
+        }
+    }
 
-        /* Index 0: spawn creeps
-           Predecessor: none
-           Posdecessor: 
+    
+    static process_functions = {
+
+        /* Process: develop a room
         */
-        {
-            func: function(process, room, header) {
-                var token = header | 0x0000;
-                Demeter.memory.statistics.targetNum.worker += 2;
+        'develop': [
+
+            /* Index 0: spawn creeps
+               Predecessor: none
+               Posdecessor: 
+            */
+            {
+                func: function(process, room, header) {
+                    var token = header | 0x0000;
+                    process.targetNum['worker'] = 2;
+                    process.realNum['worker'] = 0;
+                },
+                dep: [],
+                weight: 0      // Weight of dependence
             },
-            dep: [],
-            weight: 0      // Weight of dependence
-        },
-
-
-        /* Index ?: the end of process, send 'process terminate' message to message queue
-           Predecessor: 1
-           Posdecessor: none
-        */
-        {
-            func: function(process, room, header) {
-                // var token = header | 0x0002;
-                // console.log("[Message] Process 'develop' terminated.");
+    
+    
+            /* Index ?: the end of process, send 'process terminate' message to message queue
+               Predecessor: 1
+               Posdecessor: none
+            */
+            {
+                func: function(process, room, header) {
+                    // var token = header | 0x0002;
+                    // console.log("[Message] Process 'develop' terminated.");
+                },
+                dep: [],
+                weight: 0
             },
-            dep: [],
-            weight: 0
-        },
-
-        // /* Index n:
-        //    Predecessor:
-        //    Posdecessor: 
-        // */
-        // {
-        //     func: function(room, header) {
-                
-        //     },
-        //     dep: [],
-        //     weight: 0
-        // },
-    ]
+    
+            // /* Index n:
+            //    Predecessor:
+            //    Posdecessor: 
+            // */
+            // {
+            //     func: function(room, header) {
+                    
+            //     },
+            //     dep: [],
+            //     weight: 0
+            // },
+        ],
+    };
+    
 }
 
 module.exports = Demeter;

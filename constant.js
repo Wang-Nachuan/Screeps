@@ -30,10 +30,8 @@ class Const {
     */
 
     // Token header for each agents
-    static TOKEN_HEADER_PLATO = 0x0000;         // Plato
-    static TOKEN_HEADER_EUCLID = 0x1000;        // Euclid
-    static TOKEN_HEADER_DEMETER = 0x2000;       // Demeter
-    static TOKEN_HEADER_HEPHAESTUS = 0x3000;    // Hephaestus
+    static TOKEN_HEADER_DEMETER = 0x0000;       // Demeter
+    static TOKEN_HEADER_HEPHAESTUS = 0x1000;    // Hephaestus
 
     /* Message:
        [token, message type, additional information (option)]
@@ -41,11 +39,10 @@ class Const {
 
     // Message type
     static MSG_TASK_TERMINATE = 0;      // Task terminate
-    static MSG_SPAWN_TERMINATE = 1;     // Spawn terminate
-    static MSG_TASK_HALT = 2;           // Task halt
-    static MSG_PROCESS_TERMINATE = 3;   // Process terminate
-    static MSG_REPORT_EMERGENCY = 4;    // Report emergency
-    static MSG_CREEP_DEATH = 5;         // A creep is dead
+    static MSG_TASK_HALT = 1;           // Task halt
+    static MSG_PROCESS_TERMINATE = 2;   // Process terminate
+    static MSG_REPORT_EMERGENCY = 3;    // Report emergency
+    static MSG_CREEP_DEATH = 4;         // A creep is dead
 
     /*----------------------------------- Memory -----------------------------------*/
     

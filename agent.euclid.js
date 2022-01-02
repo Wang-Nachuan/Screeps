@@ -51,12 +51,16 @@ class Euclid extends Plato {
         var name = creep.name;
         var pool = Memory.creepPool[creep.role];
         var task = Memory.taskQueue[creep.taskCursor[0]][creep.taskCursor[1]][creep.taskCursor[2]];
+        var process = this.getProcess(creep.token);
 
         // Delete id from creep pool
         pool.splice(pool.indexOf(id), 1);
 
         // Update statisics
         Memory.statistics.creep[creep.role] -= 1;
+
+        // Update process
+        process.realNum[creep.role] -= 1;
 
         // Update task state
         task.cursor = null;

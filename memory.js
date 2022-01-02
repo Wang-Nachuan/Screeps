@@ -49,19 +49,17 @@ module.exports = function () {
 
         /*------------------- Process ---------------------*/
 
+        /* Order:
+           [0] - demeter
+           [1] - hephaestus
+           [2] - minerva
+        */
+
         // Process queue
-        Memory.proQueue = {
-            demeter: Array(16, null),
-            hephaestus: Array(16, null),
-            minerva: Array(16, null)
-        }
+        Memory.proQueue = [Array(16).fill(null), Array(16).fill(null), Array(16).fill(null)];
 
         // Message queue
-        Memory.msgQueue = {
-            demeter: [],
-            hephaestus: [],
-            minerva: []
-        }
+        Memory.msgQueue = [[], [], []];
 
         /*-------------------- Others ---------------------*/
 
