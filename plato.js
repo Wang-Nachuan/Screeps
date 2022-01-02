@@ -153,7 +153,7 @@ class Plato {
     */
     static promoProcess(token, proFuncList) {
         var process = this.getProcess(token);
-        Process.promote(process, msg[0], proFuncList);
+        Process.promote(process, token, proFuncList);
     }
 
     /* Delete a process in the queue

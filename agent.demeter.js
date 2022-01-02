@@ -42,7 +42,7 @@ class Demeter extends Plato {
         for (var msg of queue) {
             switch (msg[1]) {
                 case C.MSG_TASK_TERMINATE:
-                    this.promoProcess(msg[0], process);
+                    this.promoProcess(msg[0], this.process_functions);
                     break;
                 case C.MSG_TASK_HALT:
                     break;
@@ -58,7 +58,7 @@ class Demeter extends Plato {
             }
         }
         // Clean message queue
-        queue = [];
+        Memory.msgQueue[C.TOKEN_HEADER_DEMETER >>> 12] = [];
     }
 
     /* Monitor state of structures in each room, propose tasks if needed
@@ -151,11 +151,28 @@ class Demeter extends Plato {
             {
                 func: function(process, room, header) {
                     var token = header | 0x0000;
-                    process.targetNum['worker'] = 2;
+                    process.targetNum['worker'] = 3;
                     process.realNum['worker'] = 0;
                 },
                 dep: [],
                 weight: 0      // Weight of dependence
+            },
+
+            /* Index 1: upgrade controller
+               Predecessor: none
+               Posdecessor: 2
+            */
+            {
+                func: function(process, room, header) {
+                    var token = header | 0x0001;
+                    for (var i = 0; i < 2; i++) {
+                        var fromNode = new Node({x: 0, y: 0, roomName: room}, C.SOURCE, null, true, 'source');
+                        var task = tasks_worker.upgradeController(fromNode, room, 2, token);
+                        Demeter.propTask(task, 3);
+                    }
+                },
+                dep: [2],
+                weight: 2      // Weight of dependence
             },
     
     
@@ -165,8 +182,9 @@ class Demeter extends Plato {
             */
             {
                 func: function(process, room, header) {
-                    // var token = header | 0x0002;
-                    // console.log("[Message] Process 'develop' terminated.");
+                    var token = header | 0x0002;
+                    console.log("[Message] Process 'develop' terminated at room", room);
+                    Demeter.sendMsg([token, C.MSG_PROCESS_TERMINATE]);
                 },
                 dep: [],
                 weight: 0

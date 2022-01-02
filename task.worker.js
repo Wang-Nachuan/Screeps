@@ -3,6 +3,7 @@
 */
 
 const C = require('./constant');
+const Node = require('./node');
 const Task = require("./task");
 
 var tasks_worker = {
@@ -30,9 +31,11 @@ var tasks_worker = {
     },
 
     /* Harvest energy srouce to upgrade controller
-       Input: from node (energy source), to node (structure), target level
+       Input: from node (energy source), room name, target level
     */
-    upgradeController: function(fromNode, toNode, level, token=null) {
+    upgradeController: function(fromNode, room, level, token=null) {
+        var controller = Game.rooms[room].controller;
+        var toNode = new Node(controller.pos, STRUCTURE_CONTROLLER, controller.id);
         var nodes = [fromNode, toNode];
         // Range
         var para_mv = [1, 3];

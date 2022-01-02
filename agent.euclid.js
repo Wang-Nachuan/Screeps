@@ -51,6 +51,7 @@ class Euclid extends Plato {
         var name = creep.name;
         var pool = Memory.creepPool[creep.role];
         var task = Memory.taskQueue[creep.taskCursor[0]][creep.taskCursor[1]][creep.taskCursor[2]];
+        var node = task.nodes[task.cursor];
         var process = this.getProcess(creep.token);
 
         // Delete id from creep pool
@@ -61,6 +62,18 @@ class Euclid extends Plato {
 
         // Update process
         process.realNum[creep.role] -= 1;
+
+        // Updat node attachment
+        var pool = Memory.nodePool[node.pos.roomName][node.type];
+        if (pool != undefined) {
+            for (var i of pool) {
+                if (i.id == node.id) {
+                    var idx = i.attach.indexOf(creep.id);
+                    if (idx != -1) {i.attach.splice(idx, 1);}
+                    break;
+                }
+            }
+        }
 
         // Update task state
         task.cursor = null;
@@ -101,7 +114,7 @@ class Euclid extends Plato {
                 var termi_flag = false;     // Flage of terminating loops
 
                 // Monitor the life condition of creep
-                if (creep.ticksToLive <= 1350) {
+                if (creep.ticksToLive <= 5) {
                     this.buryCreep(creep);
                     break;
                 }
@@ -181,7 +194,7 @@ class Euclid extends Plato {
                             creep.isBusy = false;
                             creep.taskCursor = null;
                             // Give ordered but unused energy back
-                            Memory.statistics.energy[task.room].pinned -= (task.energy - task.energyAcq);
+                            if (task.room != null) {Memory.statistics.energy[task.room].pinned -= (task.energy - task.energyAcq);}
                             break;
                         case C.TASK_OP_RET_FLG_HALT:
                             this.sendMsg([task.token, C.MSG_TASK_HALT]);
@@ -189,7 +202,7 @@ class Euclid extends Plato {
                             creep.isBusy = false;
                             creep.taskCursor = null;
                             // Give ordered but unused energy back
-                            Memory.statistics.energy[task.room].pinned -= (task.energy - task.energyAcq);
+                            if (task.room != null) {Memory.statistics.energy[task.room].pinned -= (task.energy - task.energyAcq);}
                             /* TODO: inform agents if needed */
                             break;
                     }
