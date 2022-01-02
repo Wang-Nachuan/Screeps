@@ -3,10 +3,10 @@
 3. (Done) 经历过pending状态的task, 仍然可以在结束时按记录归还预定的能量, 因为每一笔能量在转移时都有记录, 记录并不会因为creep的死亡而受污染
 4. (Done) 其它creep接手经历过pending的task前, task.cursor应被重置为null
 5. (Done) 核心思想是, 每个任务只记录自己执行期间内能量的转移情况, 至于creep以何种状态进入任务, 又以何种状态出去, 这无所谓
-6. Task.energyStore只记录通过withdraw从建筑中获得的能量增加, 以及各种使用能量引起的能量减少, 需要做非负检测防止其为负值
+6. (Done) Task.energyStore只记录通过withdraw从建筑中获得的能量增加, 以及各种使用能量引起的能量减少, 需要做非负检测防止其为负值
 7. 给所有handler加记录代码
 ----------
-1. proposeSpawn代码需要实现对多房spawn的调度: 给定一个pos, 选取最近的spawn进行孵化
+1. (Abandon) proposeSpawn代码需要实现对多房spawn的调度: 给定一个pos, 选取最近的spawn进行孵化
 ----------
 1. (Abandon) monitorCreepNum监视所有进程的creep数量需求
 2. (Done) 每个creep出生即属于一个进程, creep.process存的是进程token
