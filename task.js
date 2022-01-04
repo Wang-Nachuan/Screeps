@@ -36,7 +36,7 @@ class Task {
         this.ownerId = null;                // (String) Id of task owner
         this.state = C.TASK_STATE_PROPOSED; // (Const) State of task
         this.isMoving = false;              // (Boolean) True if creep is moving to the node
-        this.energyAcq = 0;                 // (Num) Energy that is actually acquired by creep from structure
+        this.energyAcq = 0;                 // (Num) Total energy that is actually acquired by creep from structure
         this.energyStore = 0;               // (Num) Energy that is aquired from structure but not yet used
     }
 

@@ -13,6 +13,7 @@ var handlers_worker = {
     */
     op_harvest: function(creep, node, para, task) {
         var target = Game.getObjectById(node.id);
+
         if(creep.store.getFreeCapacity() > 0) {
             creep.harvest(target);
             return C.TASK_OP_RET_FLG_OCCUPY;
@@ -28,7 +29,13 @@ var handlers_worker = {
     op_transfer: function(creep, node, para, task) {
         var target = Game.getObjectById(node.id);
         var item = para[0];
-        creep.transfer(target, item)
+
+        if (item == RESOURCE_ENERGY) {
+            var energy_oneTick = Math.min(target.store.getFreeCapacity(RESOURCE_ENERGY), creep.store.getUsedCapacity(RESOURCE_ENERGY));
+            task.energyStore -= energy_oneTick;
+            if (task.energyStore < 0) {task.energyStore = 0;}
+        }
+        creep.transfer(target, item);
         return C.TASK_OP_RET_FLG_FINISH;
     },
 
@@ -37,8 +44,13 @@ var handlers_worker = {
     */
     op_upgrade: function(creep, node, para, task) {
         var target = Game.getObjectById(node.id);
-        if(creep.store[RESOURCE_ENERGY] > 0) {
-            creep.upgradeController(target);
+        var energy_store = creep.store.getUsedCapacity(RESOURCE_ENERGY);
+        var energy_oneTick = Math.min(creep.bodyCount.work, energy_store);
+
+        task.energyStore -= energy_oneTick;
+        if (task.energyStore < 0) {task.energyStore = 0;}
+        creep.upgradeController(target);
+        if (energy_oneTick < energy_store) {
             return C.TASK_OP_RET_FLG_OCCUPY;
         } else {
             return C.TASK_OP_RET_FLG_FINISH;
@@ -50,11 +62,16 @@ var handlers_worker = {
     */
     op_build: function(creep, node, para, task) {
         var target = Game.getObjectById(node.id);
-        if (target == null) {
-            return C.TASK_OP_RET_FLG_FINISH;
-        }
-        if (creep.store.getUsedCapacity(RESOURCE_ENERGY) > 0) {
-            creep.build(target);
+
+        if (target == null) {return C.TASK_OP_RET_FLG_FINISH;}
+
+        var energy_store = creep.store.getUsedCapacity(RESOURCE_ENERGY);
+        var energy_oneTick = Math.min(5*creep.bodyCount.work, energy_store);
+
+        task.energyStore -= energy_oneTick;
+        if (task.energyStore < 0) {task.energyStore = 0;}
+        creep.build(target);
+        if (energy_oneTick < energy_store) {
             return C.TASK_OP_RET_FLG_OCCUPY;
         } else {
             return C.TASK_OP_RET_FLG_FINISH;
@@ -72,6 +89,7 @@ var handlers_worker = {
     st_creepStore: function(creep, node, para, task) {
         var item = para[1];
         var ratio = para[2];
+
         if (creep.store.getUsedCapacity(item) / creep.store.getCapacity(item) < ratio) {
             return para[0][0];
         } else {
@@ -123,6 +141,7 @@ var handlers_worker = {
         var target = Game.getObjectById(node.id);
         var item = para[1];
         var amount = para[2];
+
         if (target.store.getUsedCapacity(item) < amount) {
             return para[0][0];
         } else {
@@ -138,6 +157,7 @@ var handlers_worker = {
     br_rcl: function(creep, node, para, task) {
         var target = Game.getObjectById(node.id);
         var level = para[1];
+
         if (target.level < level) {
             return para[0][0];
         } else {
@@ -151,6 +171,7 @@ var handlers_worker = {
     */
     br_targetExist: function(creep, node, para, task) {
         var target = Game.getObjectById(node.id);
+
         if (target != null) {
             return para[0][0];
         } else {
