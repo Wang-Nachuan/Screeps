@@ -8,10 +8,8 @@ var update = function() {
     // Energy statistics
     for (var roomName in Memory.statistics.energy) {
         var data = Memory.statistics.energy[roomName];
+        if (data.pinned < 0) {data.pinned = 0;}
         data.available = Game.rooms[roomName].energyAvailable - data.pinned;
-        if (data.available < 0) {
-            data.available = 0;
-        }
     }
 };
 

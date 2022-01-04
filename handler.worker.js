@@ -39,6 +39,22 @@ var handlers_worker = {
         return C.TASK_OP_RET_FLG_FINISH;
     },
 
+    /* Withdraw item from target to creep
+       Input:
+       [0] - (const) type of item to be withdraw
+    */
+    op_withdraw: function(creep, node, para, task) {
+        var target = Game.getObjectById(node.id);
+        var item = para[0];
+
+        if (item == RESOURCE_ENERGY) {
+            var energy_oneTick = Math.min(target.store.getFreeCapacity(RESOURCE_ENERGY), creep.store.getUsedCapacity(RESOURCE_ENERGY));
+            task.energyStore -= energy_oneTick;
+            if (task.energyStore < 0) {task.energyStore = 0;}
+        }
+        
+    },
+
     /* Upgrade the controller
        Input: none
     */
