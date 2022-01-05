@@ -11,6 +11,5 @@ module.exports.loop = function () {
     // Decision-making stage
     Demeter.wrapper();
     // Execution statge
-    Plato.wrapper();
     Euclid.wrapper();
 }

@@ -7,6 +7,7 @@ const Plato = require('./plato');
 const Task = require('./task');
 const Node = require('./node');
 const C = require('./constant');
+const tasks_worker = require('./task.worker');
 
 class Euclid extends Plato {
 
@@ -15,8 +16,12 @@ class Euclid extends Plato {
        Return: none
     */
     static wrapper() {
+        // Order matters
+        this.issueSpawnReq();
+        this.issueTask();
         this.scheSpawnReq();
         this.scheTask();
+        this.issueConstructReq();
     }
 
     /* Delete a task in a given level or replace it with a null
@@ -29,6 +34,21 @@ class Euclid extends Plato {
         } else {
             level[idx] = null;
         }
+    }
+
+    /* Search within a priority level, insert the task to a propriate position
+       Input: task, priority level
+       Return: none
+    */
+    static setTask(task, level) {
+        for (var idx in level) {
+            if (level[idx] == null) {
+                level[idx] = task;
+                return;
+            }
+        }
+        // If no empty space, add task at the end
+        level.push(task);
     }
 
     /* Calculate the movement cost of taking a task
@@ -97,6 +117,176 @@ class Euclid extends Plato {
         // Let creep suicide, free memory 
         creep.suicide();
         delete Memory.creeps[name];
+    }
+
+    /* Update the standard body part of creep
+       Input: none
+       Return: none
+    */
+    static updateStdBody() {
+        for (var name of Memory.rooms.haveSpawn) {
+            var capa = Game.rooms[name].energyCapacityAvailable;
+            var n = Math.floor(capa / 200);     // Number of [WORK, CARRY, MOVE] pairs
+            var ex_en = capa % 200;             // Extra energy
+
+            // Worker size limite
+            if (n > 6) {
+                n = 6;
+                ex_en = 0;
+            }
+
+            var body = [];
+            var count_move = n;
+            var count_work = n;
+            var count_carry = n;
+            
+
+            for (var i = 0; i < n; i++) {
+                body.concat([WORK, CARRY, MOVE]);
+            }
+
+            if (ex_en >= 50 && ex_en < 100) {
+                body.concat([MOVE]);
+                count_move += 1;
+            } else if (ex_en >= 100 && ex_en < 150) {
+                body.concat([CARRY, MOVE]);
+                count_move += 1;
+                count_carry += 1;
+            } else {
+                body.concat([WORK, MOVE]);
+                count_move += 1;
+                count_work += 1
+            }
+
+            Memory.statistics.stdBody[name].worker = body;
+            Memory.statistics.stdBody[name].countWorker.move = count_move;
+            Memory.statistics.stdBody[name].countWorker.work = count_work;
+            Memory.statistics.stdBody[name].countWorker.carry = count_carry;
+        }
+    }
+
+    /* Issue proposed tasks based on energy consumption and priority
+       Input: none
+       Return: none
+    */
+    static issueTask() {
+        // Loop through queues
+        for (var type in Memory.propTaskQueue) {
+            var queue = Memory.propTaskQueue[type];
+
+            // Loop through all priority levels
+            for (var prio in queue) {
+                var level = queue[prio];
+
+                // Loop within each priority level
+                for (var idx in level) {
+                    var task = level[idx]
+                    var data = Memory.statistics.energy[task.room];
+
+                    if (task.energy == 0) {
+                        this.setTask(task, Memory.taskQueue[type][prio]);
+                        task.state = C.TASK_STATE_ISSUED;
+                        level.splice(idx, 1);
+                    } else if (task.energy <= data.available) {
+                        this.setTask(task, Memory.taskQueue[type][prio]);
+                        task.state = C.TASK_STATE_ISSUED;
+                        level.splice(idx, 1);
+                        // Pin the required amount of energy
+                        data.available -= task.energy;
+                        data.pinned += task.energy;
+                    } else {}
+                }
+            }
+        }
+    }
+
+    /* Issue proposed spawn requests based on energy consumption and priority
+       Input: none
+       Return: none
+    */
+    static issueSpawnReq() {
+        // Loop through all priority levels
+        for (var prio in Memory.spawnQueue.prop) {
+            var level = Memory.spawnQueue.prop[prio];
+
+            // Loop through all requests
+            for (var idx in level) {
+                var req = level[idx];
+                var data = Memory.statistics.energy[req.room];
+
+                if (req.energy <= data.available) {
+                    this.setTask(req, Memory.spawnQueue.sche[prio]);
+                    req.state = C.TASK_STATE_ISSUED;
+                    level.splice(idx, 1);
+                    data.available -= req.energy;
+                    data.pinned += req.energy;
+                }
+            }
+        }
+    }
+
+    /* Add all construction site to queue, propose construction tasks
+       Input: none
+       Return: none
+    */
+    static issueConstructReq() {
+        // Find all maually set construction site
+        for (var id in Game.constructionSites) {
+            if ((!Memory.constructQueue.prop.includes(id)) && (!Memory.constructQueue.sche.includes(id))) {
+                Memory.constructQueue.prop.push(id);
+            }
+        }
+
+        // Move sites to scheduled queue
+        for (var id of Memory.constructQueue.prop) {
+            Memory.constructQueue.sche.push(id);
+        }
+        Memory.constructQueue.prop = [];
+
+        // Clean the scheduled queue
+        var sum_energy = {};
+        for (var i in Memory.constructQueue.sche) {
+            var site = Game.getObjectById(Memory.constructQueue.sche[i])
+            if (null == site) {
+                Memory.constructQueue.sche.splice(i, 1);
+            } else {
+                if (!sum_energy[site.room.name]) {
+                    sum_energy[site.room.name] = site.progressTotal;
+                } else {
+                    sum_energy[site.room.name] += site.progressTotal;
+                }
+            }
+        }
+
+        // Propose task based on the number of sites and worker's body part
+        for (var room in sum_energy) {
+            var target_numTask = 0;
+
+            // Calculate target number of tasks
+            for (var queue of Memory.proQueue) {
+                for (var process of queue) {
+                    if (process != null && process.room == room) {
+                        target_numTask = process.targetNum.worker - 1;
+                        if (target_numTask < 1) {
+                            target_numTask = 1;
+                        }
+                    }
+                }
+            }
+
+            if (!Memory.constructQueue.numTask[room]) {
+                Memory.constructQueue.numTask[room] = 0;
+            }
+
+            if (Memory.constructQueue.numTask[room] < target_numTask) {
+                var fromNode = new Node({x: 0, y: 0, roomName: room}, 'source', null, true, 'source');
+                var toNode = new Node({x: 0, y: 0, roomName: room}, 'constructionSite', null, true, 'constructSite');
+                for (var i = 0; i < target_numTask - Memory.constructQueue.numTask[room]; i++) {
+                    this.propTask(tasks_worker.buildStruct(fromNode, toNode, 0, room), 4);
+                }
+                Memory.constructQueue.numTask[room] = target_numTask;
+            }
+        }
     }
 
     /* Assign each creep with a task

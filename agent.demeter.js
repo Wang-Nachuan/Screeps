@@ -12,9 +12,15 @@ const Process = require('./process');
 const C = require('./constant');
 const tasks_worker = require('./task.worker');
 
-// Local constants
+// Structure's request
 const REQUEST_ENERGY = 0;
 const REQUEST_REPAIRE = 1;
+
+// Index of construction blocks
+const BLOCK_SPAWN = 0;
+const BLOCK_CENTRAL = 1;
+const BLOCK_EXTENSION_TOWER = 2;
+const BLOCK_EXTENSION = 3;
 
 class Demeter extends Plato {
 
@@ -60,6 +66,8 @@ class Demeter extends Plato {
         // Clean message queue
         Memory.msgQueue[C.TOKEN_HEADER_DEMETER >>> 12] = [];
     }
+
+    /*-------------------- Structures --------------------*/
 
     /* Monitor state of structures in each room, propose tasks if needed
        Input: none
@@ -184,7 +192,7 @@ class Demeter extends Plato {
                 func: function(process, room, header) {
                     var token = header | 0x0002;
                     console.log("[Message] Process 'develop' terminated at room", room);
-                    Demeter.sendMsg([token, C.MSG_PROCESS_TERMINATE]);
+                    // Demeter.sendMsg([token, C.MSG_PROCESS_TERMINATE]);
                 },
                 dep: [],
                 weight: 0
@@ -203,7 +211,62 @@ class Demeter extends Plato {
             // },
         ],
     };
-    
+
+    /*------------------ Constructions -----------------*/
+
+    /* Executed right after first spawn is built in a room
+       Input: none
+       Return: none
+    */
+    static setBase() {
+
+    }
+
+    /* Build a construction block
+       Input: index of block in block list
+       Return: none
+    */
+    static buildBlock(blockIdx) {
+
+    }
+
+    static construct_blocks = [
+
+        // 0: Spawn
+        [
+            [STRUCTURE_ROAD, STRUCTURE_POWER_SPAWN, STRUCTURE_ROAD], 
+            [STRUCTURE_SPAWN, STRUCTURE_ROAD, STRUCTURE_SPAWN], 
+            [STRUCTURE_ROAD, STRUCTURE_SPAWN, STRUCTURE_ROAD]
+        ],
+
+        // 1: Central processing group
+        [
+            [STRUCTURE_ROAD, STRUCTURE_FACTORY, STRUCTURE_ROAD], 
+            [STRUCTURE_STORAGE, STRUCTURE_ROAD, STRUCTURE_TERMINAL], 
+            [STRUCTURE_ROAD, STRUCTURE_LINK, STRUCTURE_ROAD]
+        ],
+
+        // 2: Extension and tower
+        [
+            [STRUCTURE_ROAD, STRUCTURE_TOWER, STRUCTURE_ROAD], 
+            [STRUCTURE_EXTENSION, STRUCTURE_ROAD, STRUCTURE_EXTENSION], 
+            [STRUCTURE_ROAD, STRUCTURE_EXTENSION, STRUCTURE_ROAD]
+        ],
+
+        // 3: Extension
+        [
+            [STRUCTURE_ROAD, STRUCTURE_EXTENSION, STRUCTURE_ROAD], 
+            [STRUCTURE_EXTENSION, STRUCTURE_ROAD, STRUCTURE_EXTENSION], 
+            [STRUCTURE_ROAD, STRUCTURE_EXTENSION, STRUCTURE_ROAD]
+        ],
+
+        // // i:
+        // [
+        //     [STRUCTURE_ROAD, , STRUCTURE_ROAD], 
+        //     [, STRUCTURE_ROAD, ], 
+        //     [STRUCTURE_ROAD, , STRUCTURE_ROAD]
+        // ],
+    ]
 }
 
 module.exports = Demeter;
