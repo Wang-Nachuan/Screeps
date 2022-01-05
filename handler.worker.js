@@ -30,13 +30,24 @@ var handlers_worker = {
         var target = Game.getObjectById(node.id);
         var item = para[0];
 
-        if (item == RESOURCE_ENERGY) {
-            var energy_oneTick = Math.min(target.store.getFreeCapacity(RESOURCE_ENERGY), creep.store.getUsedCapacity(RESOURCE_ENERGY));
-            task.energyStore -= energy_oneTick;
-            if (task.energyStore < 0) {task.energyStore = 0;}
+        // Transfer other items
+        if (item != RESOURCE_ENERGY) {
+            creep.transfer(target, item);
+            return C.TASK_OP_RET_FLG_FINISH;
         }
-        creep.transfer(target, item);
-        return C.TASK_OP_RET_FLG_FINISH;
+
+        // Transfer energy
+        if (creep.state == C.CREEP_STATE_NONE) {
+            creep.state = C.CREEP_STATE_TRANSFER;
+            creep.transfer(target, RESOURCE_ENERGY);
+            return C.TASK_OP_RET_FLG_OCCUPY;
+        } else {
+            var diff = creep.store[RESOURCE_ENERGY] - creep.lastTickEn;
+            task.energyStore += diff;
+            if (task.energyStore < 0) {task.energyStore = 0;}
+            creep.state = C.CREEP_STATE_NONE;
+            return C.TASK_OP_RET_FLG_FINISH;
+        }  
     },
 
     /* Withdraw item from target to creep
@@ -47,12 +58,25 @@ var handlers_worker = {
         var target = Game.getObjectById(node.id);
         var item = para[0];
 
-        if (item == RESOURCE_ENERGY) {
-            var energy_oneTick = Math.min(target.store.getFreeCapacity(RESOURCE_ENERGY), creep.store.getUsedCapacity(RESOURCE_ENERGY));
-            task.energyStore -= energy_oneTick;
-            if (task.energyStore < 0) {task.energyStore = 0;}
+        // Withdraw other items
+        if (item != RESOURCE_ENERGY) {
+            creep.withdraw(target, item);
+            return C.TASK_OP_RET_FLG_FINISH;
         }
-        
+
+        // Withdraw energy
+        if (creep.state == C.CREEP_STATE_NONE) {
+            creep.state = C.CREEP_STATE_WITHDRAW;
+            creep.withdraw(target, RESOURCE_ENERGY);
+            return C.TASK_OP_RET_FLG_OCCUPY;
+        } else {
+            var diff = creep.store[RESOURCE_ENERGY] - creep.lastTickEn;
+            task.energyAcq += diff;
+            task.energyStore += diff;
+            if (task.energyStore < 0) {task.energyStore = 0;}
+            creep.state = C.CREEP_STATE_NONE;
+            return C.TASK_OP_RET_FLG_FINISH;
+        }  
     },
 
     /* Upgrade the controller
@@ -60,16 +84,21 @@ var handlers_worker = {
     */
     op_upgrade: function(creep, node, para, task) {
         var target = Game.getObjectById(node.id);
-        var energy_store = creep.store.getUsedCapacity(RESOURCE_ENERGY);
-        var energy_oneTick = Math.min(creep.bodyCount.work, energy_store);
 
-        task.energyStore -= energy_oneTick;
-        if (task.energyStore < 0) {task.energyStore = 0;}
         creep.upgradeController(target);
-        if (energy_oneTick < energy_store) {
+        if (creep.state == C.CREEP_STATE_NONE) {
+            creep.state = C.CREEP_STATE_UPGRADE;
             return C.TASK_OP_RET_FLG_OCCUPY;
         } else {
-            return C.TASK_OP_RET_FLG_FINISH;
+            var diff = creep.store[RESOURCE_ENERGY] - creep.lastTickEn;
+            if (diff == 0) {
+                creep.state = C.CREEP_STATE_NONE;
+                return C.TASK_OP_RET_FLG_FINISH;
+            } else {
+                task.energyStore += diff;
+                if (task.energyStore < 0) {task.energyStore = 0;}
+                return C.TASK_OP_RET_FLG_OCCUPY;
+            }
         }
     },
 
@@ -81,16 +110,20 @@ var handlers_worker = {
 
         if (target == null) {return C.TASK_OP_RET_FLG_FINISH;}
 
-        var energy_store = creep.store.getUsedCapacity(RESOURCE_ENERGY);
-        var energy_oneTick = Math.min(5*creep.bodyCount.work, energy_store);
-
-        task.energyStore -= energy_oneTick;
-        if (task.energyStore < 0) {task.energyStore = 0;}
         creep.build(target);
-        if (energy_oneTick < energy_store) {
+        if (creep.state == C.CREEP_STATE_NONE) {
+            creep.state = C.CREEP_STATE_BUILD;
             return C.TASK_OP_RET_FLG_OCCUPY;
         } else {
-            return C.TASK_OP_RET_FLG_FINISH;
+            var diff = creep.store[RESOURCE_ENERGY] - creep.lastTickEn;
+            if (diff == 0) {
+                creep.state = C.CREEP_STATE_NONE;
+                return C.TASK_OP_RET_FLG_FINISH;
+            } else {
+                task.energyStore += diff;
+                if (task.energyStore < 0) {task.energyStore = 0;}
+                return C.TASK_OP_RET_FLG_OCCUPY;
+            }
         }
     },
 

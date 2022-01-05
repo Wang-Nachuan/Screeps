@@ -193,7 +193,7 @@ class Euclid extends Plato {
                             this.delTask(Memory.taskQueue[creep.taskCursor[0]][creep.taskCursor[1]], creep.taskCursor[2]);
                             creep.isBusy = false;
                             creep.taskCursor = null;
-                            // Give ordered but unused energy back (virtually)
+                            // Give pinned but unused energy back (virtually)
                             if (task.room != null) {Memory.statistics.energy[task.room].pinned -= (task.energy - task.energyAcq);}
                             break;
                         case C.TASK_OP_RET_FLG_HALT:
@@ -201,12 +201,15 @@ class Euclid extends Plato {
                             this.delTask(Memory.taskQueue[creep.taskCursor[0]][creep.taskCursor[1]], creep.taskCursor[2]);
                             creep.isBusy = false;
                             creep.taskCursor = null;
-                            // Give ordered but unused energy back (virtually)
+                            // Give pinned but unused energy back (virtually)
                             if (task.room != null) {Memory.statistics.energy[task.room].pinned -= (task.energy - task.energyAcq);}
                             /* TODO: inform agents if needed */
                             break;
                     }
                 }
+
+                // Update creep's state at the end of execution
+                creep.lastTickEn = creep.store[RESOURCE_ENERGY];
             }
         }
     }

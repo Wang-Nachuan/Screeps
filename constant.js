@@ -44,6 +44,16 @@ class Const {
     static MSG_REPORT_EMERGENCY = 3;    // Report emergency
     static MSG_CREEP_DEATH = 4;         // A creep is dead
 
+    /*----------------------------------- Creep -----------------------------------*/
+
+    // State of creep
+    static CREEP_STATE_NONE = 0;        // None (empty state)
+    static CREEP_STATE_TRANSFER = 1;    // Transfer (transferring item)
+    static CREEP_STATE_WITHDRAW = 2;    // Withdraw (withdrawing item)
+    static CREEP_STATE_UPGRADE = 3;     // Withdraw (withdrawing item)
+    static CREEP_STATE_BUILD = 4;       // Withdraw (withdrawing item)
+
+
     /*----------------------------------- Memory -----------------------------------*/
     
     // Task queue

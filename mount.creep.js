@@ -1,3 +1,5 @@
+const C = require('./constant');
+
 module.exports = function () {
     _.assign(Creep.prototype, methodExtension);
     for (var setField of fieldExtension) {
@@ -147,6 +149,48 @@ const fieldExtension = [
             set: function(newValue) {
                 this.memory.process = newValue;
                 this._process = newValue;
+            },
+            enumerable: false,
+            configurable: true
+        }
+    ),
+
+    // lastTickEn
+    Object.defineProperty(Creep.prototype, 'lastTickEn', 
+        {
+            get: function() {
+                if (!this._lastTickEn) {
+                    if (!this.memory.lastTickEn) {
+                        this.memory.lastTickEn = 0;
+                    }
+                    this._lastTickEn = this.memory.lastTickEn;
+                }
+                return this._lastTickEn;
+            },
+            set: function(newValue) {
+                this.memory.lastTickEn = newValue;
+                this._lastTickEn = newValue;
+            },
+            enumerable: false,
+            configurable: true
+        }
+    ),
+
+    // State
+    Object.defineProperty(Creep.prototype, 'state', 
+        {
+            get: function() {
+                if (!this._state) {
+                    if (!this.memory.state) {
+                        this.memory.state = C.CREEP_STATE_NONE;
+                    }
+                    this._state = this.memory.state;
+                }
+                return this._state;
+            },
+            set: function(newValue) {
+                this.memory.state = newValue;
+                this._state = newValue;
             },
             enumerable: false,
             configurable: true
