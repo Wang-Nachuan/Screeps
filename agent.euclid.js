@@ -232,22 +232,42 @@ class Euclid extends Plato {
     static issueConstructReq() {
         // Find all maually set construction site
         for (var id in Game.constructionSites) {
-            if ((!Memory.constructQueue.prop.includes(id)) && (!Memory.constructQueue.sche.includes(id))) {
-                Memory.constructQueue.prop.push(id);
+            var find_flage = Memory.constructQueue.prop.includes(id);
+            if (!find_flage) {
+                for (var node of Memory.constructQueue.sche) {
+                    if (node.id == id) {
+                        find_flage = true;
+                        break;
+                    }
+                }
+                if (!find_flage) {
+                    Memory.constructQueue.prop.push(id);
+                }
             }
         }
 
         // Move sites to scheduled queue
         for (var id of Memory.constructQueue.prop) {
-            Memory.constructQueue.sche.push(id);
+            var site = Game.getObjectById(id);
+            var node = new Node(site.pos, site.structureType, id);
+            Memory.constructQueue.sche.push(node);
         }
         Memory.constructQueue.prop = [];
 
         // Clean the scheduled queue
         var sum_energy = {};
         for (var i in Memory.constructQueue.sche) {
-            var site = Game.getObjectById(Memory.constructQueue.sche[i])
+            var node = Memory.constructQueue.sche[i];
+            var site = Game.getObjectById(node.id)
             if (null == site) {
+                // Add new structure (if any) to the pool
+                var found = Game.rooms[node.pos.roomName].lookForAt(LOOK_STRUCTURES, node.pos.x, node.pos.y);
+                if (found.length > 0) {
+                    console.log('[1]');
+                    var struct = found[0];
+                    var node_struct = new Node(struct.pos, struct.structureType, struct.id);
+                    Memory.nodePool[node.pos.roomName][struct.structureType].push(node_struct);
+                }
                 Memory.constructQueue.sche.splice(i, 1);
             } else {
                 if (!sum_energy[site.room.name]) {

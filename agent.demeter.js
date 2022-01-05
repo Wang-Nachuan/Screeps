@@ -166,37 +166,37 @@ class Demeter extends Plato {
                 weight: 0      // Weight of dependence
             },
 
-            /* Index 1: upgrade controller
-               Predecessor: none
-               Posdecessor: 2
-            */
-            {
-                func: function(process, room, header) {
-                    var token = header | 0x0001;
-                    for (var i = 0; i < 2; i++) {
-                        var fromNode = new Node({x: 0, y: 0, roomName: room}, C.SOURCE, null, true, 'source');
-                        var task = tasks_worker.upgradeController(fromNode, room, 2, token);
-                        Demeter.propTask(task, 3);
-                    }
-                },
-                dep: [2],
-                weight: 2      // Weight of dependence
-            },
+            // /* Index 1: upgrade controller
+            //    Predecessor: none
+            //    Posdecessor: 2
+            // */
+            // {
+            //     func: function(process, room, header) {
+            //         var token = header | 0x0001;
+            //         for (var i = 0; i < 2; i++) {
+            //             var fromNode = new Node({x: 0, y: 0, roomName: room}, C.SOURCE, null, true, 'source');
+            //             var task = tasks_worker.upgradeController(fromNode, room, 2, token);
+            //             Demeter.propTask(task, 3);
+            //         }
+            //     },
+            //     dep: [2],
+            //     weight: 2      // Weight of dependence
+            // },
     
     
-            /* Index ?: the end of process, send 'process terminate' message to message queue
-               Predecessor: 1
-               Posdecessor: none
-            */
-            {
-                func: function(process, room, header) {
-                    var token = header | 0x0002;
-                    console.log("[Message] Process 'develop' terminated at room", room);
-                    // Demeter.sendMsg([token, C.MSG_PROCESS_TERMINATE]);
-                },
-                dep: [],
-                weight: 0
-            },
+            // /* Index ?: the end of process, send 'process terminate' message to message queue
+            //    Predecessor: 1
+            //    Posdecessor: none
+            // */
+            // {
+            //     func: function(process, room, header) {
+            //         var token = header | 0x0002;
+            //         console.log("[Message] Process 'develop' terminated at room", room);
+            //         // Demeter.sendMsg([token, C.MSG_PROCESS_TERMINATE]);
+            //     },
+            //     dep: [],
+            //     weight: 0
+            // },
     
             // /* Index n:
             //    Predecessor:
@@ -214,11 +214,11 @@ class Demeter extends Plato {
 
     /*------------------ Constructions -----------------*/
 
-    /* Executed right after first spawn is built in a room
-       Input: none
+    /* Executed right after first spawn has been built in a room
+       Input: room name
        Return: none
     */
-    static setBase() {
+    static setBase(room) {
 
     }
 

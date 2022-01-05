@@ -123,11 +123,12 @@ class Node {
 
         // Construction site that has been issued
         constructSite: function(room, creep) {
-            return room.find(FIND_MY_CONSTRUCTION_SITES, {
-                filter: (obj) => {
-                    return Memory.constructQueue.sche.includes(obj.id);
+            var found = room.find(FIND_MY_CONSTRUCTION_SITES);
+            for (var site of found) {
+                for (var node of Memory.constructQueue.sche) {
+                    if (node.id == site.id) {return site;}
                 }
-            })[0];
+            }
         },
 
     };
