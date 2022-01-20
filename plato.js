@@ -33,8 +33,8 @@ class Plato {
         // Update statistic
         Memory.statistics.creep[type] += 1;
 
-        var name;
         // Find a unique name
+        var name;
         do {
             Memory.statistics.creep.nameCount = (Memory.statistics.creep.nameCount + 1) % 8000;
             name = type[0] + Memory.statistics.creep.nameCount;
