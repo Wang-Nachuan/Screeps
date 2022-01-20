@@ -1,10 +1,6 @@
 /* Name: plato.js
    Function: 
    - Prototype for all agents
-   - Issue tasks based on energy consumption
-   - Grant energy usage of structures
-   - Maintain task/spawn/construct queue
-   - (Future) Manage energy consumptioin based on prediction and warfare, i.e. energy deficit & tilt
 */
 
 const Process = require('./class.process');
