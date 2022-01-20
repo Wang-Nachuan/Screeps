@@ -3,8 +3,8 @@
 */
 
 const C = require('./constant');
-const Node = require('./node');
-const Task = require("./task");
+const Node = require('./class.node');
+const Task = require("./class.task");
 
 var tasks_worker = {
 

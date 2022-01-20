@@ -7,8 +7,8 @@
 */
 
 const Plato = require('./plato');
-const Node = require('./node');
-const Process = require('./process');
+const Node = require('./class.node');
+const Process = require('./class.process');
 const C = require('./constant');
 const tasks_worker = require('./task.worker');
 
@@ -75,8 +75,8 @@ class Demeter extends Plato {
     */
     static monitorStruct() {
         // Loop through all rooms
-        for (var room in Memory.nodePool) {
-            var pool_room = Memory.nodePool[room];
+        for (var roomName in Memory.nodePool) {
+            var pool_room = Memory.nodePool[roomName];
 
             // Loop through all structures
             for(var type in pool_room) {
@@ -103,7 +103,7 @@ class Demeter extends Plato {
                     // Call corresponding monitor function
                     var func = this.monitor_functions[node.type];
                     if (func != undefined) {
-                        func(room, struct, node);
+                        func(roomName, struct, node);
                     }
                 }
             }
@@ -111,20 +111,20 @@ class Demeter extends Plato {
     }
 
     static monitor_functions = {
-        spawn: function(room, struct, node) {
+        spawn: function(roomName, struct, node) {
             if (struct.store.getFreeCapacity(RESOURCE_ENERGY) && (!node.request.includes(REQUEST_ENERGY))) {
                 // Propose task
-                var fromNode = new Node({x: 0, y: 0, roomName: room}, C.SOURCE, null, true, 'source');
+                var fromNode = new Node({x: 0, y: 0, roomName: roomName}, C.SOURCE, null, true, 'source');
                 var task = tasks_worker.harvestEnergy(fromNode, node, struct.store.getCapacity(RESOURCE_ENERGY), REQUEST_ENERGY);
                 Demeter.propTask(task, 2);
                 // Record that task has been proposed
                 node.request.push(REQUEST_ENERGY);
             }
         },
-        extension: function(room, struct, node) {
+        extension: function(roomName, struct, node) {
 
         },
-        road: function(room, struct, node) {
+        road: function(roomName, struct, node) {
 
         },
     }
@@ -136,10 +136,11 @@ class Demeter extends Plato {
        Return: none
     */
     static monitorProcess() {
-        for (var room of Memory.rooms.haveSpawn) {
-            if (!Memory.rooms.developing.includes(room)) {
-                Memory.rooms.developing.push(room);
-                var process = new Process('develop', room);
+        for (var roomName of Memory.rooms.haveSpawn) {
+            // Develop
+            if (!Memory.rooms.developing.includes(roomName)) {
+                Memory.rooms.developing.push(roomName);
+                var process = new Process('develop', roomName);
                 this.propProcess(C.TOKEN_HEADER_DEMETER, process, this.process_functions);
             }
         }
@@ -157,7 +158,7 @@ class Demeter extends Plato {
                Posdecessor: 
             */
             {
-                func: function(process, room, header) {
+                func: function(process, roomName, header) {
                     var token = header | 0x0000;
                     process.targetNum['worker'] = 3;
                     process.realNum['worker'] = 0;
@@ -171,11 +172,11 @@ class Demeter extends Plato {
             //    Posdecessor: 2
             // */
             // {
-            //     func: function(process, room, header) {
+            //     func: function(process, roomName, header) {
             //         var token = header | 0x0001;
             //         for (var i = 0; i < 2; i++) {
-            //             var fromNode = new Node({x: 0, y: 0, roomName: room}, C.SOURCE, null, true, 'source');
-            //             var task = tasks_worker.upgradeController(fromNode, room, 2, token);
+            //             var fromNode = new Node({x: 0, y: 0, roomName: roomName}, C.SOURCE, null, true, 'source');
+            //             var task = tasks_worker.upgradeController(fromNode, roomName, 2, token);
             //             Demeter.propTask(task, 3);
             //         }
             //     },
@@ -189,9 +190,9 @@ class Demeter extends Plato {
             //    Posdecessor: none
             // */
             // {
-            //     func: function(process, room, header) {
+            //     func: function(process, roomName, header) {
             //         var token = header | 0x0002;
-            //         console.log("[Message] Process 'develop' terminated at room", room);
+            //         console.log("[Message] Process 'develop' terminated at room", roomName);
             //         // Demeter.sendMsg([token, C.MSG_PROCESS_TERMINATE]);
             //     },
             //     dep: [],
@@ -203,7 +204,7 @@ class Demeter extends Plato {
             //    Posdecessor: 
             // */
             // {
-            //     func: function(room, header) {
+            //     func: function(roomName, header) {
                     
             //     },
             //     dep: [],
@@ -214,20 +215,99 @@ class Demeter extends Plato {
 
     /*------------------ Constructions -----------------*/
 
-    /* Executed right after first spawn has been built in a room
+    /* Executed right after first spawn has been built in a room, set the base of spawn block
        Input: room name
-       Return: none
+       Return: true if success, false if spawn number is not 1
     */
-    static setBase(room) {
+    static setBase(roomName) {
+        var findSpawn = Game.rooms[roomName].find(FIND_MY_SPAWNS);
 
+        if (findSpawn.length != 1) {return false;}
+        
+        // Get the spawn and terrain data
+        var spawn = findSpawn[0];
+        var spawnPos = [spawn.pos.x, spawn.pos.y];
+        var terrain = new Room.Terrain(roomName);
+
+        // Find the start position (left-up corner) of spawn block
+        var startPos = [null, null];
+        for (var offset of [[0, -1], [-1, -2], [-2, -2]]) {
+            startPos[0] = spawnPos[0] + offset[0];
+            startPos[1] = spawnPos[1] + offset[1];
+            // Check for validity
+            if (startPos[0] < 0 || startPos[1] < 0 || startPos[0] > 47 || startPos[1] > 47) {continue;}
+            // Make sure that no wall within block
+            var isValid = true;
+            for (var i = 0; i < 3; i++) {
+                for (var j = 0; j < 3; j++) {
+                    if (terrain.get(startPos[0] + i, startPos[1] + j) == TERRAIN_MASK_WALL) {
+                        isValid = false;
+                        break;
+                    }
+                }
+                if (!isValid) {break;}
+            }
+            if (!isValid) {
+                startPos = [null, null];
+            } else {
+                break;
+            }
+        }
+
+        // Check validity
+        if (startPos[0] == null) {return false;}
+
+        // Generate block sequence
+        var baseBlock = [
+            BLOCK_SPAWN,    // Block index: index of block in this.construct_blocks
+            0b111111111,    // Terrain mask: 1 means the terrain is not wall
+            0b000000000     // Structure mask: 1 means the construction site has been set
+        ]; 
+        this.memory.blockSeq[roomName] = {startPos: startPos, seq: [baseBlock]};
+
+        return true;
     }
 
-    /* Build a construction block
-       Input: index of block in block list
-       Return: none
+    /* Add a construction block to the block sequence in a ring-based order
+       Input: room name, index of block, whether the block is maskalble (i.e. structure can be occupyed by wall)
+       Return: true is success, false if unable to place the block (impossible for unmaskable block/no place for structure at all)
     */
-    static buildBlock(blockIdx) {
+    static addBlock(roomName, blockIdx, maskable) {
+        var startPos = this.memory.blockSeq[roomName].startPos;
+        var seq = this.memory.blockSeq[roomName].seq;
+        var count_block = 1;
+        var count_ring = 1;
+        var flage_find = false;
 
+        // Find the position for new block
+        while(!flage_find) {
+            count_ring += 1;
+            
+            // Find left-up corner coordinate of blocks in the ring
+            var length_ring = 8 * count_ring - 7;
+            var offset_side = 3 * (2 * count_ring - 2);
+            var startPos_0 = [startPos[0] - 3 * count_ring, startPos[1] - 3 * count_ring];
+            var startPos_1 = [startPos_0[0], startPos_0[1] + offset_side];
+            var startPos_2 = [startPos_0[0] + offset_side, startPos_0[1] + offset_side];
+            var startPos_3 = [startPos_0[0] + offset_side, startPos_0[1]];
+
+            var corners = [startPos_0, startPos_1, startPos_2, startPos_3];
+            var step = [[1, 0], [0, 1], [-1, 0], [0, -1]];
+            var offset = [];
+
+            for (var i = 0; i < 4; i++) {
+                var start = corners[i]
+                offset.push[start];
+                for (var j = 1; j <= 2 * count_ring - 3; j++) {
+                    offset.push([start[0] + j * step[i][0], start[1] + j * step[i][1]]);
+                }
+            }
+
+            // Loop through the ring (clock-wise)
+            for (var i = 0; i < length_ring; i++) {
+
+            }
+        }
     }
 
     static construct_blocks = [

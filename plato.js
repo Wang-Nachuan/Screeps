@@ -7,7 +7,7 @@
    - (Future) Manage energy consumptioin based on prediction and warfare, i.e. energy deficit & tilt
 */
 
-const Process = require('./process');
+const Process = require('./class.process');
 const C = require('./constant');
 
 class Plato {

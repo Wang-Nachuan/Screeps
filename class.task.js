@@ -4,7 +4,7 @@
    - Provide relavent API
 */
 
-const Node = require('./node');
+const Node = require('./class.node');
 const C = require('./constant');
 
 class Task {

@@ -2,7 +2,7 @@
    Function: initialize memory
 */
 
-const Node = require('./node');
+const Node = require('./class.node');
 const C = require('./constant');
 
 module.exports = function () {
@@ -40,7 +40,7 @@ module.exports = function () {
 
         // Creep pool
         Memory.creepPool = {soldier: [], worker: []};
-
+ 
         // Node pool
         Memory.nodePool = {};
 
@@ -82,6 +82,7 @@ module.exports = function () {
 
         Memory.agents.demeter.statistics = {
             attachLimit: 3,
+            blockSeq: {},       // roomName: {startPos: [x, y], seq: [[blockIdx, terrainMask, structMask], ...]}
         }
 
         /*--------------- Initialization -----------------*/
@@ -99,6 +100,7 @@ module.exports = function () {
             Memory.spawnQueue.sche[i] = [];
         }
 
+        // Init rooms
         for (var name in Game.rooms) {
             // Room
             Memory.rooms.visibable.push(name);
