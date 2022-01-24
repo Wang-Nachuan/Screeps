@@ -82,7 +82,7 @@ module.exports = function () {
 
         Memory.agents.demeter.statistics = {
             attachLimit: 3,
-            blockSeq: {},       // roomName: {startPos: [x, y], seq: [[blockIdx, terrainMask, structMask], ...]}
+            blockSeq: {},       // roomName: {cursor: _, seq: [startPos, blockIdx, terrainMask, structMask], ...]}
         }
 
         /*--------------- Initialization -----------------*/
