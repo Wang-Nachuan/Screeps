@@ -1,3 +1,6 @@
+Auto construction:
+1. build要改成以类型建造，而不是以block建造
+
 STRUCTURE_SPAWN: "spawn"
 STRUCTURE_EXTENSION: "extension"
 STRUCTURE_ROAD: "road"
