@@ -80,8 +80,10 @@ module.exports = function () {
 
         /*------------------- Demeter --------------------*/
 
-        Memory.agents.demeter.statistics = {
-            attachLimit: 3,
+        Memory.agents.demeter = {
+            statistics: {
+                attachLimit: 3
+            },
             blockSeq: {},       // roomName: {cursor: _, seq: [startPos, blockIdx, terrainMask, structMask], ...]}
         }
 

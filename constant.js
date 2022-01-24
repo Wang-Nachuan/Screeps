@@ -6,17 +6,14 @@ class Const {
 
     /*----------------------------------- General -----------------------------------*/
 
-    // Priority (the smaller the higher the priority)
-    static PRIO_HOLYSHIT=  0;
-    static PRIO_URGENT =  1;
-    static PRIO_NORMAL = 2;
-    
+    // Priority
+    static PRIO_HARVEST_ENERGY =  2;
+    static PRIO_BUILD =  3;
+    static PRIO_UPGRADE =  4;
+
     // Creep types
     static SOLDIER = 'soldier';
     static WORKER = 'worker';
-
-    // Structure types
-    // See official API document
 
     // Other types
     static SOURCE = 'source';

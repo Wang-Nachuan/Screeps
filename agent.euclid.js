@@ -4,8 +4,8 @@
 */
 
 const Plato = require('./plato');
-const Task = require('./task');
-const Node = require('./node');
+const Task = require('./class.task');
+const Node = require('./class.node');
 const C = require('./constant');
 const tasks_worker = require('./task.worker');
 
@@ -123,46 +123,45 @@ class Euclid extends Plato {
        Input: none
        Return: none
     */
-    static updateStdBody() {
-        for (var name of Memory.rooms.haveSpawn) {
-            var capa = Game.rooms[name].energyCapacityAvailable;
-            var n = Math.floor(capa / 200);     // Number of [WORK, CARRY, MOVE] pairs
-            var ex_en = capa % 200;             // Extra energy
+    static updateStdBody(roomName) {
+        var capa = Game.rooms[roomName].energyCapacityAvailable;
+        var n = Math.floor(capa / 200);     // Number of [WORK, CARRY, MOVE] pairs
+        var ex_en = capa % 200;             // Extra energy
 
-            // Worker size limite
-            if (n > 6) {
-                n = 6;
-                ex_en = 0;
-            }
-
-            var body = [];
-            var count_move = n;
-            var count_work = n;
-            var count_carry = n;
-            
-
-            for (var i = 0; i < n; i++) {
-                body.concat([WORK, CARRY, MOVE]);
-            }
-
-            if (ex_en >= 50 && ex_en < 100) {
-                body.concat([MOVE]);
-                count_move += 1;
-            } else if (ex_en >= 100 && ex_en < 150) {
-                body.concat([CARRY, MOVE]);
-                count_move += 1;
-                count_carry += 1;
-            } else {
-                body.concat([WORK, MOVE]);
-                count_move += 1;
-                count_work += 1
-            }
-
-            Memory.statistics.stdBody[name].worker = body;
-            Memory.statistics.stdBody[name].countWorker.move = count_move;
-            Memory.statistics.stdBody[name].countWorker.work = count_work;
-            Memory.statistics.stdBody[name].countWorker.carry = count_carry;
+        // Worker size limite
+        if (n > 6) {
+            n = 6;
+            ex_en = 0;
         }
+
+        var body = [];
+        var count_move = n;
+        var count_work = n;
+        var count_carry = n;
+        
+
+        for (var i = 0; i < n; i++) {
+            body.concat([WORK, CARRY, MOVE]);
+        }
+
+        if (ex_en >= 50 && ex_en < 100) {
+            body.concat([MOVE]);
+            count_move += 1;
+        } else if (ex_en >= 100 && ex_en < 150) {
+            body.concat([CARRY, MOVE]);
+            count_move += 1;
+            count_carry += 1;
+        } else {
+            body.concat([WORK, MOVE]);
+            count_move += 1;
+            count_work += 1
+        }
+
+        Memory.statistics.stdBody[roomName].worker = body;
+        Memory.statistics.stdBody[roomName].countWorker.move = count_move;
+        Memory.statistics.stdBody[roomName].countWorker.work = count_work;
+        Memory.statistics.stdBody[roomName].countWorker.carry = count_carry;
+
     }
 
     /* Issue proposed tasks based on energy consumption and priority
@@ -255,7 +254,7 @@ class Euclid extends Plato {
         Memory.constructQueue.prop = [];
 
         // Clean the scheduled queue
-        var sum_energy = {};
+        var count = {};
         for (var i in Memory.constructQueue.sche) {
             var node = Memory.constructQueue.sche[i];
             var site = Game.getObjectById(node.id)
@@ -263,23 +262,26 @@ class Euclid extends Plato {
                 // Add new structure (if any) to the pool
                 var found = Game.rooms[node.pos.roomName].lookForAt(LOOK_STRUCTURES, node.pos.x, node.pos.y);
                 if (found.length > 0) {
-                    console.log('[1]');
                     var struct = found[0];
                     var node_struct = new Node(struct.pos, struct.structureType, struct.id);
                     Memory.nodePool[node.pos.roomName][struct.structureType].push(node_struct);
+                    // If new structure is extension, update standard boy
+                    if (struct.structureType == STRUCTURE_EXTENSION) {
+                        this.updateStdBody(node.pos.roomName);
+                    }
                 }
                 Memory.constructQueue.sche.splice(i, 1);
             } else {
-                if (!sum_energy[site.room.name]) {
-                    sum_energy[site.room.name] = site.progressTotal;
+                if (!count[site.room.name]) {
+                    count[site.room.name] = 1;
                 } else {
-                    sum_energy[site.room.name] += site.progressTotal;
+                    count[site.room.name] += 1;
                 }
             }
         }
 
         // Propose task based on the number of sites and worker's body part
-        for (var room in sum_energy) {
+        for (var room in count) {
             var target_numTask = 0;
 
             // Calculate target number of tasks
@@ -287,9 +289,6 @@ class Euclid extends Plato {
                 for (var process of queue) {
                     if (process != null && process.room == room) {
                         target_numTask = process.targetNum.worker - 1;
-                        if (target_numTask < 1) {
-                            target_numTask = 1;
-                        }
                     }
                 }
             }
@@ -302,7 +301,7 @@ class Euclid extends Plato {
                 var fromNode = new Node({x: 0, y: 0, roomName: room}, 'source', null, true, 'source');
                 var toNode = new Node({x: 0, y: 0, roomName: room}, 'constructionSite', null, true, 'constructSite');
                 for (var i = 0; i < target_numTask - Memory.constructQueue.numTask[room]; i++) {
-                    this.propTask(tasks_worker.buildStruct(fromNode, toNode, 0, room), 4);
+                    this.propTask(tasks_worker.buildStruct(fromNode, toNode, 0, room), C.PRIO_BUILD);
                 }
                 Memory.constructQueue.numTask[room] = target_numTask;
             }

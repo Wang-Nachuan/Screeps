@@ -22,7 +22,7 @@ const BLOCK_EXTENSION = 1;
 const BLOCK_LAB = 2;
 const BLOCK_PSE_MASKABLE = 3;
 const BLOCK_PSE_UNMASKABLE = 4;
-const BLOCK_PSE_WALL = 4;
+const BLOCK_PSE_WALL = 5;
 
 const BLOCK_SIZE = 4;
 
@@ -118,15 +118,22 @@ class Demeter extends Plato {
         spawn: function (roomName, struct, node) {
             if (struct.store.getFreeCapacity(RESOURCE_ENERGY) && !node.request.includes(REQUEST_ENERGY)) {
                 // Propose task
-                var fromNode = new Node({ x: 0, y: 0, roomName: roomName }, C.SOURCE, null, true, 'source');
+                var fromNode = new Node({x: 0, y: 0, roomName: roomName }, C.SOURCE, null, true, 'source');
                 var task = tasks_worker.harvestEnergy(fromNode, node, struct.store.getCapacity(RESOURCE_ENERGY), REQUEST_ENERGY);
-                Demeter.propTask(task, 2);
+                Demeter.propTask(task, C.PRIO_HARVEST_ENERGY);
                 // Record that task has been proposed
                 node.request.push(REQUEST_ENERGY);
             }
         },
         extension: function (roomName, struct, node) {
-
+            if (struct.store.getFreeCapacity(RESOURCE_ENERGY) && !node.request.includes(REQUEST_ENERGY)) {
+                // Propose task
+                var fromNode = new Node({x: 0, y: 0, roomName: roomName}, C.SOURCE, null, true, 'source');
+                var task = tasks_worker.harvestEnergy(fromNode, node, struct.store.getCapacity(RESOURCE_ENERGY), REQUEST_ENERGY);
+                Demeter.propTask(task, C.PRIO_HARVEST_ENERGY);
+                // Record that task has been proposed
+                node.request.push(REQUEST_ENERGY);
+            }
         },
         road: function (roomName, struct, node) {
 
@@ -157,62 +164,60 @@ class Demeter extends Plato {
         */
         'develop': [
 
-            /* Index 0: spawn creeps
+            /* Index 0: RCL 1->2
                Predecessor: none
-               Posdecessor: 
+               Posdecessor: 1
             */
             {
                 func: function (process, roomName, header) {
                     var token = header | 0x0000;
-                    process.targetNum['worker'] = 3;
-                    process.realNum['worker'] = 0;
+                    // Spawn workers
+                    Process.setTarget(process, 'worker', 8);
+                    // Set base and lab block
+                    if (!Demeter.setBase(roomName)) {
+                        console.log(`[ERROR] Demeter/room: '${roomName}'/process: 'develop'/stage: 'RCL 1->2'/cannot set base`);
+                    }
+                    Demeter.propBlock(roomName, BLOCK_LAB, false);
+                    // Propose tasks
+                    for (var i = 0; i < 2; i++) {
+                        var fromNode = new Node({x: 0, y: 0, roomName: roomName}, C.SOURCE, null, true, 'source');
+                        var task = tasks_worker.upgradeController(fromNode, roomName, 2, token);
+                        Demeter.propTask(task, C.PRIO_UPGRADE);
+                    }
+                    // Print message
+                    console.log(`[MESSAGE] Demeter/room: '${roomName}'/process: 'develop'/stage: 'RCL 1->2'/scheduled`);
                 },
-                dep: [],
-                weight: 0      // Weight of dependence
+                dep: [1],
+                weight: 1
             },
 
-            // /* Index 1: upgrade controller
-            //    Predecessor: none
-            //    Posdecessor: 2
-            // */
-            // {
-            //     func: function(process, roomName, header) {
-            //         var token = header | 0x0001;
-            //         for (var i = 0; i < 2; i++) {
-            //             var fromNode = new Node({x: 0, y: 0, roomName: roomName}, C.SOURCE, null, true, 'source');
-            //             var task = tasks_worker.upgradeController(fromNode, roomName, 2, token);
-            //             Demeter.propTask(task, 3);
-            //         }
-            //     },
-            //     dep: [2],
-            //     weight: 2      // Weight of dependence
-            // },
-
-
-            // /* Index ?: the end of process, send 'process terminate' message to message queue
-            //    Predecessor: 1
-            //    Posdecessor: none
-            // */
-            // {
-            //     func: function(process, roomName, header) {
-            //         var token = header | 0x0002;
-            //         console.log("[Message] Process 'develop' terminated at room", roomName);
-            //         // Demeter.sendMsg([token, C.MSG_PROCESS_TERMINATE]);
-            //     },
-            //     dep: [],
-            //     weight: 0
-            // },
+            /* Index 1: RCL 2->3
+               Predecessor: 0
+               Posdecessor: 2
+            */
+            {
+                func: function(process, roomName, header) {
+                    var token = header | 0x0001;
+                    // Set extension block
+                    Demeter.propBlock(roomName, BLOCK_EXTENSION, false);
+                    // Build block
+                    Demeter.buildBlock(roomName, [STRUCTURE_ROAD, STRUCTURE_LAB, STRUCTURE_SPAWN, STRUCTURE_POWER_SPAWN, STRUCTURE_LINK, STRUCTURE_STORAGE, STRUCTURE_TERMINAL, STRUCTURE_FACTORY]);
+                    console.log(`[MESSAGE] Demeter/room: '${roomName}'/process: 'develop'/stage: 'RCL 2->3'/scheduled`);
+                },
+                dep: [],
+                weight: 0
+            },
 
             // /* Index n:
             //    Predecessor:
             //    Posdecessor: 
             // */
             // {
-            //     func: function(roomName, header) {
-
+            //     func: function(process, roomName, header) {
+            
             //     },
-            //     dep: [],
-            //     weight: 0
+            //     dep: [],    // Index of stages that depends on this stage
+            //     weight: 0   // Weight of dependence
             // },
         ],
     };
@@ -249,7 +254,7 @@ class Demeter extends Plato {
 
     /* Executed right after first spawn has been built in a room, set the base of spawn block
        Input: room name
-       Return: true if success, false if spawn number is not 1
+       Return: true if success, false if spawn number is not 1/there is wall with block
     */
     static setBase(roomName) {
         var findSpawn = Game.rooms[roomName].find(FIND_MY_SPAWNS);
@@ -292,7 +297,7 @@ class Demeter extends Plato {
         // First search within existing presudo blocks
         for (var i of seq) {
             if ((i[1] == BLOCK_PSE_MASKABLE && maskable) || (i[1] == BLOCK_PSE_UNMASKABLE && !maskable)) {
-                i = blockIdx;
+                i[1] = blockIdx;
                 return true;
             }
         }
@@ -359,14 +364,15 @@ class Demeter extends Plato {
             var structMask = block[3];
             var unbuilt = block[2] ^ structMask;    // If terrainMask[i] != structMask[i], a structure is unbuilt
 
+            if (block[1] == BLOCK_PSE_MASKABLE || block[1] == BLOCK_PSE_UNMASKABLE || block[1] == BLOCK_PSE_WALL) {continue;}
+
             // Block that has unbuilt structure
             if (unbuilt != 0) {
-
                 for (var y = 0; y < BLOCK_SIZE; y++) {
                     for (var x = 0; x < BLOCK_SIZE; x++) {
                         var mask = 0x8000 >>> (x + y * BLOCK_SIZE);
                         if (unbuilt & mask == 0) {continue;}
-                        var type = construct_blocks[block[1]][y][x];
+                        var type = this.construct_blocks[block[1]][y][x];
                         if (ignore.includes(type)) {continue;}
                         var pos = new RoomPosition(block[0][0] + x, block[0][1] + y, roomName);
                         if (OK != pos.createConstructionSite(type)) {continue;}

@@ -61,6 +61,19 @@ class Process {
             }
         }
     }
+
+    /* Set target number of one item
+       Input: process, key name, target number
+       Return: none
+    */
+    static setTarget(process, key, num) {
+        if (!process.targetNum[key]) {
+            process.targetNum[key] = num;
+            process.realNum[key] = 0;
+        } else {
+            process.targetNum[key] = num;
+        }
+    }
 }
 
 module.exports = Process;
