@@ -1,6 +1,7 @@
 Auto construction:
 1. build要改成以类型建造，而不是以block建造
 2. construction task的enter条件需要改
+3. 内存结构要改
 
 STRUCTURE_SPAWN: "spawn"
 STRUCTURE_EXTENSION: "extension"
