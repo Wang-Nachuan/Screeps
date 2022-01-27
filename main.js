@@ -7,8 +7,6 @@ const Demeter = require('./agent.demeter');
 // Main loop (order matters)
 module.exports.loop = function () {
     update();
-    // Decision-making stage
     Demeter.wrapper();
-    // Execution statge
     Euclid.wrapper();
 }

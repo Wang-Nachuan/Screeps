@@ -172,7 +172,7 @@ class Demeter extends Plato {
                 func: function (process, roomName, header) {
                     var token = header | 0x0000;
                     // Spawn workers
-                    Process.setTarget(process, 'worker', 8);
+                    Process.setTarget(process, 'worker', 12);
                     // Set base and lab block
                     if (!Demeter.setBase(roomName)) {
                         console.log(`[ERROR] Demeter/room: '${roomName}'/process: 'develop'/stage: 'RCL 1->2'/cannot set base`);

@@ -141,18 +141,18 @@ class Euclid extends Plato {
         
 
         for (var i = 0; i < n; i++) {
-            body.concat([WORK, CARRY, MOVE]);
+            body = body.concat([WORK, CARRY, MOVE]);
         }
 
         if (ex_en >= 50 && ex_en < 100) {
-            body.concat([MOVE]);
+            body = body.concat([MOVE]);
             count_move += 1;
         } else if (ex_en >= 100 && ex_en < 150) {
-            body.concat([CARRY, MOVE]);
+            body = body.concat([CARRY, MOVE]);
             count_move += 1;
             count_carry += 1;
         } else {
-            body.concat([WORK, MOVE]);
+            body = body.concat([WORK, MOVE]);
             count_move += 1;
             count_work += 1
         }
@@ -288,7 +288,7 @@ class Euclid extends Plato {
             for (var queue of Memory.proQueue) {
                 for (var process of queue) {
                     if (process != null && process.room == room) {
-                        target_numTask = process.targetNum.worker - 1;
+                        target_numTask = process.realNum.worker - 2;
                     }
                 }
             }
@@ -323,7 +323,7 @@ class Euclid extends Plato {
                 var termi_flag = false;     // Flage of terminating loops
 
                 // Monitor the life condition of creep
-                if (creep.ticksToLive <= 5) {
+                if (creep.ticksToLive <= 3) {
                     this.buryCreep(creep);
                     break;
                 }
