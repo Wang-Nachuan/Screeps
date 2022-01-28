@@ -6,15 +6,18 @@ const C = require('./constant');
 
 class Node {
 
-    constructor(pos, type, id = null, isVirtual = false, filter = null) {
-        this.pos = pos;             // (RoomPosition) {x: _, y: _, roomName: _}, roomName is required
-        this.type = type;           // (String) Type of object at the position, see OBSTACLE_OBJECT_TYPES
-        this.id = id;               // (String) ID of object
-        this.isVirtual = isVirtual; // (Boolean) Wheather the node is a virtual node
-        this.filter = filter;       // (String) Filter used to find the real node
-        this._virFlag = isVirtual;  // (Boolean) Indicate that whether the node is originally virtual
-        this.attach = [];           // (String) ID of creeps that is working on this node
-        this.request = [];          // (List if num) Proposed request
+    constructor(pos, type, id = null, isVirtual = false, filter = null, attachLimit = 8) {
+        // Set when created
+        this.pos = pos;                 // (RoomPosition) {x: _, y: _, roomName: _}, roomName is required
+        this.type = type;               // (String) Type of object at the position, see OBSTACLE_OBJECT_TYPES
+        this.id = id;                   // (String) ID of object
+        this.isVirtual = isVirtual;     // (Boolean) Wheather the node is a virtual node
+        this._virFlag = isVirtual;      // (Boolean) Indicate that whether the node is originally virtual
+        this.filter = filter;           // (String) Filter used to find the real node
+        this.attachLimit = attachLimit; // (Num) Limit of attached creeps
+        // Set later
+        this.attach = [];               // (String) ID of creeps that is working on this node
+        this.request = [];              // (List of num) Proposed request
     }
     
     static pos(node) {

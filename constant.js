@@ -50,13 +50,6 @@ class Const {
     static CREEP_STATE_UPGRADE = 3;     // Withdraw (withdrawing item)
     static CREEP_STATE_BUILD = 4;       // Withdraw (withdrawing item)
 
-
-    /*----------------------------------- Memory -----------------------------------*/
-    
-    // Task queue
-    static MEMORY_TASKQUEUE_LEN = 5;
-    static MEMORY_SPAWNQUEUE_LEN = 3;
-
     /*----------------------------------- Task -----------------------------------*/
 
     // Task state

@@ -1,6 +1,5 @@
 require('./mount')();
 const update = require('./update');
-const Plato = require('./plato');
 const Euclid = require('./agent.euclid');
 const Demeter = require('./agent.demeter');
 

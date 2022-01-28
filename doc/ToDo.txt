@@ -2,6 +2,10 @@ Auto construction:
 1. build要改成以类型建造，而不是以block建造
 2. construction task的enter条件需要改
 3. 内存结构要改
+----------
+1. 取消自动发布construction task的设计，改为各进程手动发布（tower另算）
+2. 为所有node添加attach limit
+3. process queue分成房间和全局两种
 
 STRUCTURE_SPAWN: "spawn"
 STRUCTURE_EXTENSION: "extension"
