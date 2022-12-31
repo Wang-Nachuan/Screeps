@@ -1,7 +1,11 @@
-/* File: cache/cache.ts
- * Caching data in "global" variable
+/**
+ * Caching data in global memory
  */
 
 export class Cache {
+    
+    static build() {
+
+    }
 
 }

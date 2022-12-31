@@ -1,28 +1,29 @@
-export class Animal {
-    type: string;
-    name: string;
+import {Proto} from '../proto'
 
-    constructor(type: string, name: string) {
-        this.type = type;
-        this.name = name;
-    }
+export class Test extends Proto {
+    task: number;
 
-    method() {
-        console.log('Animal method called')
-    }
-}
-
-export class Zoo {
-    animals: Array<Animal> = [];
-
-    constructor(types: Array<string>, names: Array<string>) {
-        for (var idx in types) {
-            let animal: Animal = new Animal(types[idx], names[idx]);
-            this.animals.push(animal);
+    constructor(isNew: boolean, mem: any, task: number = 2, id: any = null, freq: number = 1) {
+        super(mem, id, freq);
+        if (isNew) {
+            this.task = task;
+            this.zip(mem);
+        } else {
+            this.unzip(mem);
         }
     }
 
-    method() {
-        console.log('Zoo method called')
+    zip(mem: any): any {
+        mem.t = this.task;
+        super.zip(mem.pre);
+    }
+
+    unzip(mem: any): any {
+        this.task = mem.t;
+        super.unzip(mem.pre);
+    }
+
+    act(): any {
+        console.log(this.task);
     }
 }
