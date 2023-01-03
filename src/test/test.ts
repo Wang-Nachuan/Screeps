@@ -1,16 +1,26 @@
-import {Proto} from '../proto'
+import {Proto} from '../protos'
 
 export class Test extends Proto {
-    task: number;
+    private _task: number;
 
     constructor(isNew: boolean, mem: any, task: number = 2, id: any = null, freq: number = 1) {
         super(mem, id, freq);
         if (isNew) {
             this.task = task;
-            this.zip(mem);
+            this.zip(this.mem);
         } else {
-            this.unzip(mem);
+            this.unzip(this.mem);
         }
+    }
+
+    get task() {
+        return this._task;
+    }
+
+    set task(val: number) {
+        this._task = val;
+        console.log('[1]', this.mem.t);
+        this.mem.t = val;
     }
 
     zip(mem: any): any {
@@ -24,6 +34,6 @@ export class Test extends Proto {
     }
 
     act(): any {
-        console.log(this.task);
+        this.task += 1;
     }
 }

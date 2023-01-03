@@ -34,6 +34,8 @@ npm run build     // compile code
     - Update memory (if necessary)
 
 
-## **Class Hierarchy**
+## **Note**
 ---
-### 
+1. At building stage, first build agent, then creeps and structures
+2. Cache agent, when derefering agent first search at cached agent
+3. Cache creeps and structure, when derefering them first search at cached creeps/structures
