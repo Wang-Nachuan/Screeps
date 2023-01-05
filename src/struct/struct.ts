@@ -5,9 +5,10 @@ export interface StructureMemory {
 }
 
 export class StructureWrapper extends ObjectProto {
+    id: Id<_HasId>;
     protected _obj: any;
 
-    constructor(pkg: any) {
+    constructor(isInit: boolean, ref: MemRef) {
         super();
 
     }

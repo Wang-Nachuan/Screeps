@@ -1,6 +1,6 @@
-import {ObjectProto} from '../protos'
-import {Task, TaskMemory} from '../task/Task'
-import {Tasks} from '../task/tasks'
+import {ObjectProto} from '../protos';
+import {Task, TaskMemory} from '../task/Task';
+import {Tasks} from '../task/tasks';
 
 export interface CreepMemory {
     r: string;
@@ -13,12 +13,14 @@ export class CreepWrapper extends ObjectProto {
     protected _task: Task | null;
 
     // Role and task must be provided at first instantiation
-    constructor(isInit: boolean, id: Id<_HasId>, role: string = '', agent: any = null, task: Task | null = null) {
+    constructor(isInit: boolean, id: Id<_HasId>, 
+        opt?: {role?: string, task?: Task | null}) 
+    {
         super();
         this._obj = Game.getObjectById(id);
         if (isInit) {  // At creation
-            this.role = role;
-            this.task = task;
+            this.role = opt.role;
+            this.task = opt.task;
             this.writeBack();
         } else {    // At rebuild
             this.unzip(this.mem);

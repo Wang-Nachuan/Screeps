@@ -36,6 +36,8 @@ npm run build     // compile code
 
 ## **Note**
 ---
-1. At building stage, first build agent, then creeps and structures
-2. Cache agent, when derefering agent first search at cached agent
-3. Cache creeps and structure, when derefering them first search at cached creeps/structures
+1. task不用放回task flow中
+2. 每个task的发布者（target）都应保存一个task log，task结束时无论task完成与否，log上对应的记录都要被删除
+    - 派生的task没有id，也不需要在结束时更新log
+    - 发布者应该自己确认task是否完成，如果task结束但未完成则需要重新发布task
+3. 每次harvest都采满再走，暂时不处理采满但存完还剩一点的情况，之后统一用一个dump任务处理

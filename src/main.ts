@@ -1,5 +1,6 @@
 import {errorMapper} from './test/errorMapper';
 import './global';
+import {Cache} from './cache/cache';
 
 // export const loop = errorMapper(() => {
 //     let testObj: Zoo = new Zoo(['dog', 'cat'], ['doggy', 'catty'])
@@ -16,9 +17,8 @@ export const loop = function() {
     }
     
     // Caching
-    if (!global.resetFlag) {
-        global.resetFlag = true
+    if (!global.cache) {
+        global.cache = new Cache();
         console.log('[MESSAGE] Global reset');
-        /* TODO: Rebuild all objects */
     } 
 }

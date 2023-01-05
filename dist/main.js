@@ -5,30 +5,32 @@ Object.defineProperty(exports, '__esModule', { value: true });
 /**
  *  Global function/constants
  */
-global.enref = function (obj) {
-    let ref;
-    if (!obj) {
-        console.log("[ERROR] Function 'enref()': undefined input object");
-        return null;
-    }
-    if (obj.id) {
-        ref.id = obj.id;
-        return ref;
+// Ref can be either Id<_HasId> or MemRef type
+global.getObjectInCache = function (isId, ref) {
+    if (isId) {
+        let obj = global.cache.log[ref];
+        if (!obj) {
+            console.log("[WARNING] Function 'getObjectInCache()': object not found in cache");
+            return null;
+        }
+        else {
+            return obj;
+        }
     }
     else {
-        ref.flagName = obj.name;
-        return ref;
+        let itr = global.cache;
+        for (let key in ref) {
+            itr = itr[key];
+        }
+        return itr;
     }
 };
-global.deref = function (ref) {
-    if (ref.id) {
-        return Game.getObjectById(ref.id);
+global.derefMem = function (ref) {
+    let itr = Memory;
+    for (let key in ref) {
+        itr = itr[key];
     }
-    if (ref.flagName) {
-        return Game.flags[ref.flagName];
-    }
-    console.log("[ERROR] Function 'deref()': empty input reference");
-    return null;
+    return itr;
 };
 
 // export const loop = errorMapper(() => {
@@ -36,19 +38,29 @@ global.deref = function (ref) {
 //     console.log(testObj);
 // }, true)
 const loop = function () {
-    // Initialize memory
-    if (!Memory.initFlag) {
-        Memory.initFlag = true;
-        /* TODO: initialize memory */
-        console.log('[MESSAGE] Memory initialized');
-    }
-    // Caching
-    if (!global.resetFlag) {
-        global.resetFlag = true;
-        console.log('[MESSAGE] Global reset');
-        /* TODO: Rebuild all objects */
-    }
+    // // Initialize memory
+    // if (!Memory.initFlag) {
+    //     Memory.initFlag = true;
+    //     /* TODO: initialize memory */
+    //     console.log('[MESSAGE] Memory initialized');
+    // }
+    // // Caching
+    // if (!global.cache) {
+    //     global.cache = new Cache();
+    //     console.log('[MESSAGE] Global reset');
+    // } 
+    test(10, 'aaaaa');
+    test(20);
 };
+function test(a, b) {
+    console.log(a);
+    if (b) {
+        console.log('true!');
+    }
+    else {
+        console.log('false!');
+    }
+}
 
 exports.loop = loop;
 //# sourceMappingURL=main.js.map

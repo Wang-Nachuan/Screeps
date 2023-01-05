@@ -11,15 +11,15 @@ export interface TaskFlowMemory {
 }
 
 export class TaskFlow extends ObjectProto {
-    protected _ref: RefMem;
+    protected _ref: MemRef;
     protected _memObj: TaskFlowMemory;      // Cache memory object
     protected _receiver: Array<any>;
     protected _queue: Array<Array<Task>>;
 
-    constructor(isInit: boolean, ref: RefMem) {
+    constructor(isInit: boolean, ref: MemRef) {
         super();
         this._ref = ref;
-        this._memObj = derefMem(ref);
+        this._memObj = getObjectInCache(false, this._ref);
         if (isInit) {
             this.receiver = [];
             this.queue = [[], [], [], [], []];
@@ -45,8 +45,8 @@ export class TaskFlow extends ObjectProto {
         this._memObj = val;
     }
 
-    get ref(): RefMem {return this._ref;}
-    set ref(val: RefMem) {
+    get ref(): MemRef {return this._ref;}
+    set ref(val: MemRef) {
         this._ref = val;
         this._isWritten = true;
         this._memObj = derefMem(this._ref);
@@ -88,7 +88,15 @@ export class TaskFlow extends ObjectProto {
         }
     }
 
-    addReceiver(rec: CreepWrapper | StructureWrapper) {
+    addReceiver(receiver: any) {
+        this.receiver.push(receiver);
+    }
+
+    issue() {
+        /* TODO */
+    }
+
+    exe() {
         /* TODO */
     }
 }
