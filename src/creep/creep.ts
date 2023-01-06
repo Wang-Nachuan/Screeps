@@ -66,12 +66,10 @@ export class CreepWrapper extends ObjectProto {
         }
     }
 
-    // Check lifetime
-    checkAge() {}
-
     // Wrapper function
     exe() {
-        this.checkAge();
+        // TODO: Check lifetime
+        // TODO: Check hit
         this.work();
     }
 }
