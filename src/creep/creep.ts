@@ -60,7 +60,7 @@ export class CreepWrapper extends ObjectProto {
         if (this.task) {
             let ret = this.task.exe(this.obj);
             if (ret == this.task.RET_FINISH || ret == this.task.RET_HALT) {
-                this.task.target.taskLog.delTask(this.task.taskId);
+                this.task.owner.taskLog.delTask(this.task.taskId);
                 this.task = null;
             }
         }

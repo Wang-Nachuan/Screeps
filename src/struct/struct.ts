@@ -8,10 +8,10 @@ export interface StructureMemory {
 }
 
 export abstract class StructureWrapper extends ObjectProto {
+    abstract readonly type: string;
     protected _ref: MemRef;
     protected _memObj: any;
     protected _obj: any;
-    protected _type: string;
     protected _taskLog: TaskLog;
 
     // Id and type must be provide at first instantiation
@@ -49,9 +49,6 @@ export abstract class StructureWrapper extends ObjectProto {
     get obj(): Structure {return this._obj;}
     set obj(val: Structure) {this._obj = val; this._isWritten = true;}
 
-    get type(): string {return this._type;}
-    set type(val: string) {this._type = val; this._isWritten = true;}
-
     get taskLog(): TaskLog {return this._taskLog;}
     set taskLog(val: TaskLog) {this._taskLog = val; this._isWritten = true;}
 
@@ -60,14 +57,13 @@ export abstract class StructureWrapper extends ObjectProto {
     zip(): StructureMemory {
         return {
             i: this._obj.id,
-            t: this._type,
+            t: this.type,
             tl: this._taskLog.zip()
         };
     }
 
     unzip(pkg: StructureMemory) {
         this._obj = Game.getObjectById(pkg.i);
-        this._type = pkg.t;
         this._taskLog = new TaskLog(false, pkg.tl);
     }
 

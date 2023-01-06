@@ -4,9 +4,13 @@ export class TaskMoveTo extends Task {
     readonly type: string = 'moveTo';
 
     constructor(isInit: boolean, 
-        opt?: {
+        opt: {
             pkg?: TaskMemory, 
-            taskId?: string, 
+            taskId?: string,
+            owner?: {
+                isAgent: boolean,
+                ref: MemRef | Id<_HasId>
+            }
             pos?: RoomPosition, 
             range?: number
         }

@@ -3,6 +3,8 @@ import {Tasks} from './tasks';
 
 export interface TaskMemory {
     t: string;
+    oi: boolean;
+    or: MemRef | Id<_HasId>;
     ti: string;
     i: Id<_HasId>;
     d: {[key: string]: any};
@@ -12,16 +14,36 @@ export interface TaskMemory {
 export abstract class Task extends DataProto {
     abstract readonly type: string;
     taskId: string;
+    protected _ownerIsAgent: boolean;
+    protected _ownerRef: MemRef | Id<_HasId>;
+    protected _owner: any;
     protected _targetId: Id<_HasId>;
     protected _target: any;     // Caching target object
     data: {[key: string]: any};
     child: Task | null;
     
     constructor(isInit: boolean, 
-        opt?: {pkg?: TaskMemory, target?: any, taskId?: string}) 
-    {
+        opt?: {
+            pkg?: TaskMemory, 
+            taskId?: string,
+            owner?: {
+                isAgent: boolean,
+                ref: MemRef | Id<_HasId>
+            } 
+            target?: any
+        }
+    ) {
         super();
         if (isInit) {
+            if(opt.owner) {
+                this._ownerIsAgent = opt.owner.isAgent;
+                this._ownerRef = opt.owner.ref;
+                this._owner = getObjectInCache(!this._ownerIsAgent, this._ownerRef);
+            } else {
+                this._ownerIsAgent = false;
+                this._ownerRef = null;
+                this._owner = null
+            }
             this.taskId = opt.taskId;
             this.target = opt.target;
             this.data = {};
@@ -39,9 +61,8 @@ export abstract class Task extends DataProto {
 
     /*-------------------- Getter/Setter --------------------*/
 
-    // Here assume that target has an ID, which is true in most of time
     get target(): any {
-        if (!this._target && this._targetId != null) {
+        if (!this._target && this._targetId) {
             this._target = getObjectInCache(true, this._targetId);
         }
         return this._target;
@@ -51,11 +72,20 @@ export abstract class Task extends DataProto {
         this._target = obj;
     }
 
+    get owner(): any {
+        if (!this._owner && this._ownerRef) {
+            this._owner = getObjectInCache(!this._ownerIsAgent, this._ownerRef);
+        }
+        return this._owner;
+    }
+
     /*------------------------ Method -----------------------*/
 
     zip(): TaskMemory {
         return {
             t: this.type,
+            oi: this._ownerIsAgent,
+            or: this._ownerRef,
             ti: this.taskId,
             i: this._targetId,
             d: this.data,
@@ -65,6 +95,9 @@ export abstract class Task extends DataProto {
 
     // Note: proto task does not unzip _child
     unzip(pkg: TaskMemory) {
+        this._ownerIsAgent = pkg.oi;
+        this._ownerRef = pkg.or;
+        this._owner = getObjectInCache(!this._ownerIsAgent, this._ownerRef);
         this.taskId = pkg.ti;
         this._targetId = pkg.i;
         this._target = getObjectInCache(true, this._targetId);
