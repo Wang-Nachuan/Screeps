@@ -1,7 +1,5 @@
 import {ObjectProto} from '../protos'
-import {Agent, AgentMemory} from '../agent/agent';
-import {CreepWrapper, CreepMemory} from '../creep/creep';
-import {StructureWrapper, StructureMemory} from '../struct/struct';
+import {CreepWrapper} from '../creep/creep';
 import {Task, TaskMemory} from './task'
 import {Tasks} from './tasks';
 
@@ -13,21 +11,20 @@ export interface TaskFlowMemory {
 export class TaskFlow extends ObjectProto {
     protected _ref: MemRef;
     protected _memObj: TaskFlowMemory;      // Cache memory object
-    protected _receiver: Array<any>;
+    protected _receivers: Array<any>;
     protected _queue: Array<Array<Task>>;
 
     constructor(isInit: boolean, ref: MemRef) {
         super();
         this._ref = ref;
-        this._memObj = getObjectInCache(false, this._ref);
+        this._memObj = derefMem(this._ref);
         if (isInit) {
-            this.receiver = [];
+            this.receivers = [];
             this.queue = [[], [], [], [], []];
             this.writeBack();
         } else {
             this.unzip(this.mem);
-        }
-        
+        } 
     }
 
     /*-------------------- Getter/Setter --------------------*/
@@ -52,8 +49,8 @@ export class TaskFlow extends ObjectProto {
         this._memObj = derefMem(this._ref);
     }
 
-    get receiver(): Array<any> {return this._receiver;}
-    set receiver(val: Array<any>) {this._receiver = val; this._isWritten = true;}
+    get receivers(): Array<any> {return this._receivers;}
+    set receivers(val: Array<any>) {this._receivers = val; this._isWritten = true;}
 
     get queue(): Array<Array<Task>> {return this._queue}
     set queue(val: Array<Array<Task>>) {this._queue = val; this._isWritten = true;}
@@ -62,8 +59,8 @@ export class TaskFlow extends ObjectProto {
 
     zip(): TaskFlowMemory {
         let pkg: TaskFlowMemory = {r: [], q: []};
-        for (let receiver of this._receiver) {
-            pkg.r.push(receiver.obj.id);
+        for (let receivers of this._receivers) {
+            pkg.r.push(receivers.obj.id);
         }
         for (let i of this._queue) {
             let temp = [];
@@ -76,10 +73,10 @@ export class TaskFlow extends ObjectProto {
     }
 
     unzip(pkg: TaskFlowMemory) {
-        this._receiver = [];
+        this._receivers = [];
         this._queue = [[], [], [], [], []];
         for (let id of pkg.r) {
-            this._receiver.push(Game.getObjectById(id));
+            this._receivers.push(getObjectInCache(true, id));
         }
         for (let i in pkg.q) {
             for (let t of pkg.q[i]) {
@@ -88,15 +85,45 @@ export class TaskFlow extends ObjectProto {
         }
     }
 
+    // Addd a receiver to the poor
     addReceiver(receiver: any) {
-        this.receiver.push(receiver);
+        this.receivers.push(receiver);
     }
 
+    // Publish a task with a priority in 0-4 (smaller means higher)
+    pubTask(task: Task, prio: number) {
+        this.queue[prio].push(task);
+    }
+
+    // Issue all tasks
     issue() {
-        /* TODO */
+        for (let prio=0; prio<5; prio++) {
+            while (this.queue[prio][0]) {
+                let maxEval = -Infinity;
+                let idx = -1;
+                for (let i=0; i<this.receivers.length; i++) {
+                    if (!this.receivers[i].task) {
+                        let temp = this.queue[prio][0].eval(this.receivers[i]);
+                        if (temp > maxEval) {
+                            maxEval = temp;
+                            idx = i;
+                        }
+                    }
+                }
+                if (idx == -1) {
+                    return;
+                } else {
+                    this.receivers[idx].task = this.queue[prio].shift();
+                }
+            }
+        } 
     }
 
+    // Wrapper function
     exe() {
-        /* TODO */
+        this.issue();
+        for (let rec of this.receivers) {
+            rec.exe();
+        }
     }
 }

@@ -4,8 +4,13 @@ export class TaskMoveTo extends Task {
     readonly type: string = 'moveTo';
 
     constructor(isInit: boolean, 
-        opt?: {pkg?: TaskMemory, pos?: RoomPosition, range?: number}) 
-    {
+        opt?: {
+            pkg?: TaskMemory, 
+            taskId?: string, 
+            pos?: RoomPosition, 
+            range?: number
+        }
+    ) {
         super(isInit, opt);    // Just let fields remains undefined
         if (isInit) {
             this.data.pos = opt.pos;
@@ -24,7 +29,12 @@ export class TaskMoveTo extends Task {
             return this.RET_FINISH;
         }
         // Move
+        creep.say('MoveTo');
         creep.moveTo(pos, {reusePath: 5});
         return this.RET_OK;
+    }
+
+    eval(creep: Creep): number {
+        return -creep.pos.getRangeTo(this.data.pos);
     }
 }

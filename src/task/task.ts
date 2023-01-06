@@ -3,6 +3,7 @@ import {Tasks} from './tasks';
 
 export interface TaskMemory {
     t: string;
+    ti: string;
     i: Id<_HasId>;
     d: {[key: string]: any};
     c: TaskMemory;
@@ -10,16 +11,18 @@ export interface TaskMemory {
 
 export abstract class Task extends DataProto {
     abstract readonly type: string;
+    taskId: string;
     protected _targetId: Id<_HasId>;
     protected _target: any;     // Caching target object
     data: {[key: string]: any};
     child: Task | null;
     
     constructor(isInit: boolean, 
-        opt?: {pkg?: TaskMemory, target?: any}) 
+        opt?: {pkg?: TaskMemory, target?: any, taskId?: string}) 
     {
         super();
         if (isInit) {
+            this.taskId = opt.taskId;
             this.target = opt.target;
             this.data = {};
             this.child = null;
@@ -53,6 +56,7 @@ export abstract class Task extends DataProto {
     zip(): TaskMemory {
         return {
             t: this.type,
+            ti: this.taskId,
             i: this._targetId,
             d: this.data,
             c: (this.child == null) ? null : this.child.zip()
@@ -61,12 +65,14 @@ export abstract class Task extends DataProto {
 
     // Note: proto task does not unzip _child
     unzip(pkg: TaskMemory) {
+        this.taskId = pkg.ti;
         this._targetId = pkg.i;
         this._target = getObjectInCache(true, this._targetId);
         this.data = pkg.d;
         this.child = Tasks.buildTask(pkg.c);
     }
 
+    // Wrapper function
     exe(creep: Creep): number {
         if (this.child) {
             switch (this.child.exe(creep)) {
@@ -89,4 +95,7 @@ export abstract class Task extends DataProto {
 
     // Check validity and do actual work
     abstract work(creep: Creep): number;
+
+    // Provid a value that how good is it to select input creep to perform the task (bigger means better) 
+    abstract eval(creep: Creep): number;
 }

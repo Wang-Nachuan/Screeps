@@ -54,4 +54,24 @@ export class CreepWrapper extends ObjectProto {
         this._role = pkg.r;
         this._task = Tasks.buildTask(pkg.t);
     }
+
+    // Execute task if any
+    work() {
+        if (this.task) {
+            let ret = this.task.exe(this.obj);
+            if (ret == this.task.RET_FINISH || ret == this.task.RET_HALT) {
+                this.task.target.taskLog.delTask(this.task.taskId);
+                this.task = null;
+            }
+        }
+    }
+
+    // Check lifetime
+    checkAge() {}
+
+    // Wrapper function
+    exe() {
+        this.checkAge();
+        this.work();
+    }
 }

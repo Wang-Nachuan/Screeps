@@ -3,7 +3,7 @@ import {Tasks} from "../tasks";
 
 export class TaskHarvest extends Task {
     readonly type: string = 'harvest';
-    source: any;
+    protected source: any;
 
     readonly MOVE_TO_SOURCE = 0;
     readonly HARVEST = 1;
@@ -13,6 +13,7 @@ export class TaskHarvest extends Task {
     constructor(isInit: boolean, 
         opt?: {
             pkg?: TaskMemory, 
+            taskId?: string,
             target?: Structure, 
             source?: Source | Mineral | Deposit,
             srcType?: string,
@@ -59,10 +60,11 @@ export class TaskHarvest extends Task {
             }
         }
         // Harvest
+        creep.say('Harvest');
         if (this.data.isOC) {
             // Move to target
             if (!creep.pos.inRangeTo(this.source, 0)) {
-                this.child = Tasks.moveTo(this.source.pos, 0);
+                this.child = Tasks.moveTo(null, this.source.pos, 0);
                 return this.RET_OK;
             }
             // Keep harvesting
@@ -70,11 +72,16 @@ export class TaskHarvest extends Task {
         } else {
             switch (this.data.stage) {
                 case this.MOVE_TO_SOURCE: {
-                    if (!creep.pos.inRangeTo(this.source, 1)) {
-                        this.child = Tasks.moveTo(this.source.pos, 1);
-                        return this.RET_OK;
+                    // If half empty, go to source, otherwise go to target first
+                    if (creep.store[this.data.srcType]/creep.store.getCapacity(this.data.srcType) < 0.5) {
+                        if (!creep.pos.inRangeTo(this.source, 1)) {
+                            this.child = Tasks.moveTo(null, this.source.pos, 1);
+                            return this.RET_OK;
+                        }
+                        this.data.stage = this.HARVEST;
+                    } else {
+                        this.data.stage = this.MOVE_TO_TARGET;
                     }
-                    this.data.stage = this.HARVEST;
                     break;
                 }
                 case this.HARVEST: {
@@ -87,7 +94,7 @@ export class TaskHarvest extends Task {
                 }
                 case this.MOVE_TO_TARGET: {
                     if (!creep.pos.inRangeTo(this.target, 1)) {
-                        this.child = Tasks.moveTo(this.target.pos, 1);
+                        this.child = Tasks.moveTo(null, this.target.pos, 1);
                         return this.RET_OK;
                     }
                     this.data.stage = this.STORE;
@@ -105,4 +112,11 @@ export class TaskHarvest extends Task {
         }
     }
 
+    eval(creep: Creep): number {
+        if (creep.store[this.data.srcType]/creep.store.getCapacity(this.data.srcType) < 0.5) {
+            return -creep.pos.getRangeTo(this.source);
+        } else {
+            return -creep.pos.getRangeTo(this.target);
+        }
+    }
 }
