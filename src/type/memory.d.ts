@@ -19,7 +19,23 @@ interface RoomMemory {
     structs: StructureTypesMemory;
     source: Array<SourceMemory>;
     agents: {[name: string]: AgentMemory};
-    taskFlows: {[name: string]: TaskFlowMemory};
+    taskFlows: {
+        harvester: TaskFlowMemory;
+        worker: TaskFlowMemory;
+        transporter: TaskFlowMemory;
+        attacker: TaskFlowMemory;
+        healer: TaskFlowMemory;
+        [name: string]: TaskFlowMemory;
+    };
+    data: {
+        nameIdx: {
+            harvester: Array<number>;
+            worker: Array<number>;
+            transporter: Array<number>;
+            attacker: Array<number>;
+            healer: Array<number>;
+        }
+    };
 }
 
 // interface CreepTypesMemory {

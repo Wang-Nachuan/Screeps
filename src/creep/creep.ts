@@ -12,15 +12,15 @@ export class CreepWrapper extends ObjectProto {
     protected _role: string;
     protected _task: Task | null;
 
-    // Role and task must be provided at first instantiation
+    // Role must be provided at first instantiation
     constructor(isInit: boolean, id: Id<_HasId>, 
-        opt?: {role?: string, task?: Task | null}) 
+        opt?: {role: string}) 
     {
         super();
         this._obj = Game.getObjectById(id);
         if (isInit) {  // At creation
             this.role = opt.role;
-            this.task = opt.task;
+            this.task = null;
             this.writeBack();
         } else {    // At rebuild
             this.unzip(this.mem);
@@ -59,10 +59,13 @@ export class CreepWrapper extends ObjectProto {
     work() {
         if (this.task) {
             let ret = this.task.exe(this.obj);
-            if (ret == this.task.RET_FINISH || ret == this.task.RET_HALT) {
-                this.task.owner.taskLog.delTask(this.task.taskId);
+            if (ret == this.task.RET_FINISH) {
+                this.task.owner.taskLog.finishTask(this.task.taskId);
                 this.task = null;
-            }
+            } else if (ret == this.task.RET_HALT) {
+                this.task.owner.taskLog.haltTask(this.task.taskId);
+                this.task = null;
+            } else {}
         }
     }
 

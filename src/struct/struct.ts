@@ -1,18 +1,21 @@
 import {ObjectProto} from '../protos'
-import {TaskLog, TaskLogMemory} from '@/task/taskLog';
+import {TaskLog, TaskLogMemory} from '../task/taskLog';
+import {TaskFlow} from '../task/taskFlow';
 
 export interface StructureMemory {
     i: Id<_HasId>;
     t: string;
     tl: TaskLogMemory;
+    d: {[key: string]: any};
 }
 
-export abstract class StructureWrapper extends ObjectProto {
-    abstract readonly type: string;
+export class StructureWrapper extends ObjectProto {
+    protected _type: string;
     protected _ref: MemRef;
     protected _memObj: any;
     protected _obj: any;
     protected _taskLog: TaskLog;
+    protected _data: {[key: string]: any};
 
     // Id and type must be provide at first instantiation
     constructor(isInit: boolean, ref: MemRef,
@@ -46,11 +49,16 @@ export abstract class StructureWrapper extends ObjectProto {
         this._memObj = val;
     }
 
-    get obj(): Structure {return this._obj;}
-    set obj(val: Structure) {this._obj = val; this._isWritten = true;}
+    get obj(): any {return this._obj;}
 
     get taskLog(): TaskLog {return this._taskLog;}
     set taskLog(val: TaskLog) {this._taskLog = val; this._isWritten = true;}
+
+    get type(): string {return this._type;}
+
+    get data(): any {return this._data;}
+
+    get roomTaskFlows(): TaskFlow {return global.cache.rooms[this.obj.room.name].taskFlows;}
 
     /*------------------------ Method -----------------------*/
 
@@ -58,21 +66,27 @@ export abstract class StructureWrapper extends ObjectProto {
         return {
             i: this._obj.id,
             t: this.type,
-            tl: this._taskLog.zip()
+            tl: this._taskLog.zip(),
+            d: this._data
         };
     }
 
     unzip(pkg: StructureMemory) {
         this._obj = Game.getObjectById(pkg.i);
+        this._type = pkg.t;
         this._taskLog = new TaskLog(false, pkg.tl);
+        this._data = pkg.d;
     }
+
+    // Check hit, publish task if necessary
+    checkHit() {}
+
+    // Do work, publish task if necessary
+    work() {}
 
     // Wrapper function
     exe() {
-        // TODO: Check hit
+        this.checkHit();
         this.work();
     }
-
-    // Do work, publish task if necessary
-    abstract work();
 }

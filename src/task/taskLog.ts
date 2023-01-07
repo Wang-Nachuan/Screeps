@@ -5,13 +5,19 @@
 import {DataProto} from "../protos";
 
 export interface TaskLogMemory {
-    [id: string]: {[name: string]: any};
+    [id: string]: {
+        state: number;
+        data: {[name: string]: any};
+    };
 }
 
 export class TaskLog extends DataProto {
-    log: {[id: string]: {[name: string]: any}};   // Used to recorder the desired result of task
-    
+    log: TaskLogMemory; 
 
+    readonly STATE_UNFINISH = 0;
+    readonly STATE_FINISH = 1;
+    readonly STATE_HALT = 2;
+    
     constructor(isInit: boolean, pkg?: TaskLogMemory) {
         super();
         if (isInit) {
@@ -31,13 +37,30 @@ export class TaskLog extends DataProto {
         }
     }
 
-    // Return an unique id
     addTask(id: string, data: any) {
-        this.log[id] = data;
+        this.log[id] = {
+            state: this.STATE_UNFINISH,
+            data: data
+        };
     }
 
-    // Deleted the task record
-    delTask(id: number) {
+    haltTask(id: string) {
+        this.log[id].state = this.STATE_HALT;
+    }
+
+    finishTask(id: string) {
+        this.log[id].state = this.STATE_FINISH;
+    }
+
+    isTaskHalt(id: string) {
+        return this.log[id].state == this.STATE_HALT;
+    }
+
+    isTaskFinish(id: string) {
+        return this.log[id].state == this.STATE_FINISH;
+    }
+
+    delTask(id: string) {
         delete this.log[id];
     }
 }
