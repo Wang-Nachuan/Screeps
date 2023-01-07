@@ -1,6 +1,6 @@
-import {StructureWrapper} from "./struct";
-import {Tasks} from "../task/tasks";
-import {CreepWrapper} from "../creep/creep";
+import {StructureWrapper} from "../struct";
+import {Tasks} from "../../task/tasks";
+import {CreepWrapper} from "../../creep/creep";
 
 export interface SpawnRequest {
     n: string;      // Name
@@ -17,9 +17,9 @@ export class SpawnWrapper extends StructureWrapper {
     {
         super(isInit, ref, opt);
         if (isInit) {
-            this._data.queue = Array<SpawnRequest>;
-            this._data.rTime = 0;   // Remaining time to finish all spawn request
-            this._data.curReq = null;
+            this.data.queue = Array<SpawnRequest>;
+            this.data.rTime = 0;   // Remaining time to finish all spawn request
+            this.data.curReq = null;
         }
     }
 
@@ -63,8 +63,8 @@ export class SpawnWrapper extends StructureWrapper {
                 }
             }
         }
-        this._data.queue.push({n: null, r: role, b: body, ti: time, e: energy});
-        this._data.rTime += time;
+        this.data.queue.push({n: null, r: role, b: body, ti: time, e: energy});
+        this.data.rTime += time;
     }
 
     protected spawn(req: SpawnRequest): number {
@@ -103,28 +103,28 @@ export class SpawnWrapper extends StructureWrapper {
         }
         if (!this.obj.spawning) {
             // Record the spawned creep
-            if (this._data.curReq) {
-                let creep = Game.creeps[this._data.curReq.n];
-                this.roomTaskFlows[this._data.curReq.r].addReceiver(new CreepWrapper(true, creep.id, {role: this._data.curReq.r}));
-                this._data.rTime -= this._data.curReq.ti;
-                this._data.curReq = null;
+            if (this.data.curReq) {
+                let creep = Game.creeps[this.data.curReq.n];
+                this.roomTaskFlows[this.data.curReq.r].addReceiver(new CreepWrapper(true, creep.id, {role: this.data.curReq.r}));
+                this.data.rTime -= this.data.curReq.ti;
+                this.data.curReq = null;
             }
             // Spawn a creep
             let idx = -1;
-            for (let i=0; i<this._data.queue.length; i++) {
-                let req = this._data.queue.length[i];
+            for (let i=0; i<this.data.queue.length; i++) {
+                let req = this.data.queue.length[i];
                 if (req.e > this.obj.room.energyAvailable) {
                     continue;
                 }
                 req.n = getCreepName(this.obj.room.name, req.r);
                 this.spawn(req);
-                this._data.curReq = req;
+                this.data.curReq = req;
                 idx = i;
                 break;
             }
             // Delete request in the queue
             if (idx != -1) {
-                this._data.queue.splice(idx, 1);
+                this.data.queue.splice(idx, 1);
             }
         }
     }

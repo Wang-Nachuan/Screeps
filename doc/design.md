@@ -12,26 +12,10 @@ npm run build     // compile code
 ## **Execution Procedure**
 ---
 ### Mount everything from memory at global reset:
-1. For each room, instantiate:
-    - Praetor, which will instantiate:
-        - All types of creeps
-        - All nodes
-2. Globally, instantiate:
-    - Decemviri, which will instantiate:
-        - ...
-        - ...
 
-### Pre-execution
-1. For each object in each level, call its routine function, which:
-    - Issue requests
-    - Update memory (if necessary)
-    - Do other things (if necessary)
+Praetor
+Decemviri
 
-### Execution
-1. For objects that can be assigned a task
-    - Assign tasks
-    - Execute
-    - Update memory (if necessary)
 
 
 ## **Note**
@@ -41,3 +25,7 @@ npm run build     // compile code
     - 派生的task没有id，也不需要在结束时更新log
     - 发布者应该自己确认task是否完成，如果task结束但未完成则需要重新发布task
 3. 每次harvest都采满再走，暂时不处理采满但存完还剩一点的情况，之后统一用一个dump任务处理
+
+## **ToDo List**
+---
+1. 改进spawn索取能量的逻辑

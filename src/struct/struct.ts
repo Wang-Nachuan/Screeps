@@ -55,8 +55,10 @@ export class StructureWrapper extends ObjectProto {
     set taskLog(val: TaskLog) {this._taskLog = val; this._isWritten = true;}
 
     get type(): string {return this._type;}
+    set type(val: string) {this._type = val; this._isWritten = true;}
 
     get data(): any {return this._data;}
+    set data(val: any) {this._data = val; this._isWritten = true;}
 
     get roomTaskFlows(): TaskFlow {return global.cache.rooms[this.obj.room.name].taskFlows;}
 
