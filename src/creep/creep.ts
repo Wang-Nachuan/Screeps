@@ -43,11 +43,9 @@ export class CreepWrapper extends ObjectProto {
 
     /*------------------------ Method -----------------------*/
 
-    zip(): CreepMemory {
-        return {
-            r: this._role,
-            t: (this._task == null) ? null : this._task.zip()
-        };
+    zip() {
+        this.mem.r = this._role;
+        this.mem.t = (this._task == null) ? null : this._task.zip();
     }
 
     unzip(pkg: CreepMemory) {

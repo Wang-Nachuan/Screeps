@@ -3,12 +3,20 @@ import {SpawnWrapper} from "./instance/spawn";
 
 export class Structs {
 
-    static spawn(ref: MemRef, id: Id<_HasId>, type: string): SpawnWrapper {
-        return new SpawnWrapper(true, ref, {id: id, type: type});
+    static createStruct(ref: MemRef, obj: any): StructureWrapper {
+        let id = obj.id;
+        let type = obj.structureType;
+        switch (type) {
+            case STRUCTURE_SPAWN: {
+                return new SpawnWrapper(true, ref, {id: id});
+            }
+            default: {
+                return new StructureWrapper(true, ref, {id: id});
+            }
+        }
     }
 
-
-    static buildStruct(ref: MemRef, type): StructureWrapper{
+    static buildStruct(ref: MemRef, type: string): StructureWrapper{
         switch (type) {
             case STRUCTURE_SPAWN: {
                 return new SpawnWrapper(false, ref);

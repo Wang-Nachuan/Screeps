@@ -4,7 +4,7 @@ import {Tasks} from "../../task/tasks";
 export class AgentPraetor extends Agent {
     readonly type = 'praetor';
     controller: any;
-    spawns: Array<any>;
+    protected _spawns: Array<any>;
 
     readonly STATE_RCL0 = 0;
     readonly STATE_RCL1 = 1;
@@ -16,22 +16,28 @@ export class AgentPraetor extends Agent {
     readonly STATE_RCL7 = 7;
     readonly STATE_RCL8 = 8;
 
-    constructor(isInit: boolean, ref: MemRef) {
-        super(isInit, ref);
+    constructor(isInit: boolean, ref: MemRef, roomName?: string) {
+        super(isInit, ref, roomName);
         this.state = this.STATE_RCL0;
+        this._spawns = null;
         if (isInit) {
-            this.data.roomName = ref[-2];
-            this.controller = Game.rooms[this.data.roomName].controller;
-            this.data.ctrId = this.controller.id;
+            this.controller = this.room.controller;
+            this.data.ctrId = this.room.controller.id;
             this.data.spawnLog = {};
         } else {
             this.controller = Game.getObjectById(this.data.ctrId);
-            this.spawns = getObjectInCache(false, this._ref.slice(0, -2)).structs.spawn;
         }
     }
 
+    get spawns(): any {
+        if (!this._spawns) {
+            this._spawns = getObjectInCache(false, this._ref.slice(0, -2)).struct.spawn;
+        }
+        return this._spawns;
+    }
+
     printMsg(msg: string) {
-        console.log('[MESSAGE] Room ' + this.data.roomName + ' Praetor: ' + msg);
+        console.log('[MESSAGE] Room ' + this.room.name + ' Praetor: ' + msg);
     }
 
     spawnCreep(role: string, body: {[name: string]: number}) {
@@ -64,6 +70,7 @@ export class AgentPraetor extends Agent {
                 }
                 if (this.controller.level == 2) {
                     this.state = this.STATE_RCL2;
+                    this.data.spawnLog = {};
                     this.printMsg('RCL reaches level 2');
                 }
                 break;
@@ -71,6 +78,7 @@ export class AgentPraetor extends Agent {
             case this.STATE_RCL2: {
                 if (this.controller.level == 3) {
                     this.state = this.STATE_RCL3;
+                    this.data.spawnLog = {};
                     this.printMsg('RCL reaches level 3');
                 }
                 break;
@@ -78,6 +86,7 @@ export class AgentPraetor extends Agent {
             case this.STATE_RCL3: {
                 if (this.controller.level == 4) {
                     this.state = this.STATE_RCL4;
+                    this.data.spawnLog = {};
                     this.printMsg('RCL reaches level 4');
                 }
                 break;
@@ -85,6 +94,7 @@ export class AgentPraetor extends Agent {
             case this.STATE_RCL4: {
                 if (this.controller.level == 5) {
                     this.state = this.STATE_RCL5;
+                    this.data.spawnLog = {};
                     this.printMsg('RCL reaches level 5');
                 }
                 break;
@@ -92,6 +102,7 @@ export class AgentPraetor extends Agent {
             case this.STATE_RCL5: {
                 if (this.controller.level == 6) {
                     this.state = this.STATE_RCL6;
+                    this.data.spawnLog = {};
                     this.printMsg('RCL reaches level 6');
                 }
                 break;
@@ -99,6 +110,7 @@ export class AgentPraetor extends Agent {
             case this.STATE_RCL6: {
                 if (this.controller.level == 7) {
                     this.state = this.STATE_RCL7;
+                    this.data.spawnLog = {};
                     this.printMsg('RCL reaches level 7');
                 }
                 break;
@@ -106,6 +118,7 @@ export class AgentPraetor extends Agent {
             case this.STATE_RCL7: {
                 if (this.controller.level == 8) {
                     this.state = this.STATE_RCL8;
+                    this.data.spawnLog = {};
                     this.printMsg('RCL reaches level 8');
                 }
                 break;

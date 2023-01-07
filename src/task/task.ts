@@ -38,7 +38,7 @@ export abstract class Task extends DataProto {
             if(opt.owner) {
                 this._ownerIsAgent = opt.owner.isAgent;
                 this._ownerRef = opt.owner.ref;
-                this._owner = getObjectInCache(!this._ownerIsAgent, this._ownerRef);
+                this._owner = null;
             } else {
                 this._ownerIsAgent = false;
                 this._ownerRef = null;
@@ -67,9 +67,9 @@ export abstract class Task extends DataProto {
         }
         return this._target;
     }
-    set target(obj: any) {
-        this._targetId = (obj == null) ? null : obj.id;
-        this._target = obj;
+    set target(tar: any) {
+        this._targetId = (tar) ? null : tar.obj.id;
+        this._target = tar;
     }
 
     get owner(): any {
@@ -97,10 +97,10 @@ export abstract class Task extends DataProto {
     unzip(pkg: TaskMemory) {
         this._ownerIsAgent = pkg.oi;
         this._ownerRef = pkg.or;
-        this._owner = getObjectInCache(!this._ownerIsAgent, this._ownerRef);
+        this._owner = null;
         this.taskId = pkg.ti;
         this._targetId = pkg.i;
-        this._target = getObjectInCache(true, this._targetId);
+        this._target = null;
         this.data = pkg.d;
         this.child = Tasks.buildTask(pkg.c);
     }

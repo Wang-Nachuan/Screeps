@@ -1,5 +1,4 @@
 import {ObjectProto} from '../protos'
-import {CreepWrapper} from '../creep/creep';
 import {Task, TaskMemory} from './task'
 import {Tasks} from './tasks';
 
@@ -57,19 +56,18 @@ export class TaskFlow extends ObjectProto {
 
     /*------------------------ Method -----------------------*/
 
-    zip(): TaskFlowMemory {
-        let pkg: TaskFlowMemory = {r: [], q: []};
+    zip() {
+        this.mem = {r: [], q: []};
         for (let receivers of this._receivers) {
-            pkg.r.push(receivers.obj.id);
+            this.mem.r.push(receivers.obj.id);
         }
         for (let i of this._queue) {
             let temp = [];
             for (let task of i) {
                 temp.push(task.zip())
             }
-            pkg.q.push(temp);
+            this.mem.q.push(temp);
         }
-        return pkg;
     }
 
     unzip(pkg: TaskFlowMemory) {

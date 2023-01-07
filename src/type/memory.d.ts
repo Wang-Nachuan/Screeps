@@ -1,25 +1,26 @@
-import {TaskFlowMemory} from "../task/taskFlow";
-import {CreepMemory} from "../creep/creep";
-import {StructureMemory} from "../struct/struct";
 import {AgentMemory} from "../agent/agent";
+import {TaskFlowMemory} from "../task/taskFlow";
+import {StructureMemory} from "../struct/struct";
 
-interface Memory {
-    initFlag: boolean;
-    global: GlobalMemory;
-    rooms: {[name: string]: RoomMemory};
+declare global {
+    interface Memory {
+        initFlag: boolean;
+        global: GlobalMemory;
+        room: {[name: string]: RoomMemory};
+    }
 }
 
 interface GlobalMemory {
-    structs: StructureTypesMemory;
-    agents: {[name: string]: AgentMemory};
-    taskFlows: {[name: string]: TaskFlowMemory};
+    struct: StructureTypesMemory;
+    agent: {[name: string]: AgentMemory};
+    taskFlow: {[name: string]: TaskFlowMemory};
 }
 
 interface RoomMemory {
-    structs: StructureTypesMemory;
+    struct: StructureTypesMemory;
     source: Array<SourceMemory>;
-    agents: {[name: string]: AgentMemory};
-    taskFlows: {
+    agent: {[name: string]: AgentMemory};
+    taskFlow: {
         harvester: TaskFlowMemory;
         worker: TaskFlowMemory;
         transporter: TaskFlowMemory;
@@ -37,13 +38,6 @@ interface RoomMemory {
         }
     };
 }
-
-// interface CreepTypesMemory {
-//     worker: Array<Id<_HasId>>;
-//     transporter: Array<Id<_HasId>>;
-//     attacker: Array<Id<_HasId>>;
-//     healer: Array<Id<_HasId>>;
-// }
 
 interface StructureTypesMemory {
     spawn: Array<StructureMemory>;
@@ -70,5 +64,13 @@ interface StructureTypesMemory {
 }
 
 interface SourceMemory {
-    
+    id: Id<_HasId>;
+    attach: number;
 }
+
+
+
+
+
+
+

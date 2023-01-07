@@ -63,4 +63,8 @@ export class TaskLog extends DataProto {
     delTask(id: string) {
         delete this.log[id];
     }
+
+    cleanAll() {
+        this.log = {};
+    }
 }

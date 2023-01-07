@@ -11,7 +11,7 @@ export abstract class ObjectProto {
     abstract set mem(val: any);
 
     // Compress data to a compact package (to be stored in memory)
-    abstract zip(): any;
+    abstract zip();
 
     // Unzip and load the object with package data
     abstract unzip(pkg: any);
@@ -19,7 +19,7 @@ export abstract class ObjectProto {
     // Write back latest data to memory
     writeBack() {
         if (this._isWritten) {
-            this.mem = this.zip();
+            this.zip();
             this._isWritten = false;
         }  
     };

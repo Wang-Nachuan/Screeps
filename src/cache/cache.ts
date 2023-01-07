@@ -10,26 +10,26 @@ import {TaskFlow} from "../task/taskFlow";
 export class Cache {
     log: {[key: Id<_HasId>]: any};
     global: {
-        structs: StructureTypes;
-        agents: {[name: string]: Agent};
-        taskFlows: {[name: string]: TaskFlow};
+        struct: StructureTypes;
+        agent: {[name: string]: Agent};
+        taskFlow: {[name: string]: TaskFlow};
     };
-    rooms: {
+    room: {
         [key: string]: {
-            structs: StructureTypes;
-            agents: {[name: string]: Agent};
-            taskFlows: {[name: string]: TaskFlow};
+            struct: StructureTypes;
+            agent: {[name: string]: Agent};
+            taskFlow: {[name: string]: TaskFlow};
         };
     };
 
     constructor() {
         this.log = {};
         this.global = {
-            structs: getStructureTypes(),
-            agents: {},
-            taskFlows: {}
+            struct: getStructureTypes(),
+            agent: {},
+            taskFlow: {}
         }
-        this.rooms = {};
+        this.room = {};
         // First initialize objects that have ID
         // Sreeps
         for (let creepName in Game.creeps) {    
@@ -37,24 +37,24 @@ export class Cache {
             this.log[creep.obj.id] = creep;
         }
         // Global structures
-        for (let type in Memory.global.structs) {   
-            for (let idx in Memory.global.structs[type]) {
-                let struct = new StructureWrapper(false, ['global', 'structs', type, idx]);
-                this.global.structs[type].push(struct);
+        for (let type in Memory.global.struct) {   
+            for (let idx in Memory.global.struct[type]) {
+                let struct = new StructureWrapper(false, ['global', 'struct', type, idx]);
+                this.global.struct[type].push(struct);
                 this.log[struct.obj.id] = struct;
             }
         }
         // Room structures
-        for (let roomName in Memory.rooms) {
-            this.rooms[roomName] = {
-                structs: getStructureTypes(),
-                agents: {},
-                taskFlows: {}
+        for (let roomName in Memory.room) {
+            this.room[roomName] = {
+                struct: getStructureTypes(),
+                agent: {},
+                taskFlow: {}
             };
-            for (let type in Memory.rooms[roomName].structs) {
-                for (let idx in Memory.rooms[roomName].structs[type]) {
-                    let struct = new StructureWrapper(false, ['rooms', roomName, 'structs', type, idx]);
-                    this.rooms[roomName].structs[type].push(struct);
+            for (let type in Memory.room[roomName].struct) {
+                for (let idx in Memory.room[roomName].struct[type]) {
+                    let struct = new StructureWrapper(false, ['room', roomName, 'struct', type, idx]);
+                    this.room[roomName].struct[type].push(struct);
                     this.log[struct.obj.id] = struct;
                 }
             }

@@ -13,7 +13,7 @@ export interface SpawnRequest {
 export class SpawnWrapper extends StructureWrapper {
 
     constructor(isInit: boolean, ref: MemRef,
-        opt?: {id?: Id<_HasId>, type?: string})
+        opt?: {id?: Id<_HasId>})
     {
         super(isInit, ref, opt);
         if (isInit) {
@@ -98,14 +98,14 @@ export class SpawnWrapper extends StructureWrapper {
                     free
                 )
                 this.taskLog.addTask(taskId, null)
-                this.roomTaskFlows['worker'].pubTask(task);
+                this.roomTaskFlow['worker'].pubTask(task);
             }
         }
         if (!this.obj.spawning) {
             // Record the spawned creep
             if (this.data.curReq) {
                 let creep = Game.creeps[this.data.curReq.n];
-                this.roomTaskFlows[this.data.curReq.r].addReceiver(new CreepWrapper(true, creep.id, {role: this.data.curReq.r}));
+                this.roomTaskFlow[this.data.curReq.r].addReceiver(new CreepWrapper(true, creep.id, {role: this.data.curReq.r}));
                 this.data.rTime -= this.data.curReq.ti;
                 this.data.curReq = null;
             }

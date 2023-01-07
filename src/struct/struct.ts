@@ -1,33 +1,32 @@
 import {ObjectProto} from '../protos'
 import {TaskLog, TaskLogMemory} from '../task/taskLog';
-import {TaskFlow} from '../task/taskFlow';
 
 export interface StructureMemory {
     i: Id<_HasId>;
-    t: string;
-    tl: TaskLogMemory;
+    t: TaskLogMemory;
     d: {[key: string]: any};
 }
 
 export class StructureWrapper extends ObjectProto {
-    protected _type: string;
     protected _ref: MemRef;
     protected _memObj: any;
     protected _obj: any;
+    protected _roomTaskFlow: any;
     protected _taskLog: TaskLog;
     protected _data: {[key: string]: any};
 
     // Id and type must be provide at first instantiation
     constructor(isInit: boolean, ref: MemRef,
-        opt?: {id?: Id<_HasId>, type?: string}) 
+        opt?: {id?: Id<_HasId>}) 
     {
         super();
         this._ref = ref;
         this._memObj = derefMem(this._ref);
+        this._roomTaskFlow = null;
         if (isInit) {
             this._obj = Game.getObjectById(opt.id);
-            this._type = opt.type;
-            this._taskLog = new TaskLog(true);
+            this.taskLog = new TaskLog(true);
+            this.data = {};
             this.writeBack();
         } else {
             this.unzip(this.mem);
@@ -54,29 +53,27 @@ export class StructureWrapper extends ObjectProto {
     get taskLog(): TaskLog {return this._taskLog;}
     set taskLog(val: TaskLog) {this._taskLog = val; this._isWritten = true;}
 
-    get type(): string {return this._type;}
-    set type(val: string) {this._type = val; this._isWritten = true;}
-
     get data(): any {return this._data;}
     set data(val: any) {this._data = val; this._isWritten = true;}
 
-    get roomTaskFlows(): TaskFlow {return global.cache.rooms[this.obj.room.name].taskFlows;}
+    get roomTaskFlow(): any {
+        if (!this._roomTaskFlow) {
+            this._roomTaskFlow = getObjectInCache(false, this._ref.slice(0, -2)).taskFlow;
+        }
+        return this._roomTaskFlow;
+    }
 
     /*------------------------ Method -----------------------*/
 
-    zip(): StructureMemory {
-        return {
-            i: this._obj.id,
-            t: this.type,
-            tl: this._taskLog.zip(),
-            d: this._data
-        };
+    zip() {
+        this.mem.i = this._obj.id,
+        this.mem.t = this._taskLog.zip(),
+        this.mem.d = this._data
     }
 
     unzip(pkg: StructureMemory) {
         this._obj = Game.getObjectById(pkg.i);
-        this._type = pkg.t;
-        this._taskLog = new TaskLog(false, pkg.tl);
+        this._taskLog = new TaskLog(false, pkg.t);
         this._data = pkg.d;
     }
 

@@ -27,8 +27,8 @@ global.getObjectInCache = function(isId: boolean, ref: any): any {
 }
 
 global.derefMem = function(ref: MemRef): any {
-    let itr: any = Memory;
-    for (let key in ref) {
+    let itr = Memory;
+    for (let key of ref) {
         itr = itr[key];
     }
     return itr;
@@ -36,7 +36,7 @@ global.derefMem = function(ref: MemRef): any {
 
 // Generate an unique name for creep
 global.getCreepName = function(roomName: string, role: string): string {
-    let record = Memory.rooms[roomName].data.nameIdx[role];
+    let record = Memory.room[roomName].data.nameIdx[role];
     let idx = 0;
     while (true) {
         idx += 1;
