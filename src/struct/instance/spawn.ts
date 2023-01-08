@@ -87,7 +87,7 @@ export class SpawnWrapper extends StructureWrapper {
             }
         } else {
             // Require energy
-            let free = this.obj.store.getFreeCapacity();
+            let free = this.obj.store.getFreeCapacity(RESOURCE_ENERGY);
             if (free > 0) {
                 let taskId = 'harvest';
                 let task = Tasks.harvest(
@@ -99,12 +99,14 @@ export class SpawnWrapper extends StructureWrapper {
                     free
                 )
                 this.taskLog.addTask(taskId, null)
-                this.roomTaskFlow['worker'].pubTask(task);
+                this.roomTaskFlow['worker'].pubTask(task, 1);
             }
         }
         if (!this.obj.spawning) {
             // Record the spawned creep
+            // console.log('[1]');
             if (this.data.curReq) {
+                // console.log('[2]');
                 let creep = Game.creeps[this.data.curReq.n];
                 this.roomTaskFlow[this.data.curReq.r].addReceiver(new CreepWrapper(true, creep.id, {role: this.data.curReq.r}));
                 this.data.rTime -= this.data.curReq.ti;

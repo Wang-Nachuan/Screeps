@@ -10,6 +10,8 @@ import {Mem} from './memory/mem';
 
 export const loop = function() {
 
+    console.log('Tick ' + Game.time + ':');
+
     // Initialize memory
     if (!Memory.initFlag) {
         Mem.MemInit();

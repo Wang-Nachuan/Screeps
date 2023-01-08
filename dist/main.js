@@ -300,6 +300,9 @@ class Tasks {
      *  pkg: zipped package in memory
      */
     static buildTask(pkg) {
+        if (!pkg) {
+            return null;
+        }
         switch (pkg.t) {
             case 'moveTo': {
                 return new TaskMoveTo(false, { pkg: pkg });
@@ -536,17 +539,19 @@ class SpawnWrapper extends StructureWrapper {
         }
         else {
             // Require energy
-            let free = this.obj.store.getFreeCapacity();
+            let free = this.obj.store.getFreeCapacity(RESOURCE_ENERGY);
             if (free > 0) {
                 let taskId = 'harvest';
                 let task = Tasks.harvest({ isAgent: false, ref: this.obj.id }, taskId, this.obj.room.find(FIND_SOURCES)[0], RESOURCE_ENERGY, false, free);
                 this.taskLog.addTask(taskId, null);
-                this.roomTaskFlow['worker'].pubTask(task);
+                this.roomTaskFlow['worker'].pubTask(task, 1);
             }
         }
         if (!this.obj.spawning) {
             // Record the spawned creep
+            // console.log('[1]');
             if (this.data.curReq) {
+                // console.log('[2]');
                 let creep = Game.creeps[this.data.curReq.n];
                 this.roomTaskFlow[this.data.curReq.r].addReceiver(new CreepWrapper(true, creep.id, { role: this.data.curReq.r }));
                 this.data.rTime -= this.data.curReq.ti;
@@ -780,24 +785,37 @@ class TaskFlow extends ObjectProto {
     constructor(isInit, ref) {
         super();
         this._ref = ref;
+        this._loadFlag = false;
         if (isInit) {
-            this.receivers = [];
-            this.queue = [[], [], []];
+            this._receivers = [];
+            this._queue = [[], [], []];
             this.wb();
         }
-        else {
+    }
+    /*-------------------- Getter/Setter --------------------*/
+    get receivers() {
+        if (!this._loadFlag) {
             this.load();
+            this._loadFlag = true;
         }
+        return this._receivers;
+    }
+    get queue() {
+        if (!this._loadFlag) {
+            this.load();
+            this._loadFlag = true;
+        }
+        return this._queue;
     }
     /*------------------------ Method -----------------------*/
     wb() {
         let mem = derefMem(this._ref);
         mem.r = [];
-        for (let receivers of this.receivers) {
-            mem.r.push(receivers.obj.id);
+        for (let rec of this._receivers) {
+            mem.r.push(rec.obj.id);
         }
         mem.q = [];
-        for (let i of this.queue) {
+        for (let i of this._queue) {
             let temp = [];
             for (let task of i) {
                 temp.push(task.zip());
@@ -806,15 +824,15 @@ class TaskFlow extends ObjectProto {
         }
     }
     load() {
-        this.receivers = [];
-        this.queue = [[], [], []];
+        this._receivers = [];
+        this._queue = [[], [], []];
         let mem = derefMem(this._ref);
         for (let id of mem.r) {
-            this.receivers.push(getObjectInCache(true, id));
+            this._receivers.push(getObjectInCache(true, id));
         }
         for (let i in mem.q) {
             for (let t of mem.q[i]) {
-                this.queue[i].push(Tasks.buildTask(t));
+                this._queue[i].push(Tasks.buildTask(t));
             }
         }
     }
@@ -834,7 +852,7 @@ class TaskFlow extends ObjectProto {
                 let idx = -1;
                 for (let i = 0; i < this.receivers.length; i++) {
                     if (!this.receivers[i].task) {
-                        let temp = this.queue[prio][0].eval(this.receivers[i]);
+                        let temp = this.queue[prio][0].eval(this.receivers[i].obj);
                         if (temp > maxEval) {
                             maxEval = temp;
                             idx = i;
@@ -1068,6 +1086,7 @@ class Mem {
 //     console.log(testObj);
 // }, true)
 const loop = function () {
+    console.log('Tick ' + Game.time + ':');
     // Initialize memory
     if (!Memory.initFlag) {
         Mem.MemInit();

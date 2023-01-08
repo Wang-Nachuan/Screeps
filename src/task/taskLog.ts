@@ -5,11 +5,10 @@
 import {DataProto} from "../protos";
 
 export interface TaskLogMemory {
-    // [id: string]: {
-    //     state: number;
-    //     data: {[name: string]: any};
-    // };
-    [id: string]: any;
+    [id: string]: {
+        state: number;
+        data: {[name: string]: any};
+    };
 }
 
 export class TaskLog extends DataProto {

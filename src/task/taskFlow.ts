@@ -9,19 +9,37 @@ export interface TaskFlowMemory {
 
 export class TaskFlow extends ObjectProto {
     protected _ref: MemRef;
-    receivers: Array<any>;
-    queue: Array<Array<Task>>;
+    protected _loadFlag: boolean;
+    protected _receivers: Array<any>;
+    protected _queue: Array<Array<Task>>;
 
     constructor(isInit: boolean, ref: MemRef) {
         super();
         this._ref = ref;
+        this._loadFlag = false;
         if (isInit) {
-            this.receivers = [];
-            this.queue = [[], [], []];
+            this._receivers = [];
+            this._queue = [[], [], []];
             this.wb();
-        } else {
+        }
+    }
+
+    /*-------------------- Getter/Setter --------------------*/
+
+    get receivers(): any {
+        if (!this._loadFlag) {
             this.load();
-        } 
+            this._loadFlag = true;
+        }
+        return this._receivers;
+    }
+
+    get queue(): any {
+        if (!this._loadFlag) {
+            this.load();
+            this._loadFlag = true;
+        }
+        return this._queue;
     }
 
     /*------------------------ Method -----------------------*/
@@ -29,11 +47,11 @@ export class TaskFlow extends ObjectProto {
     wb() {
         let mem = derefMem(this._ref);
         mem.r = [];
-        for (let receivers of this.receivers) {
-            mem.r.push(receivers.obj.id);
+        for (let rec of this._receivers) {
+            mem.r.push(rec.obj.id);
         }
         mem.q = [];
-        for (let i of this.queue) {
+        for (let i of this._queue) {
             let temp = [];
             for (let task of i) {
                 temp.push(task.zip())
@@ -43,15 +61,15 @@ export class TaskFlow extends ObjectProto {
     }
 
     load() {
-        this.receivers = [];
-        this.queue = [[], [], []];
+        this._receivers = [];
+        this._queue = [[], [], []];
         let mem = derefMem(this._ref);
         for (let id of mem.r) {
-            this.receivers.push(getObjectInCache(true, id));
+            this._receivers.push(getObjectInCache(true, id));
         }
         for (let i in mem.q) {
             for (let t of mem.q[i]) {
-                this.queue[i].push(Tasks.buildTask(t));
+                this._queue[i].push(Tasks.buildTask(t));
             }
         }
     }
@@ -74,7 +92,7 @@ export class TaskFlow extends ObjectProto {
                 let idx = -1;
                 for (let i=0; i<this.receivers.length; i++) {
                     if (!this.receivers[i].task) {
-                        let temp = this.queue[prio][0].eval(this.receivers[i]);
+                        let temp = this.queue[prio][0].eval(this.receivers[i].obj);
                         if (temp > maxEval) {
                             maxEval = temp;
                             idx = i;

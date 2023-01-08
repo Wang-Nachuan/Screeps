@@ -28,7 +28,10 @@ export class Tasks {
     /**
      *  pkg: zipped package in memory
      */
-    static buildTask(pkg: TaskMemory): Task {
+    static buildTask(pkg: any): Task {
+        if (!pkg) {
+            return null;
+        }
         switch (pkg.t) {
             case 'moveTo': {
                 return new TaskMoveTo(false, {pkg: pkg});
