@@ -1,5 +1,6 @@
 import {DataProto} from '../protos';
 import {Tasks} from './tasks';
+import { Const } from '@/const';
 
 export interface TaskMemory {
     t: string;
@@ -12,7 +13,7 @@ export interface TaskMemory {
 }
 
 export abstract class Task extends DataProto {
-    abstract readonly type: string;
+    readonly type: string = Const.TYPE_TASK;
     taskId: string;
     protected _ownerIsAgent: boolean;
     protected _ownerRef: MemRef | Id<_HasId>;
@@ -21,14 +22,19 @@ export abstract class Task extends DataProto {
     protected _target: any;     // Caching target object
     data: {[key: string]: any};
     child: Task | null;
+
+    readonly RET_OK = 0;            // Task is being executed normally
+    readonly RET_FINISH = 1;        // Task finishes normally
+    readonly RET_HALT = 2;          // Task finishes abnormally
     
-    constructor(isInit: boolean, 
-        opt?: {
-            pkg?: TaskMemory, 
+    /*---------------------- Attribute ----------------------*/
+
+    constructor(addr: Addr, 
+        para?: {
             taskId?: string,
             owner?: {
                 isAgent: boolean,
-                ref: MemRef | Id<_HasId>
+                addr: Addr
             } 
             target?: any
         }
@@ -53,13 +59,6 @@ export abstract class Task extends DataProto {
         }
     }
 
-    /*----------------------- Constant ----------------------*/
-
-    readonly RET_OK = 0;            // Task is being executed normally
-    readonly RET_FINISH = 1;        // Task finishes normally
-    readonly RET_HALT = 2;          // Task finishes abnormally
-
-    /*-------------------- Getter/Setter --------------------*/
 
     get target(): any {
         if (!this._target && this._targetId) {

@@ -1,50 +1,62 @@
 import {ObjectProto} from '../protos';
 import {Task, TaskMemory} from '../task/Task';
 import {Tasks} from '../task/tasks';
+import {Const} from '../const';
+import {Mem} from '../memory/mem';
 
-// export interface CreepMemory {
-//     r: string;
-//     t: TaskMemory;
-// }
+export interface CreepMemory {
+    r: string;
+    t: Addr;
+}
 
-export class CreepWrapper extends ObjectProto { 
-    protected obj: any;
-    protected role: string;
-    protected task: Task;
+export class ICreep extends ObjectProto { 
+    readonly type: string = Const.TYPE_CREEP;
+    private _task: Task;
 
-    // Role must be provided at first instantiation
-    constructor(isInit: boolean, id: Id<_HasId>, 
-        opt?: {role: string}) 
-    {
-        super();
-        this.obj = Game.getObjectById(id);
-        if (isInit) {
-            this.role = opt.role;
-            this.task = null;
-            this.wb();
-        } else {
-            this.load();
+    constructor(addr: Addr, obj?: any, para?: {role: string}) {
+        super(addr, obj, para);
+    }
+
+    /*---------------------- Attribute ----------------------*/
+
+    get role(): string {return this.memory.r;}
+    set role(val: string) {this.memory.r = val;}
+
+    get task(): Task {
+        if (!this._task && this.memory.t) {
+            this._task = new Task(this.memory.t);
         }
+        return this._task;
+    }
+    set task(val: Task) {
+        this._task = val;
+        this.memory.t = (val) ? val.addr : null;
     }
 
     /*------------------------ Method -----------------------*/
 
-    wb() {
-        this.obj.memory = {
-            r: this.role,
-            t: (this.task) ? this.task.zip() : null
+
+    init(para: {role: string}) {
+        this.role = para.role;
+        this.task = null;
+    }
+
+    reload() {
+        console.log('[Check Here] Wehter the task is loaded');
+        this.task;
+    }
+
+    refresh() {
+        super.refresh();
+        if (this.task) {
+            this.task.refresh();
         }
     }
 
-    load() {
-        this.role = this.obj.memory.r;
-        this.task = Tasks.buildTask(this.obj.memory.t);
-    }
-
     // Execute task if any
-    work() {
+    run() {
         if (this.task) {
-            let ret = this.task.exe(this.obj);
+            let ret = this.task.run(this.obj);
             if (ret == this.task.RET_FINISH) {
                 this.task.owner.taskLog.finishTask(this.task.taskId);
                 this.task = null;
@@ -53,12 +65,5 @@ export class CreepWrapper extends ObjectProto {
                 this.task = null;
             } else {}
         }
-    }
-
-    // Wrapper function
-    exe() {
-        // TODO: Check lifetime
-        // TODO: Check hit
-        this.work();
     }
 }

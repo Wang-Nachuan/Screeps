@@ -1,5 +1,6 @@
 import {ObjectProto} from '../protos';
 import {TaskLog, TaskLogMemory} from '../task/taskLog';
+import {Const} from '../const';
 
 export interface AgentMemory {
     t: string;
@@ -10,7 +11,7 @@ export interface AgentMemory {
 }
 
 export abstract class Agent extends ObjectProto {
-    abstract readonly type: string;
+    readonly type: string = Const.TYPE_AGENT;
     protected _ref: MemRef;
     protected _roomName: string;
     protected _taskFlow: any;
@@ -19,8 +20,8 @@ export abstract class Agent extends ObjectProto {
     state: number;
     data: {[name:string]: any}
 
-    constructor(isInit: boolean, ref: MemRef, roomName?: string) {
-        super();
+    constructor(memKey: memId) {
+        super(memKey);
         this._ref = ref;
         this._taskFlow = null;
         if (isInit) {
