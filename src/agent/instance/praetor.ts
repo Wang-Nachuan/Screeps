@@ -24,7 +24,7 @@ export class AgentPraetor extends Agent {
             this.data.ctrId = this.room.controller.id;
             this.data.spawnLog = {};
             this.state = this.STATE_RCL0;
-            this.writeBack();
+            this.wb();
         } else {
             this.controller = Game.getObjectById(this.data.ctrId);
         }

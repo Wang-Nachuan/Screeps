@@ -115,28 +115,28 @@ export class Cache {
 
     writeBack() {
         for (let name in this.global.agent) {
-            this.global.agent[name].writeBack();
+            this.global.agent[name].wb();
         }
         for (let type in this.global.struct) {
             for (let struct of this.global.struct[type]) {
-                struct.writeBack();
+                struct.wb();
             }
         }
         for (let type in this.global.taskFlow) {
-            this.global.taskFlow[type].writeBack();
+            this.global.taskFlow[type].wb();
         }
         for (let roomName in this.room) {
             let room = this.room[roomName];
             for (let name in room.agent) {
-                room.agent[name].writeBack();
+                room.agent[name].wb();
             }
             for (let type in room.struct) {
                 for (let struct of room.struct[type]) {
-                    struct.writeBack();
+                    struct.wb();
                 }
             }
             for (let type in room.taskFlow) {
-                room.taskFlow[type].writeBack();
+                room.taskFlow[type].wb();
             }
         }
     }

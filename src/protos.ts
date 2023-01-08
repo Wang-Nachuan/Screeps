@@ -4,24 +4,15 @@
 
 // For game objects (which have fixed memory space)
 export abstract class ObjectProto {
-    protected _isWritten: boolean = false;
-
-    // Read/write the memory space of this object
-    abstract get mem(): any;
-
-    // Compress data to a compact package (to be stored in memory)
-    abstract zip();
-
-    // Unzip and load the object with package data
-    abstract unzip(pkg: any);
 
     // Write back latest data to memory
-    writeBack() {
-        if (this._isWritten) {
-            this.zip();
-            this._isWritten = false;
-        }  
-    };
+    abstract wb();
+
+    // Unzip and load the object with package data
+    abstract load();
+
+    // Wrapper function
+    abstract exe();
 }
 
 // For meta data (which does not have fixed memory space)

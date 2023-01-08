@@ -8,51 +8,37 @@ import {Tasks} from '../task/tasks';
 // }
 
 export class CreepWrapper extends ObjectProto { 
-    protected _obj: any;
-    protected _role: string;
-    protected _task: Task;
+    protected obj: any;
+    protected role: string;
+    protected task: Task;
 
     // Role must be provided at first instantiation
     constructor(isInit: boolean, id: Id<_HasId>, 
         opt?: {role: string}) 
     {
         super();
-        this._obj = Game.getObjectById(id);
-        if (isInit) {  // At creation
+        this.obj = Game.getObjectById(id);
+        if (isInit) {
             this.role = opt.role;
             this.task = null;
-            this.writeBack();
-        } else {    // At rebuild
-            this.unzip(this.mem);
+            this.wb();
+        } else {
+            this.load();
         }
     }
-
-    /*-------------------- Getter/Setter --------------------*/
-
-    get mem(): CreepMemory {return this._obj.memory;}
-    set mem(val: CreepMemory) {this._obj.memory = val;}
-
-    get obj(): Creep {return this._obj;}
-    set obj(val: Creep) {this._obj = val; this._isWritten = true;}
-
-    get role(): string {return this._role;}
-    set role(val: string) {this._role = val; this._isWritten = true;}
-
-    get task(): Task {return this._task;}
-    set task(val: Task) {this._task = val; this._isWritten = true;}
 
     /*------------------------ Method -----------------------*/
 
-    zip() {
-        this.mem = {
-            r: this._role,
-            t: (this._task) ? this._task.zip() : null
+    wb() {
+        this.obj.memory = {
+            r: this.role,
+            t: (this.task) ? this.task.zip() : null
         }
     }
 
-    unzip(pkg: CreepMemory) {
-        this._role = pkg.r;
-        this._task = Tasks.buildTask(pkg.t);
+    load() {
+        this.role = this.obj.memory.r;
+        this.task = Tasks.buildTask(this.obj.memory.t);
     }
 
     // Execute task if any

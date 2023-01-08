@@ -9,75 +9,49 @@ export interface TaskFlowMemory {
 
 export class TaskFlow extends ObjectProto {
     protected _ref: MemRef;
-    protected _memObj: TaskFlowMemory;      // Cache memory object
-    protected _receivers: Array<any>;
-    protected _queue: Array<Array<Task>>;
+    receivers: Array<any>;
+    queue: Array<Array<Task>>;
 
     constructor(isInit: boolean, ref: MemRef) {
         super();
         this._ref = ref;
-        this._memObj = derefMem(this._ref);
         if (isInit) {
             this.receivers = [];
-            this.queue = [[], [], [], [], []];
-            this.writeBack();
+            this.queue = [[], [], []];
+            this.wb();
         } else {
-            this.unzip(this.mem);
+            this.load();
         } 
     }
 
-    /*-------------------- Getter/Setter --------------------*/
-
-    get mem(): TaskFlowMemory {
-        if (!this._memObj) {
-            this._memObj = derefMem(this._ref);
-        }
-        return this._memObj;
-    }
-    set mem(val: TaskFlowMemory) {
-        if (!this._memObj) {
-            this._memObj = derefMem(this._ref);
-        }
-        this._memObj = val;
-    }
-
-    get ref(): MemRef {return this._ref;}
-    set ref(val: MemRef) {
-        this._ref = val;
-        this._isWritten = true;
-        this._memObj = derefMem(this._ref);
-    }
-
-    get receivers(): Array<any> {return this._receivers;}
-    set receivers(val: Array<any>) {this._receivers = val; this._isWritten = true;}
-
-    get queue(): Array<Array<Task>> {return this._queue}
-    set queue(val: Array<Array<Task>>) {this._queue = val; this._isWritten = true;}
-
     /*------------------------ Method -----------------------*/
 
-    zip() {
-        for (let receivers of this._receivers) {
-            this.mem.r.push(receivers.obj.id);
+    wb() {
+        let mem = derefMem(this._ref);
+        mem.r = [];
+        for (let receivers of this.receivers) {
+            mem.r.push(receivers.obj.id);
         }
-        for (let i of this._queue) {
+        mem.q = [];
+        for (let i of this.queue) {
             let temp = [];
             for (let task of i) {
                 temp.push(task.zip())
             }
-            this.mem.q.push(temp);
+            mem.q.push(temp);
         }
     }
 
-    unzip(pkg: TaskFlowMemory) {
-        this._receivers = [];
-        this._queue = [[], [], [], [], []];
-        for (let id of pkg.r) {
-            this._receivers.push(getObjectInCache(true, id));
+    load() {
+        this.receivers = [];
+        this.queue = [[], [], []];
+        let mem = derefMem(this._ref);
+        for (let id of mem.r) {
+            this.receivers.push(getObjectInCache(true, id));
         }
-        for (let i in pkg.q) {
-            for (let t of pkg.q[i]) {
-                this._queue[i].push(Tasks.buildTask(t));
+        for (let i in mem.q) {
+            for (let t of mem.q[i]) {
+                this.queue[i].push(Tasks.buildTask(t));
             }
         }
     }
@@ -94,7 +68,7 @@ export class TaskFlow extends ObjectProto {
 
     // Issue all tasks
     issue() {
-        for (let prio=0; prio<5; prio++) {
+        for (let prio=0; prio<3; prio++) {
             while (this.queue[prio][0]) {
                 let maxEval = -Infinity;
                 let idx = -1;
