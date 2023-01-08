@@ -18,7 +18,7 @@ global.getObjectInCache = function(isId: boolean, ref: any): any {
         }
     } else {
         let itr = global.cache;
-        for (let key in ref) {
+        for (let key of ref) {
             itr = itr[key];
         }
         return itr;

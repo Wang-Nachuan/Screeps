@@ -1,6 +1,7 @@
 import {AgentMemory} from "../agent/agent";
 import {TaskFlowMemory} from "../task/taskFlow";
 import {StructureMemory} from "../struct/struct";
+import {TaskMemory} from '../task/Task';
 
 declare global {
     interface Memory {
@@ -8,6 +9,11 @@ declare global {
         global: GlobalMemory;
         room: {[name: string]: RoomMemory};
         test: any;
+    }
+
+    interface CreepMemory{
+        r: string;
+        t: TaskMemory;
     }
 }
 

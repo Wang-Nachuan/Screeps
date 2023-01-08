@@ -19,9 +19,6 @@ export abstract class Agent extends ObjectProto {
     protected _taskLog: TaskLog;
     protected _state: number;
     protected _data: {[name:string]: any}
-    
-    readonly STATE_INIT = 0;
-
 
     constructor(isInit: boolean, ref: MemRef, roomName?: string) {
         super();
@@ -32,7 +29,6 @@ export abstract class Agent extends ObjectProto {
             this._roomName = roomName;
             this.room = (roomName) ? Game.rooms[roomName] : null;
             this.taskLog = new TaskLog(true);
-            this.state = this.STATE_INIT;
             this.data = {};
             this.writeBack();
         } else {
@@ -84,7 +80,7 @@ export abstract class Agent extends ObjectProto {
     unzip(pkg: AgentMemory) {
         this._roomName = pkg.r;
         this.room = (pkg.r) ? Game.rooms[pkg.r] : null;
-        this._taskLog = new TaskLog(false, pkg.tl);
+        this._taskLog = new TaskLog(false, pkg.tl); 
         this._state = pkg.s;
         this._data = pkg.d;
     }

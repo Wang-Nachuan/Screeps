@@ -35,8 +35,10 @@ export class Cache {
         // First initialize objects that have ID
         // All Sreeps
         for (let creepName in Game.creeps) {    
-            let creep = new CreepWrapper(false, Game.creeps[creepName].id);
-            this.log[creep.obj.id] = creep;
+            let creep = Game.creeps[creepName];
+            if (creep.memory.r) {
+                this.log[creep.id] = new CreepWrapper(false, creep.id);
+            }
         }
         // Global structures
         for (let type in Memory.global.struct) {   
@@ -83,13 +85,61 @@ export class Cache {
         }
     }
 
-    // exe() {
+    exe() {
+        for (let name in this.global.agent) {
+            this.global.agent[name].exe();
+        }
+        for (let type in this.global.struct) {
+            for (let struct of this.global.struct[type]) {
+                struct.exe();
+            }
+        }
+        for (let type in this.global.taskFlow) {
+            this.global.taskFlow[type].exe();
+        }
+        for (let roomName in this.room) {
+            let room = this.room[roomName];
+            for (let name in room.agent) {
+                room.agent[name].exe();
+            }
+            for (let type in room.struct) {
+                for (let struct of room.struct[type]) {
+                    struct.exe();
+                }
+            }
+            for (let type in room.taskFlow) {
+                room.taskFlow[type].exe();
+            }
+        }
+    }
 
-    // }
-
-    // writeBack() {
-
-    // }
+    writeBack() {
+        for (let name in this.global.agent) {
+            this.global.agent[name].writeBack();
+        }
+        for (let type in this.global.struct) {
+            for (let struct of this.global.struct[type]) {
+                struct.writeBack();
+            }
+        }
+        for (let type in this.global.taskFlow) {
+            this.global.taskFlow[type].writeBack();
+        }
+        for (let roomName in this.room) {
+            let room = this.room[roomName];
+            for (let name in room.agent) {
+                room.agent[name].writeBack();
+            }
+            for (let type in room.struct) {
+                for (let struct of room.struct[type]) {
+                    struct.writeBack();
+                }
+            }
+            for (let type in room.taskFlow) {
+                room.taskFlow[type].writeBack();
+            }
+        }
+    }
 }
 
 function getStructureTypes() {

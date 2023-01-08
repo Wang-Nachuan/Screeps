@@ -5,14 +5,15 @@
 import {DataProto} from "../protos";
 
 export interface TaskLogMemory {
-    [id: string]: {
-        state: number;
-        data: {[name: string]: any};
-    };
+    // [id: string]: {
+    //     state: number;
+    //     data: {[name: string]: any};
+    // };
+    [id: string]: any;
 }
 
 export class TaskLog extends DataProto {
-    log: TaskLogMemory; 
+    log: any; 
 
     readonly STATE_UNFINISH = 0;
     readonly STATE_FINISH = 1;
@@ -27,11 +28,12 @@ export class TaskLog extends DataProto {
         }
     }
 
-    zip(): TaskLogMemory {
-        return this.log;
+    zip(): any {
+       return this.log;
     }
 
-    unzip(pkg: TaskLogMemory) {
+    unzip(pkg: any) {
+        this.log = {};
         for (let id in pkg) {
             this.log[id] = pkg[id];
         }

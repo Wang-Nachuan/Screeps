@@ -23,4 +23,10 @@ export const loop = function() {
         console.log('[MESSAGE] Global reset');
     }
 
+    global.cache.exe();
+
+    global.cache.writeBack();
+
+    console.log(Memory.room['sim'].struct.spawn[0].d.curReq);
+
 }

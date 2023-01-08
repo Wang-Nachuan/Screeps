@@ -3,7 +3,7 @@ import {TaskLog, TaskLogMemory} from '../task/taskLog';
 
 export interface StructureMemory {
     i: Id<_HasId>;
-    t: TaskLogMemory;
+    t: any;
     d: {[key: string]: any};
 }
 
@@ -36,17 +36,19 @@ export class StructureWrapper extends ObjectProto {
     /*-------------------- Getter/Setter --------------------*/
 
     get mem(): StructureMemory {
-        if (!this._memObj) {
-            this._memObj = derefMem(this._ref);
-        }
-        return this._memObj;
+        // if (!this._memObj) {
+        //     this._memObj = derefMem(this._ref);
+        // }
+        // return this._memObj;
+        return derefMem(this._ref);
     }
-    set mem(val: StructureMemory) {
-        if (!this._memObj) {
-            this._memObj = derefMem(this._ref);
-        }
-        this._memObj = val;
-    }
+    // set mem(val: StructureMemory) {
+    //     // if (!this._memObj) {
+    //     //     this._memObj = derefMem(this._ref);
+    //     // }
+    //     this._memObj = derefMem(this._ref);
+    //     this._memObj = val;
+    // }
 
     get obj(): any {return this._obj;}
 
@@ -66,9 +68,11 @@ export class StructureWrapper extends ObjectProto {
     /*------------------------ Method -----------------------*/
 
     zip() {
-        this.mem.i = this._obj.id,
-        this.mem.t = this._taskLog.zip(),
-        this.mem.d = this._data
+        console.log('[1.3]', this._memObj);
+        this.mem.i = this._obj.id;
+        this.mem.t = this._taskLog.zip();
+        this.mem.d = this._data;
+        console.log('[1.4]', this._data.curReq);
     }
 
     unzip(pkg: StructureMemory) {

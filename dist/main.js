@@ -19,7 +19,7 @@ global.getObjectInCache = function (isId, ref) {
     }
     else {
         let itr = global.cache;
-        for (let key in ref) {
+        for (let key of ref) {
             itr = itr[key];
         }
         return itr;
@@ -325,6 +325,10 @@ class Tasks {
     }
 }
 
+// export interface CreepMemory {
+//     r: string;
+//     t: TaskMemory;
+// }
 class CreepWrapper extends ObjectProto {
     // Role must be provided at first instantiation
     constructor(isInit, id, opt) {
@@ -350,8 +354,10 @@ class CreepWrapper extends ObjectProto {
     set task(val) { this._task = val; this._isWritten = true; }
     /*------------------------ Method -----------------------*/
     zip() {
-        this.mem.r = this._role;
-        this.mem.t = (this._task == null) ? null : this._task.zip();
+        this.mem = {
+            r: this._role,
+            t: (this._task) ? this._task.zip() : null
+        };
     }
     unzip(pkg) {
         this._role = pkg.r;
@@ -400,6 +406,7 @@ class TaskLog extends DataProto {
         return this.log;
     }
     unzip(pkg) {
+        this.log = {};
         for (let id in pkg) {
             this.log[id] = pkg[id];
         }
@@ -449,17 +456,19 @@ class StructureWrapper extends ObjectProto {
     }
     /*-------------------- Getter/Setter --------------------*/
     get mem() {
-        if (!this._memObj) {
-            this._memObj = derefMem(this._ref);
-        }
-        return this._memObj;
+        // if (!this._memObj) {
+        //     this._memObj = derefMem(this._ref);
+        // }
+        // return this._memObj;
+        return derefMem(this._ref);
     }
-    set mem(val) {
-        if (!this._memObj) {
-            this._memObj = derefMem(this._ref);
-        }
-        this._memObj = val;
-    }
+    // set mem(val: StructureMemory) {
+    //     // if (!this._memObj) {
+    //     //     this._memObj = derefMem(this._ref);
+    //     // }
+    //     this._memObj = derefMem(this._ref);
+    //     this._memObj = val;
+    // }
     get obj() { return this._obj; }
     get taskLog() { return this._taskLog; }
     set taskLog(val) { this._taskLog = val; this._isWritten = true; }
@@ -473,9 +482,11 @@ class StructureWrapper extends ObjectProto {
     }
     /*------------------------ Method -----------------------*/
     zip() {
-        this.mem.i = this._obj.id,
-            this.mem.t = this._taskLog.zip(),
-            this.mem.d = this._data;
+        console.log('[1.3]', this._memObj);
+        this.mem.i = this._obj.id;
+        this.mem.t = this._taskLog.zip();
+        this.mem.d = this._data;
+        console.log('[1.4]', this._data.curReq);
     }
     unzip(pkg) {
         this._obj = Game.getObjectById(pkg.i);
@@ -497,63 +508,79 @@ class SpawnWrapper extends StructureWrapper {
     constructor(isInit, ref, opt) {
         super(isInit, ref, opt);
         if (isInit) {
-            this.data.queue = (Array);
+            this.data.queue = [];
             this.data.rTime = 0; // Remaining time to finish all spawn request
             this.data.curReq = null;
+            this.writeBack();
         }
     }
     addSpawnReq(role, body) {
         let time = 0;
         let energy = 0;
+        let _body = [0, 0, 0, 0, 0, 0, 0, 0];
         for (let i in body) {
             time += body[i] * 3;
             switch (i) {
-                case MOVE: {
-                    energy += body[i] * 50;
-                    break;
-                }
-                case WORK: {
-                    energy += body[i] * 100;
+                case TOUGH: {
+                    energy += body[i] * 10;
+                    _body[0] = body[i];
                     break;
                 }
                 case CARRY: {
                     energy += body[i] * 50;
+                    _body[1] = body[i];
+                    break;
+                }
+                case WORK: {
+                    energy += body[i] * 100;
+                    _body[2] = body[i];
                     break;
                 }
                 case ATTACK: {
                     energy += body[i] * 80;
+                    _body[3] = body[i];
                     break;
                 }
                 case RANGED_ATTACK: {
                     energy += body[i] * 150;
+                    _body[4] = body[i];
                     break;
                 }
                 case HEAL: {
                     energy += body[i] * 250;
+                    _body[5] = body[i];
                     break;
                 }
                 case CLAIM: {
                     energy += body[i] * 600;
+                    _body[6] = body[i];
                     break;
                 }
-                case TOUGH: {
-                    energy += body[i] * 10;
+                case MOVE: {
+                    energy += body[i] * 50;
+                    _body[7] = body[i];
                     break;
                 }
             }
         }
-        this.data.queue.push({ n: null, r: role, b: body, ti: time, e: energy });
+        this.data.queue.push({ n: null, r: role, b: _body, ti: time, e: energy });
         this.data.rTime += time;
     }
     spawn(req) {
         let body = [];
-        for (let bodyType of [TOUGH, CARRY, WORK, ATTACK, RANGED_ATTACK, HEAL, CLAIM, MOVE]) {
-            if (req.b[bodyType]) {
-                for (let i = 0; i < req.b[bodyType]; i++) {
-                    body.push(bodyType);
-                }
+        let bodyOrder = [TOUGH, CARRY, WORK, ATTACK, RANGED_ATTACK, HEAL, CLAIM, MOVE];
+        for (let i = 0; i < 8; i++) {
+            for (let num = 0; num < req.b[i]; num++) {
+                body.push(bodyOrder[i]);
             }
         }
+        // for (let bodyType of [TOUGH, CARRY, WORK, ATTACK, RANGED_ATTACK, HEAL, CLAIM, MOVE]) {
+        //     if (req.b[bodyType]) {
+        //         for (let i=0; i<req.b[bodyType]; i++) {
+        //             body.push(bodyType);
+        //         }
+        //     }
+        // }  
         return this.obj.spawnCreep(body, req.n);
     }
     work() {
@@ -583,13 +610,16 @@ class SpawnWrapper extends StructureWrapper {
             // Spawn a creep
             let idx = -1;
             for (let i = 0; i < this.data.queue.length; i++) {
-                let req = this.data.queue.length[i];
+                let req = this.data.queue[i];
                 if (req.e > this.obj.room.energyAvailable) {
                     continue;
                 }
                 req.n = getCreepName(this.obj.room.name, req.r);
                 this.spawn(req);
+                console.log('[1.1]', this._isWritten);
                 this.data.curReq = req;
+                this._isWritten = true;
+                console.log('[1.2]', this._isWritten);
                 idx = i;
                 break;
             }
@@ -629,7 +659,6 @@ class Structs {
 class Agent extends ObjectProto {
     constructor(isInit, ref, roomName) {
         super();
-        this.STATE_INIT = 0;
         this._ref = ref;
         this._memObj = derefMem(this._ref);
         this._taskFlow = null;
@@ -637,7 +666,6 @@ class Agent extends ObjectProto {
             this._roomName = roomName;
             this.room = (roomName) ? Game.rooms[roomName] : null;
             this.taskLog = new TaskLog(true);
-            this.state = this.STATE_INIT;
             this.data = {};
             this.writeBack();
         }
@@ -700,12 +728,13 @@ class AgentPraetor extends Agent {
         this.STATE_RCL6 = 6;
         this.STATE_RCL7 = 7;
         this.STATE_RCL8 = 8;
-        this.state = this.STATE_RCL0;
         this._spawns = null;
         if (isInit) {
             this.controller = this.room.controller;
             this.data.ctrId = this.room.controller.id;
             this.data.spawnLog = {};
+            this.state = this.STATE_RCL0;
+            this.writeBack();
         }
         else {
             this.controller = Game.getObjectById(this.data.ctrId);
@@ -718,7 +747,7 @@ class AgentPraetor extends Agent {
         return this._spawns;
     }
     printMsg(msg) {
-        console.log('[MESSAGE] Room ' + this.room.name + ' Praetor: ' + msg);
+        console.log('[MESSAGE] Praetor (room ' + this.room.name + '): ' + msg);
     }
     spawnCreep(role, body) {
         let idx = -1;
@@ -734,6 +763,7 @@ class AgentPraetor extends Agent {
         }
     }
     exe() {
+        // console.log('state: ', this.state);
         switch (this.state) {
             case this.STATE_RCL0: {
                 if (this.controller.level == 1) {
@@ -940,8 +970,10 @@ class Cache {
         // First initialize objects that have ID
         // All Sreeps
         for (let creepName in Game.creeps) {
-            let creep = new CreepWrapper(false, Game.creeps[creepName].id);
-            this.log[creep.obj.id] = creep;
+            let creep = Game.creeps[creepName];
+            if (creep.memory.r) {
+                this.log[creep.id] = new CreepWrapper(false, creep.id);
+            }
         }
         // Global structures
         for (let type in Memory.global.struct) {
@@ -984,6 +1016,60 @@ class Cache {
             // Room taskflows
             for (let name in Memory.room[roomName].taskFlow) {
                 this.room[roomName].taskFlow[name] = new TaskFlow(false, ['room', roomName, 'taskFlow', name]);
+            }
+        }
+    }
+    exe() {
+        for (let name in this.global.agent) {
+            this.global.agent[name].exe();
+        }
+        for (let type in this.global.struct) {
+            for (let struct of this.global.struct[type]) {
+                struct.exe();
+            }
+        }
+        for (let type in this.global.taskFlow) {
+            this.global.taskFlow[type].exe();
+        }
+        for (let roomName in this.room) {
+            let room = this.room[roomName];
+            for (let name in room.agent) {
+                room.agent[name].exe();
+            }
+            for (let type in room.struct) {
+                for (let struct of room.struct[type]) {
+                    struct.exe();
+                }
+            }
+            for (let type in room.taskFlow) {
+                room.taskFlow[type].exe();
+            }
+        }
+    }
+    writeBack() {
+        for (let name in this.global.agent) {
+            this.global.agent[name].writeBack();
+        }
+        for (let type in this.global.struct) {
+            for (let struct of this.global.struct[type]) {
+                struct.writeBack();
+            }
+        }
+        for (let type in this.global.taskFlow) {
+            this.global.taskFlow[type].writeBack();
+        }
+        for (let roomName in this.room) {
+            let room = this.room[roomName];
+            for (let name in room.agent) {
+                room.agent[name].writeBack();
+            }
+            for (let type in room.struct) {
+                for (let struct of room.struct[type]) {
+                    struct.writeBack();
+                }
+            }
+            for (let type in room.taskFlow) {
+                room.taskFlow[type].writeBack();
             }
         }
     }
@@ -1089,6 +1175,9 @@ const loop = function () {
         global.cache = new Cache();
         console.log('[MESSAGE] Global reset');
     }
+    global.cache.exe();
+    global.cache.writeBack();
+    console.log(Memory.room['sim'].struct.spawn[0].d.curReq);
 };
 
 exports.loop = loop;

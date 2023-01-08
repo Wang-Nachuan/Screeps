@@ -18,12 +18,13 @@ export class AgentPraetor extends Agent {
 
     constructor(isInit: boolean, ref: MemRef, roomName?: string) {
         super(isInit, ref, roomName);
-        this.state = this.STATE_RCL0;
         this._spawns = null;
         if (isInit) {
             this.controller = this.room.controller;
             this.data.ctrId = this.room.controller.id;
             this.data.spawnLog = {};
+            this.state = this.STATE_RCL0;
+            this.writeBack();
         } else {
             this.controller = Game.getObjectById(this.data.ctrId);
         }
@@ -37,7 +38,7 @@ export class AgentPraetor extends Agent {
     }
 
     printMsg(msg: string) {
-        console.log('[MESSAGE] Room ' + this.room.name + ' Praetor: ' + msg);
+        console.log('[MESSAGE] Praetor (room ' + this.room.name + '): ' + msg);
     }
 
     spawnCreep(role: string, body: {[name: string]: number}) {
@@ -55,6 +56,7 @@ export class AgentPraetor extends Agent {
     }
 
     exe() {
+        // console.log('state: ', this.state);
         switch (this.state) {
             case this.STATE_RCL0: {
                 if (this.controller.level == 1) {

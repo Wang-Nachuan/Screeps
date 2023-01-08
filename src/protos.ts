@@ -8,7 +8,6 @@ export abstract class ObjectProto {
 
     // Read/write the memory space of this object
     abstract get mem(): any;
-    abstract set mem(val: any);
 
     // Compress data to a compact package (to be stored in memory)
     abstract zip();

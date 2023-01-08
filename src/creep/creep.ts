@@ -2,15 +2,15 @@ import {ObjectProto} from '../protos';
 import {Task, TaskMemory} from '../task/Task';
 import {Tasks} from '../task/tasks';
 
-export interface CreepMemory {
-    r: string;
-    t: TaskMemory;
-}
+// export interface CreepMemory {
+//     r: string;
+//     t: TaskMemory;
+// }
 
 export class CreepWrapper extends ObjectProto { 
     protected _obj: any;
     protected _role: string;
-    protected _task: Task | null;
+    protected _task: Task;
 
     // Role must be provided at first instantiation
     constructor(isInit: boolean, id: Id<_HasId>, 
@@ -38,14 +38,16 @@ export class CreepWrapper extends ObjectProto {
     get role(): string {return this._role;}
     set role(val: string) {this._role = val; this._isWritten = true;}
 
-    get task(): Task | null {return this._task;}
-    set task(val: Task | null) {this._task = val; this._isWritten = true;}
+    get task(): Task {return this._task;}
+    set task(val: Task) {this._task = val; this._isWritten = true;}
 
     /*------------------------ Method -----------------------*/
 
     zip() {
-        this.mem.r = this._role;
-        this.mem.t = (this._task == null) ? null : this._task.zip();
+        this.mem = {
+            r: this._role,
+            t: (this._task) ? this._task.zip() : null
+        }
     }
 
     unzip(pkg: CreepMemory) {
