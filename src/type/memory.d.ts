@@ -7,6 +7,7 @@ declare global {
         initFlag: boolean;
         global: GlobalMemory;
         room: {[name: string]: RoomMemory};
+        test: any;
     }
 }
 

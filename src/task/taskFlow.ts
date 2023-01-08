@@ -57,7 +57,6 @@ export class TaskFlow extends ObjectProto {
     /*------------------------ Method -----------------------*/
 
     zip() {
-        this.mem = {r: [], q: []};
         for (let receivers of this._receivers) {
             this.mem.r.push(receivers.obj.id);
         }

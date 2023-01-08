@@ -66,119 +66,6 @@ class ObjectProto {
 class DataProto {
 }
 
-/**
- *  Every task publisher should maintain a task log
- */
-class TaskLog extends DataProto {
-    constructor(isInit, pkg) {
-        super();
-        this.STATE_UNFINISH = 0;
-        this.STATE_FINISH = 1;
-        this.STATE_HALT = 2;
-        if (isInit) {
-            this.log = {};
-        }
-        else {
-            this.unzip(pkg);
-        }
-    }
-    zip() {
-        return this.log;
-    }
-    unzip(pkg) {
-        for (let id in pkg) {
-            this.log[id] = pkg[id];
-        }
-    }
-    addTask(id, data) {
-        this.log[id] = {
-            state: this.STATE_UNFINISH,
-            data: data
-        };
-    }
-    haltTask(id) {
-        this.log[id].state = this.STATE_HALT;
-    }
-    finishTask(id) {
-        this.log[id].state = this.STATE_FINISH;
-    }
-    isTaskHalt(id) {
-        return this.log[id].state == this.STATE_HALT;
-    }
-    isTaskFinish(id) {
-        return this.log[id].state == this.STATE_FINISH;
-    }
-    delTask(id) {
-        delete this.log[id];
-    }
-    cleanAll() {
-        this.log = {};
-    }
-}
-
-class StructureWrapper extends ObjectProto {
-    // Id and type must be provide at first instantiation
-    constructor(isInit, ref, opt) {
-        super();
-        this._ref = ref;
-        this._memObj = derefMem(this._ref);
-        this._roomTaskFlow = null;
-        if (isInit) {
-            this._obj = Game.getObjectById(opt.id);
-            this.taskLog = new TaskLog(true);
-            this.data = {};
-            this.writeBack();
-        }
-        else {
-            this.unzip(this.mem);
-        }
-    }
-    /*-------------------- Getter/Setter --------------------*/
-    get mem() {
-        if (!this._memObj) {
-            this._memObj = derefMem(this._ref);
-        }
-        return this._memObj;
-    }
-    set mem(val) {
-        if (!this._memObj) {
-            this._memObj = derefMem(this._ref);
-        }
-        this._memObj = val;
-    }
-    get obj() { return this._obj; }
-    get taskLog() { return this._taskLog; }
-    set taskLog(val) { this._taskLog = val; this._isWritten = true; }
-    get data() { return this._data; }
-    set data(val) { this._data = val; this._isWritten = true; }
-    get roomTaskFlow() {
-        if (!this._roomTaskFlow) {
-            this._roomTaskFlow = getObjectInCache(false, this._ref.slice(0, -2)).taskFlow;
-        }
-        return this._roomTaskFlow;
-    }
-    /*------------------------ Method -----------------------*/
-    zip() {
-        this.mem.i = this._obj.id,
-            this.mem.t = this._taskLog.zip(),
-            this.mem.d = this._data;
-    }
-    unzip(pkg) {
-        this._obj = Game.getObjectById(pkg.i);
-        this._taskLog = new TaskLog(false, pkg.t);
-        this._data = pkg.d;
-    }
-    // Check hit, publish task if necessary
-    checkHit() { }
-    // Do work, publish task if necessary
-    work() { }
-    // Wrapper function
-    exe() {
-        this.checkHit();
-        this.work();
-    }
-}
-
 class Task extends DataProto {
     constructor(isInit, opt) {
         super();
@@ -489,6 +376,119 @@ class CreepWrapper extends ObjectProto {
     exe() {
         // TODO: Check lifetime
         // TODO: Check hit
+        this.work();
+    }
+}
+
+/**
+ *  Every task publisher should maintain a task log
+ */
+class TaskLog extends DataProto {
+    constructor(isInit, pkg) {
+        super();
+        this.STATE_UNFINISH = 0;
+        this.STATE_FINISH = 1;
+        this.STATE_HALT = 2;
+        if (isInit) {
+            this.log = {};
+        }
+        else {
+            this.unzip(pkg);
+        }
+    }
+    zip() {
+        return this.log;
+    }
+    unzip(pkg) {
+        for (let id in pkg) {
+            this.log[id] = pkg[id];
+        }
+    }
+    addTask(id, data) {
+        this.log[id] = {
+            state: this.STATE_UNFINISH,
+            data: data
+        };
+    }
+    haltTask(id) {
+        this.log[id].state = this.STATE_HALT;
+    }
+    finishTask(id) {
+        this.log[id].state = this.STATE_FINISH;
+    }
+    isTaskHalt(id) {
+        return this.log[id].state == this.STATE_HALT;
+    }
+    isTaskFinish(id) {
+        return this.log[id].state == this.STATE_FINISH;
+    }
+    delTask(id) {
+        delete this.log[id];
+    }
+    cleanAll() {
+        this.log = {};
+    }
+}
+
+class StructureWrapper extends ObjectProto {
+    // Id and type must be provide at first instantiation
+    constructor(isInit, ref, opt) {
+        super();
+        this._ref = ref;
+        this._memObj = derefMem(this._ref);
+        this._roomTaskFlow = null;
+        if (isInit) {
+            this._obj = Game.getObjectById(opt.id);
+            this.taskLog = new TaskLog(true);
+            this.data = {};
+            this.writeBack();
+        }
+        else {
+            this.unzip(this.mem);
+        }
+    }
+    /*-------------------- Getter/Setter --------------------*/
+    get mem() {
+        if (!this._memObj) {
+            this._memObj = derefMem(this._ref);
+        }
+        return this._memObj;
+    }
+    set mem(val) {
+        if (!this._memObj) {
+            this._memObj = derefMem(this._ref);
+        }
+        this._memObj = val;
+    }
+    get obj() { return this._obj; }
+    get taskLog() { return this._taskLog; }
+    set taskLog(val) { this._taskLog = val; this._isWritten = true; }
+    get data() { return this._data; }
+    set data(val) { this._data = val; this._isWritten = true; }
+    get roomTaskFlow() {
+        if (!this._roomTaskFlow) {
+            this._roomTaskFlow = getObjectInCache(false, this._ref.slice(0, -2)).taskFlow;
+        }
+        return this._roomTaskFlow;
+    }
+    /*------------------------ Method -----------------------*/
+    zip() {
+        this.mem.i = this._obj.id,
+            this.mem.t = this._taskLog.zip(),
+            this.mem.d = this._data;
+    }
+    unzip(pkg) {
+        this._obj = Game.getObjectById(pkg.i);
+        this._taskLog = new TaskLog(false, pkg.t);
+        this._data = pkg.d;
+    }
+    // Check hit, publish task if necessary
+    checkHit() { }
+    // Do work, publish task if necessary
+    work() { }
+    // Wrapper function
+    exe() {
+        this.checkHit();
         this.work();
     }
 }
@@ -861,7 +861,6 @@ class TaskFlow extends ObjectProto {
     set queue(val) { this._queue = val; this._isWritten = true; }
     /*------------------------ Method -----------------------*/
     zip() {
-        this.mem = { r: [], q: [] };
         for (let receivers of this._receivers) {
             this.mem.r.push(receivers.obj.id);
         }
@@ -926,6 +925,79 @@ class TaskFlow extends ObjectProto {
     }
 }
 
+/**
+ * Caching data in global memory
+ */
+class Cache {
+    constructor() {
+        this.log = {};
+        this.global = {
+            struct: getStructureTypes(),
+            agent: {},
+            taskFlow: {}
+        };
+        this.room = {};
+        // First initialize objects that have ID
+        // All Sreeps
+        for (let creepName in Game.creeps) {
+            let creep = new CreepWrapper(false, Game.creeps[creepName].id);
+            this.log[creep.obj.id] = creep;
+        }
+        // Global structures
+        for (let type in Memory.global.struct) {
+            for (let idx in Memory.global.struct[type]) {
+                let struct = Structs.buildStruct(['global', 'struct', type, idx], type);
+                this.global.struct[type].push(struct);
+                this.log[struct.obj.id] = struct;
+            }
+        }
+        // Global agents
+        for (let name in Memory.global.agent) {
+            this.global.agent[name] = Agents.buildAgent(['global', 'agent', name], name);
+        }
+        // Global taskflows
+        for (let name in Memory.global.taskFlow) {
+            this.global.taskFlow[name] = new TaskFlow(false, ['global', 'taskFlow', name]);
+        }
+        for (let roomName in Memory.room) {
+            this.room[roomName] = {
+                struct: getStructureTypes(),
+                agent: {},
+                taskFlow: {}
+            };
+            // Room structures
+            for (let type in Memory.room[roomName].struct) {
+                for (let idx in Memory.room[roomName].struct[type]) {
+                    let struct = Structs.buildStruct(['room', roomName, 'struct', type, idx], type);
+                    this.room[roomName].struct[type].push(struct);
+                    this.log[struct.obj.id] = struct;
+                }
+            }
+            // Room sources (TODO: need a wrapper)
+            // for (let source of Memory.room[roomName].source) {
+            //     this.room[roomName].source.push(Game.getObjectById(source.id))
+            // }
+            // Room agents
+            for (let name in Memory.room[roomName].agent) {
+                this.room[roomName].agent[name] = Agents.buildAgent(['room', roomName, 'agent', name], name);
+            }
+            // Room taskflows
+            for (let name in Memory.room[roomName].taskFlow) {
+                this.room[roomName].taskFlow[name] = new TaskFlow(false, ['room', roomName, 'taskFlow', name]);
+            }
+        }
+    }
+}
+function getStructureTypes() {
+    return {
+        spawn: [], extension: [], road: [], constructedWall: [],
+        rampart: [], keeperLair: [], portal: [], controller: [],
+        link: [], storage: [], tower: [], observer: [], powerBank: [],
+        powerSpawn: [], extractor: [], lab: [], terminal: [],
+        container: [], nuker: [], factory: [], invaderCore: []
+    };
+}
+
 class Mem {
     static MemInit() {
         Memory.initFlag = true;
@@ -961,11 +1033,11 @@ class Mem {
             source: [],
             agent: {},
             taskFlow: {
-                harvester: { r: null, q: null },
-                worker: { r: null, q: null },
-                transporter: { r: null, q: null },
-                attacker: { r: null, q: null },
-                healer: { r: null, q: null }
+                harvester: { r: [], q: [] },
+                worker: { r: [], q: [] },
+                transporter: { r: [], q: [] },
+                attacker: { r: [], q: [] },
+                healer: { r: [], q: [] }
             },
             data: {
                 nameIdx: {
@@ -990,7 +1062,7 @@ class Mem {
         }
         // Agents
         if (isColonyCenter) {
-            roomMem.agent['praetor'] = { t: null, r: null, tl: null, s: null, d: null };
+            roomMem.agent['praetor'] = { t: null, r: null, tl: null, s: null, d: {} };
             Agents.praetor(['room', roomName, 'agent', 'praetor'], roomName);
             new TaskFlow(true, ['room', roomName, 'taskFlow', 'harvester']);
             new TaskFlow(true, ['room', roomName, 'taskFlow', 'worker']);
@@ -1010,12 +1082,13 @@ const loop = function () {
     if (!Memory.initFlag) {
         Mem.MemInit();
         console.log('[MESSAGE] Memory initialized');
+        // Memory.test = [];
     }
-    // // Caching
-    // if (!global.cache) {
-    //     global.cache = new Cache();
-    //     console.log('[MESSAGE] Global reset');
-    // } 
+    // Caching
+    if (!global.cache) {
+        global.cache = new Cache();
+        console.log('[MESSAGE] Global reset');
+    }
 };
 
 exports.loop = loop;

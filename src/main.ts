@@ -14,12 +14,13 @@ export const loop = function() {
     if (!Memory.initFlag) {
         Mem.MemInit();
         console.log('[MESSAGE] Memory initialized');
+        // Memory.test = [];
     }
     
-    // // Caching
-    // if (!global.cache) {
-    //     global.cache = new Cache();
-    //     console.log('[MESSAGE] Global reset');
-    // } 
+    // Caching
+    if (!global.cache) {
+        global.cache = new Cache();
+        console.log('[MESSAGE] Global reset');
+    }
 
 }

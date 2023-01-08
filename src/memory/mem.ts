@@ -41,11 +41,11 @@ export class Mem {
             source: [],
             agent: {},
             taskFlow: {
-                harvester: {r: null, q: null},
-                worker: {r: null, q: null},
-                transporter: {r: null, q: null},
-                attacker: {r: null, q: null},
-                healer: {r: null, q: null}
+                harvester: {r: [], q: []},
+                worker: {r: [], q: []},
+                transporter: {r: [], q: []},
+                attacker: {r: [], q: []},
+                healer: {r: [], q: []}
             },
             data: {
                 nameIdx: {
@@ -70,7 +70,7 @@ export class Mem {
         }
         // Agents
         if (isColonyCenter) {
-            roomMem.agent['praetor'] = {t: null, r: null, tl: null, s: null, d: null};
+            roomMem.agent['praetor'] = {t: null, r: null, tl: null, s: null, d: {}};
             Agents.praetor(['room', roomName, 'agent', 'praetor'], roomName);
             new TaskFlow(true, ['room', roomName, 'taskFlow', 'harvester']);
             new TaskFlow(true, ['room', roomName, 'taskFlow', 'worker']);

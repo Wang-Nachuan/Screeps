@@ -4,7 +4,9 @@
 
 import {CreepWrapper} from "../creep/creep"
 import {StructureWrapper} from "../struct/struct";
+import {Structs} from "../struct/structs";
 import {Agent} from "../agent/agent";
+import {Agents} from "../agent/agents";
 import {TaskFlow} from "../task/taskFlow";
 
 export class Cache {
@@ -31,7 +33,7 @@ export class Cache {
         }
         this.room = {};
         // First initialize objects that have ID
-        // Sreeps
+        // All Sreeps
         for (let creepName in Game.creeps) {    
             let creep = new CreepWrapper(false, Game.creeps[creepName].id);
             this.log[creep.obj.id] = creep;
@@ -39,33 +41,55 @@ export class Cache {
         // Global structures
         for (let type in Memory.global.struct) {   
             for (let idx in Memory.global.struct[type]) {
-                let struct = new StructureWrapper(false, ['global', 'struct', type, idx]);
+                let struct = Structs.buildStruct(['global', 'struct', type, idx], type);
                 this.global.struct[type].push(struct);
                 this.log[struct.obj.id] = struct;
             }
         }
-        // Room structures
+        // Global agents
+        for (let name in Memory.global.agent) {
+            this.global.agent[name] = Agents.buildAgent(['global', 'agent', name], name);
+        }
+        // Global taskflows
+        for (let name in Memory.global.taskFlow) {
+            this.global.taskFlow[name] = new TaskFlow(false, ['global', 'taskFlow', name]);
+        }
         for (let roomName in Memory.room) {
             this.room[roomName] = {
                 struct: getStructureTypes(),
                 agent: {},
                 taskFlow: {}
             };
+            // Room structures
             for (let type in Memory.room[roomName].struct) {
                 for (let idx in Memory.room[roomName].struct[type]) {
-                    let struct = new StructureWrapper(false, ['room', roomName, 'struct', type, idx]);
+                    let struct = Structs.buildStruct(['room', roomName, 'struct', type, idx], type);
                     this.room[roomName].struct[type].push(struct);
                     this.log[struct.obj.id] = struct;
                 }
             }
+            // Room sources (TODO: need a wrapper)
+            // for (let source of Memory.room[roomName].source) {
+            //     this.room[roomName].source.push(Game.getObjectById(source.id))
+            // }
+            // Room agents
+            for (let name in Memory.room[roomName].agent) {
+                this.room[roomName].agent[name] = Agents.buildAgent(['room', roomName, 'agent', name], name);
+            }
+            // Room taskflows
+            for (let name in Memory.room[roomName].taskFlow) {
+                this.room[roomName].taskFlow[name] = new TaskFlow(false, ['room', roomName, 'taskFlow', name]);
+            }
         }
-        // Then initialize objects that do not have ID
-        // TODO: Global agents
-        // TODO: Global taskflows
-        // TODO: Room agents
-        // TODO: Room taskflows
     }
 
+    // exe() {
+
+    // }
+
+    // writeBack() {
+
+    // }
 }
 
 function getStructureTypes() {
@@ -76,13 +100,6 @@ function getStructureTypes() {
         powerSpawn: [], extractor: [], lab: [], terminal: [], 
         container: [], nuker: [], factory: [], invaderCore: []
     };
-}
-
-interface CreepTypes {
-    worker: Array<CreepWrapper>;
-    transporter: Array<CreepWrapper>;
-    attacker: Array<CreepWrapper>;
-    healer: Array<CreepWrapper>;
 }
 
 interface StructureTypes {
