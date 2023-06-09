@@ -17,6 +17,11 @@ Praetor
 Decemviri
 
 
+## **Code Hierarchy**
+---
+1. Data (in memory) and function (compiled as binary code)
+2. Exe is a way to combine data with function
+
 
 ## **Note**
 ---
