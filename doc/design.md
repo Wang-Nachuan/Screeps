@@ -9,32 +9,27 @@ npm run local     // commit to local folder
 npm run build     // compile code
 ```
 
-## **Execution Procedure**
+## **Thread**
 ---
-### Mount everything from memory at global reset:
+1. 所有对游戏对象的操作都应该通过thread完成
+2. 每个RoomManagerProcess都下辖以下功能的thread:
+    - 标定ConstructionSite
+    - 为ConstructionSite发布建造任务
+    - 遍历所有Structure对象，进行必要操作或发布任务
+        - Task log应该挂在Structure的内存里
+    - 遍历所有Worker Creep对象，获取并执行任务
+3. Thread有0-2的priority，在操作对像前先把对象的priority field设为自己的priority，操作完成后再恢复原priority，通过这种机制来抢占资源
+    - 抢占是否会中断当前任务还有待商榷
 
-Praetor
-Decemviri
-
-
-## **Code Hierarchy**
+## **Task**
 ---
-1. Data (in memory) and function (compiled as binary code)
-2. Exe is a way to combine data with function
-
-
-## **Note**
----
-1. task不用放回task flow中
-2. 每个task的发布者（target）都应保存一个task log，task结束时无论task完成与否，log上对应的记录都要被删除
+1. task不用放回task queue中
+2. 每个task的发布者（thread/target）都应保存一个task log，task结束时无论task完成与否，log上对应的记录都要被删除
     - 派生的task没有id，也不需要在结束时更新log
     - 发布者应该自己确认task是否完成，如果task结束但未完成则需要重新发布task
 3. 每次harvest都采满再走，暂时不处理采满但存完还剩一点的情况，之后统一用一个dump任务处理
-4. Getter/Setter的原则是每次写入都要保证memory中的数据同样得到修改
-5. 运行顺序为reload/refresh，run
-6. 每个refresh都要调用此object包含的object的refresh
 
-## **ToDo List**
+## **TODO List**
 ---
 1. 改进spawn索取能量的逻辑
 2. 分配能量的事情由structure自行发布任务完成，agent不参与

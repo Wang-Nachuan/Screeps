@@ -10,7 +10,7 @@
             "@/*": ["./src/*"]
         },
         // Added flags
-        "strictNullChecks": true
+        // "strictNullChecks": true
     },
     "exclude": [
         "node_modules"

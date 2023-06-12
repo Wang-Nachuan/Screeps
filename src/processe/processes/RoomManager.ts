@@ -1,10 +1,10 @@
-import { ProcessData, ProcessFunction } from "../process";
+import { ProcessMemory, ProcessFunction } from "../process";
 
 const STATE_INIT = 0
 
-export const processRoomManager: ProcessFunction = {
-    init: (roomName: string) => {
-        let data: ProcessData = {
+export const ProcessRoomManager: ProcessFunction = {
+    init: function(roomName: string): ProcessMemory {
+        let data: ProcessMemory = {
             type: "none",
             state: STATE_INIT,
             threads: {},
@@ -12,6 +12,6 @@ export const processRoomManager: ProcessFunction = {
         }
         return data;
     },
-    nextState: (data: ProcessData) => {},
-    nextAction: (data: ProcessData) => {},
+    nextState: function(data: ProcessMemory): void {},
+    nextAction: function(data: ProcessMemory): void {}
 }

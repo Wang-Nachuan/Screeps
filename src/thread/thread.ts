@@ -1,23 +1,23 @@
-import { threadRoomConstruct } from "./threads/RoomConstruct";
+import { ThreadRoomConstruct } from "./threads/RoomConstruct";
 
-export interface ThreadData{
+export interface ThreadMemory{
     type: string;
     state: number;
-    info: {[name: string]: any};
+    info: {[key: string]: any};
 }
 
 export interface ThreadFunction {
-    init: (...args: any) => ThreadData;
-    nextState: (data: ThreadData) => void;
-    nextAction: (data: ThreadData) => void;
+    init(...args: any): ThreadMemory;
+    nextState(data: ThreadMemory): void;
+    nextAction(data: ThreadMemory): void;
 }
 
-// Collection of user interface
+// Wrapper functions
 export const Thread = {
     init: {
-        RoomConstruct: threadRoomConstruct.init
+        RoomConstruct: ThreadRoomConstruct.init
     },
-    exe: (data: ThreadData): void => {
+    exe: function(data: ThreadMemory): void {
         let func = funcTable[data.type];
         func.nextState(data);
         func.nextAction(data);
@@ -26,5 +26,5 @@ export const Thread = {
 
 // Collection of ThreadFunction instances
 const funcTable = {
-    RoomConstruct: threadRoomConstruct
+    RoomConstruct: ThreadRoomConstruct
 }
